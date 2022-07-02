@@ -1,6 +1,6 @@
 {
   "name": "@jzohdi/react-draw",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "files": [
     "dist/**"
@@ -13,7 +13,8 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./docs",
     "build": "rm -rf ./dist && rollup -c",
-    "add": "npm run build && npm run build-storybook && git add -A"
+    "add": "npm run build && npm run build-storybook && git add -A",
+    "push": "npm version patch && git push"
   },
   "keywords": [],
   "author": "",
