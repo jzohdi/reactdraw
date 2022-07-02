@@ -1,7 +1,7 @@
 import { babel } from "@rollup/plugin-babel";
 import external from "rollup-plugin-peer-deps-external";
 import resolve from "@rollup/plugin-node-resolve";
-import typescript from "@rollup/plugin-typescript";
+import typescript from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
 
 export default [
@@ -13,7 +13,7 @@ export default [
         format: "cjs",
       },
       {
-        file: "dist/index.es.js",
+        file: "dist/index.esm.js",
         format: "es",
         exports: "named",
       },
@@ -24,8 +24,12 @@ export default [
         presets: ["@babel/preset-react"],
       }),
       external(),
-      resolve(),
-      typescript(),
+      resolve({ extensions: [".js", ".ts"] }),
+      typescript({
+        sourceMap: true,
+        declaration: true,
+        declarationMap: true,
+      }),
       terser(),
     ],
   },
