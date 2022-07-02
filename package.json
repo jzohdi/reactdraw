@@ -7,12 +7,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
+    "build-storybook": "build-storybook -o ./public",
     "build": "rollup -c"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "pre-commit": {
+    "run": "build-storybook"
+  },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -34,6 +37,7 @@
     "@types/react": "^18.0.14",
     "@types/uglify-js": "^3.16.0",
     "babel-loader": "^8.2.5",
+    "pre-commit": "^1.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rollup": "^2.75.7",
