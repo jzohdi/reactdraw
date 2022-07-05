@@ -38,3 +38,11 @@ export type CurrentDrawingData = {
     lineWidth: number;
   };
 };
+
+export type DrawingToolsWithId = DrawingTools & { id: string };
+
+export type ReactDrawProps = {
+  children?: ReactChild;
+  layout?: LayoutOption;
+  topBarTools: DrawingTools[];
+};

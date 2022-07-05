@@ -41,5 +41,5 @@ type ReactDrawProps = {
 };
 declare function ReactDraw({ children, topBarTools, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
-export { ReactDraw, freeDrawTool };
-//# sourceMappingURL=index.d.ts.map
+export { ReactDrawProps, ReactDraw as default, freeDrawTool };
+//# sourceMappingURL=index.esm.d.ts.map

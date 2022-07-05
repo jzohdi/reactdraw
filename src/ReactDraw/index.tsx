@@ -1,26 +1,24 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Container from "./Container";
 import { TopToolBar } from "./TopToolBar";
 import {
   CurrentDrawingData,
   DrawingTools,
+  DrawingToolsWithId,
   LayoutOption,
   Point,
   ReactChild,
-} from "./types";
+  ReactDrawProps,
+} from "../types";
 import { Children } from "react";
 import {
   getRelativePoint,
   getTouchCoords,
   makeid,
   makeNewBoundingDiv,
-} from "./utils";
-
-export type ReactDrawProps = {
-  children?: ReactChild;
-  layout?: LayoutOption;
-  topBarTools: DrawingTools[];
-};
+} from "../utils";
+import SelectTool from "../SelectTool";
+import { CURSOR_ID } from "../constants";
 
 type ElementsMap = {
   [id: string]: CurrentDrawingData;
@@ -32,18 +30,20 @@ export default function ReactDraw({
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
-  const topTools = getTopTools(topBarTools);
+  const topTools = useMemo(() => getTopTools(topBarTools), [topBarTools]);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topTools[0]);
   const { layout } = validateProps(children, props.layout);
   const renderedElementsMap = useRef<ElementsMap>({});
   const currentElement = useRef<CurrentDrawingData | null>(null);
   const [currentLineWidth, setCurrentLineWidth] = useState(4);
   const drawingAreaId = useRef<string>(`drawing-area-container-${makeid(6)}`);
+
   useEffect(() => {
     const container = drawingAreaRef.current;
     if (!container) {
       return;
     }
+
     function startDrawMouse(e: MouseEvent) {
       if (!container) {
         return;
@@ -112,7 +112,7 @@ export default function ReactDraw({
       container.removeEventListener("touchcancel", endDrawTouch);
       container.removeEventListener("touchend", endDrawTouch);
     };
-  }, []);
+  }, [currentDrawingTool]);
 
   const handleSelectTopTool = (toolId: string) => {
     if (currentDrawingTool.id !== toolId) {
@@ -152,11 +152,14 @@ export default function ReactDraw({
   );
 }
 
-type DrawingToolsWithId = DrawingTools & { id: string };
-
 function getTopTools(topTools: DrawingTools[]): DrawingToolsWithId[] {
-  return topTools.map(({ id, ...rest }) =>
-    !!id ? { id, ...rest } : { ...rest, id: makeid(6) }
+  return [SelectTool].concat(
+    topTools.map(({ id, ...rest }) => {
+      if (id === CURSOR_ID) {
+        throw new Error("Cannot give tool with reserved cursor id");
+      }
+      return !!id ? { id, ...rest } : { ...rest, id: makeid(6) };
+    })
   );
 }
 

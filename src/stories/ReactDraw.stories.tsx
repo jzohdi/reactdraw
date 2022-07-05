@@ -1,8 +1,8 @@
 import React from "react";
 import { Story } from "@storybook/react";
-import ReactDraw, { ReactDrawProps } from "../ReactDraw";
-import { DrawingTools } from "../ReactDraw/types";
-import FreeDrawTool from "../FreeDrawTool";
+import ReactDraw from "../ReactDraw";
+import { DrawingTools, ReactDrawProps } from "../types";
+import freeDrawTool from "../FreeDrawTool";
 
 export default {
   title: "Example/ReactDraw",
@@ -11,7 +11,7 @@ export default {
 
 const Template: Story<ReactDrawProps> = (args) => <ReactDraw {...args} />;
 
-const topBarTools: DrawingTools[] = [FreeDrawTool];
+const topBarTools: DrawingTools[] = [freeDrawTool];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});
 

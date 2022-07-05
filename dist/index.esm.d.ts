@@ -1,4 +1,3 @@
-/// <reference types="react" />
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
@@ -41,6 +40,6 @@ type ReactDrawProps = {
     topBarTools: DrawingTools[];
 };
 declare function ReactDraw({ children, topBarTools, ...props }: ReactDrawProps): JSX.Element;
-declare const FreeDrawTool: DrawingTools;
-export { ReactDrawProps, ReactDraw as default, FreeDrawTool };
+declare const freeDrawTool: DrawingTools;
+export { ReactDraw, freeDrawTool };
 //# sourceMappingURL=index.esm.d.ts.map

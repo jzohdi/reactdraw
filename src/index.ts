@@ -1,2 +1,2 @@
-export * from "./ReactDraw";
-export * from "./FreeDrawTool";
+export { default as ReactDraw } from "./ReactDraw";
+export { default as freeDrawTool } from "./FreeDrawTool";

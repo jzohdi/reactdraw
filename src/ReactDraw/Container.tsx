@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { LayoutOption, ReactChild } from "./types";
+import { LayoutOption, ReactChild } from "../types";
 
 export type ReactDrawContainerProps = {
   children: ReactChild;

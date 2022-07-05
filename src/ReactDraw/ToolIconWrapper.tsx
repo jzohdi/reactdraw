@@ -1,12 +1,12 @@
 import React from "react";
-import { ReactChild } from "./types";
+import { ReactChild } from "../types";
 import styled, { css } from "styled-components";
-import { BPmd } from "../constants";
+import { BPmd, COLORS } from "../constants";
 
 type ToolIconWrapper = {
   children: ReactChild;
   selected?: boolean;
-  onSelect: () => void;
+  onSelect?: () => void;
 };
 
 const Wrapper = styled.button<ToolIconWrapper>`
@@ -27,12 +27,12 @@ const Wrapper = styled.button<ToolIconWrapper>`
     height: 30px;
   }
   &:hover {
-    background-color: #ececec;
+    background-color: ${COLORS.grey.light};
   }
   ${(props) =>
     props.selected &&
     css`
-      background-color: #228be6 !important;
+      background-color: ${COLORS.primary.main} !important;
       > svg path {
         fill: white;
       }
@@ -45,7 +45,7 @@ export default function ToolIconWrapper({
   onSelect,
 }: ToolIconWrapper): JSX.Element {
   return (
-    <Wrapper selected={selected} onSelect={onSelect}>
+    <Wrapper selected={selected} onClick={onSelect}>
       {children}
     </Wrapper>
   );

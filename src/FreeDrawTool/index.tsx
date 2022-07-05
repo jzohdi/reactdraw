@@ -1,33 +1,42 @@
 import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { CurrentDrawingData, DrawingTools } from "../ReactDraw/types";
+import { CurrentDrawingData, DrawingTools } from "../types";
 import {
+  expandContainer,
   createCircle,
   createSvg,
-  expandContainer,
   mapPointToRect,
-} from "../ReactDraw/utils";
+  //   makeRelativeDiv,
+} from "../utils";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
-const FreeDrawTool: DrawingTools = {
+const freeDrawTool: DrawingTools = {
   icon: <PencilBoldIcon />,
   onDrawStart: (data) => {
     const lineWidth = data.style.lineWidth;
-    const newSvg = createSvg(`${lineWidth}px`, `${lineWidth}px`);
+    // const relativeDiv = makeRelativeDiv();
+    const newSvg = createSvg(lineWidth, lineWidth);
     // const newPath = createPath();
     const newPath = createCircle(lineWidth / 2);
     newSvg.appendChild(newPath);
+    // relativeDiv.appendChild(newSvg);
+    // data.container.div.appendChild(relativeDiv);
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
   onDrawing: (data, viewContainer) => {
     expandContainer(data);
     const boxSize = getBoxSize(data);
-    const newSvg = createSvg(`${boxSize.width}px`, `${boxSize.height}px`);
+    const newSvg = createSvg(boxSize.width, boxSize.height);
+    // const relativeDiv = makeRelativeDiv();
     const path = svgPathFromData(data, viewContainer);
+    path.style.width = "100%";
+    path.style.height = "100%";
     newSvg.appendChild(path);
     data.container.div.innerHTML = "";
+    // relativeDiv.appendChild(newSvg);
+    // data.container.div.appendChild(relativeDiv);
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
@@ -37,7 +46,7 @@ const FreeDrawTool: DrawingTools = {
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };
 
-export default FreeDrawTool;
+export default freeDrawTool;
 
 function getBoxSize(data: CurrentDrawingData) {
   const bounds = data.container.bounds;

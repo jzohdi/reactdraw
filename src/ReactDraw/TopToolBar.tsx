@@ -1,6 +1,7 @@
 import React from "react";
 import ToolIconWrapper from "./ToolIconWrapper";
 import styled from "styled-components";
+import { COLORS } from "../constants";
 
 type TopBarTool = {
   icon: JSX.Element;
@@ -15,6 +16,7 @@ export type TopToolBarProps = {
 
 const TopBarContainer = styled.div`
   display: flex;
+  background-color: ${COLORS.primary.light};
 `;
 
 export function TopToolBar({
