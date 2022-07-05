@@ -12,6 +12,7 @@ import {
 } from "../types";
 import { Children } from "react";
 import {
+  dragDivs,
   getRelativePoint,
   getTouchCoords,
   isRectBounding,
@@ -20,11 +21,24 @@ import {
 } from "../utils";
 import SelectTool from "../SelectTool";
 import { CURSOR_ID } from "../constants";
-import { selectElement, unselectElement } from "./utils";
+import {
+  selectElement,
+  selectManyElements,
+  unselectAll,
+  unselectElement,
+} from "./utils";
 
 type ElementsMap = {
   [id: string]: CurrentDrawingData;
 };
+
+type SelectMode =
+  | "drag"
+  | "rotate"
+  | "resizeTL"
+  | "resizeTR"
+  | "resizeBR"
+  | "resizeBL";
 
 export default function ReactDraw({
   children,
@@ -39,6 +53,39 @@ export default function ReactDraw({
   const currentElement = useRef<CurrentDrawingData | null>(null);
   const [currentLineWidth, setCurrentLineWidth] = useState(4);
   const drawingAreaId = useRef<string>(`drawing-area-container-${makeid(6)}`);
+  const currentlySelectedElements = useRef<string[]>([]);
+  const previousMousePos = useRef<Point | null>(null);
+  const currentSelectMode = useRef<SelectMode | null>(null);
+
+  const handleSelectToolOperation = (newPoint: Point) => {
+    const prevPoint = previousMousePos.current;
+    if (!prevPoint) {
+      return;
+    }
+    if (currentSelectMode.current === "drag") {
+      dragDivs(
+        currentlySelectedElements.current.map(
+          (id) => renderedElementsMap.current[id]
+        ),
+        prevPoint,
+        newPoint
+      );
+    }
+  };
+  //   const handleStartDragging = () => {
+
+  //   }
+
+  const unselectEverything = () => {
+    unselectAll(
+      currentlySelectedElements.current.map(
+        (id) => renderedElementsMap.current[id]
+      )
+    );
+    currentSelectMode.current = null;
+    previousMousePos.current = null;
+    currentlySelectedElements.current = [];
+  };
 
   useEffect(() => {
     const container = drawingAreaRef.current;
@@ -46,14 +93,45 @@ export default function ReactDraw({
       return;
     }
 
+    function handleMove(e: MouseEvent) {
+      if (
+        previousMousePos.current !== null &&
+        currentSelectMode.current !== null
+      ) {
+        const point: Point = [e.clientX, e.clientY];
+        const relativePoint = getRelativePoint(point, container);
+        handleSelectToolOperation(relativePoint);
+        previousMousePos.current = relativePoint;
+      }
+    }
+    function handleStopMove() {
+      if (
+        previousMousePos.current !== null &&
+        currentSelectMode.current !== null
+      ) {
+        currentSelectMode.current = null;
+        previousMousePos.current = null;
+      }
+    }
     function startDrawMouse(e: MouseEvent) {
       if (!container) {
         return;
       }
-      const target = e.target;
-      console.log({ target });
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
+      const target = e.target as HTMLDivElement;
+      if (target.id.includes("select-frame")) {
+        previousMousePos.current = relativePoint;
+        currentSelectMode.current = "drag";
+        // target.addEventListener("mousemove", handleMove);
+        // target.addEventListener("mouseup", () => {
+        //   target.removeEventListener("mousemove", handleMove);
+        // });
+        // handleStartDragging()
+        return;
+      } else {
+        unselectEverything();
+      }
       const newDrawingData = makeNewBoundingDiv(
         relativePoint,
         currentLineWidth
@@ -70,6 +148,12 @@ export default function ReactDraw({
       }
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
+      //   console.log("got here");
+      if (currentSelectMode.current !== null) {
+        // handleSelectToolOperation(relativePoint);
+        // previousMousePos.current = relativePoint;
+        return;
+      }
       currentDrawingData.coords.push(relativePoint);
       currentDrawingTool.onDrawing(currentDrawingData, container);
       if (CURSOR_ID === currentDrawingTool.id) {
@@ -81,6 +165,10 @@ export default function ReactDraw({
       const currentDrawingData = currentElement.current;
       if (!currentDrawingData || !container) {
         return;
+      }
+      if (currentDrawingTool.id === CURSOR_ID) {
+        currentSelectMode.current = null;
+        previousMousePos.current = null;
       }
       currentElement.current = null;
       renderedElementsMap.current[currentDrawingData.container.id] =
@@ -110,7 +198,8 @@ export default function ReactDraw({
     container.addEventListener("touchcancel", endDrawTouch);
     container.addEventListener("touchend", endDrawTouch);
     container.addEventListener("mouseleave", endDrawMouse);
-
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleStopMove);
     return () => {
       container.removeEventListener("mousedown", startDrawMouse);
       container.removeEventListener("mouseup", endDrawMouse);
@@ -120,6 +209,8 @@ export default function ReactDraw({
       container.removeEventListener("touchcancel", endDrawTouch);
       container.removeEventListener("touchend", endDrawTouch);
       container.removeEventListener("mouseleave", endDrawMouse);
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleStopMove);
     };
   }, [currentDrawingTool]);
 
@@ -129,14 +220,20 @@ export default function ReactDraw({
     currData: CurrentDrawingData,
     renderedMap: ElementsMap
   ) => {
+    let elementIdsToSelect = [];
     for (const elementId in renderedMap) {
       const eleData = renderedMap[elementId];
+      unselectElement(eleData);
       if (isRectBounding(currData.container.bounds, eleData.container.bounds)) {
-        selectElement(eleData);
-      } else {
-        unselectElement(eleData);
+        elementIdsToSelect.push(elementId);
       }
     }
+    if (elementIdsToSelect.length === 1) {
+      selectElement(renderedMap[elementIdsToSelect[0]]);
+    } else if (elementIdsToSelect.length > 1) {
+      selectManyElements(elementIdsToSelect.map((id) => renderedMap[id]));
+    }
+    currentlySelectedElements.current = elementIdsToSelect;
   };
 
   const handleSelectTopTool = (toolId: string) => {
@@ -145,6 +242,9 @@ export default function ReactDraw({
       if (!!selectedTool) {
         setCurrentDrawingTool(selectedTool);
       }
+    }
+    if (toolId !== CURSOR_ID) {
+      unselectEverything();
     }
   };
 

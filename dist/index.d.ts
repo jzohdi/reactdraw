@@ -10,21 +10,23 @@ type DrawingTools = {
     onDrawStart: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
     onDrawing: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
     onDrawEnd: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
+    onUpdate: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
     cursor?: string;
 };
 type Point = [
     number,
     number
 ];
+type RectBounds = {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+};
 type DrawingContainer = {
     div: HTMLDivElement;
     id: string;
-    bounds: {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-    };
+    bounds: RectBounds;
 };
 type CurrentDrawingData = {
     coords: Point[];

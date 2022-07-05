@@ -21,6 +21,7 @@ const SelectTool: DrawingToolsWithId = {
     div.style.backgroundColor = "transparent";
     div.parentElement?.removeChild(div);
   },
+  onUpdate: (data) => {},
 };
 
 export default SelectTool;

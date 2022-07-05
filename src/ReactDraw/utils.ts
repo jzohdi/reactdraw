@@ -1,14 +1,29 @@
 import { COLORS } from "../constants";
 import { CurrentDrawingData } from "../types";
 
-export function selectElement(data: CurrentDrawingData): void {
+export function unselectAll(selectedObjects: CurrentDrawingData[]): void {
+  for (const obj of selectedObjects) {
+    unselectElement(obj);
+  }
+}
+
+export function selectManyElements(selectObjects: CurrentDrawingData[]): void {
+  for (const data of selectObjects) {
+    const selectFrame = makeSelectFrameDiv(data);
+    if (selectFrame) {
+      data.container.div.appendChild(selectFrame);
+    }
+  }
+}
+
+function makeSelectFrameDiv(data: CurrentDrawingData) {
   const containerDiv = data.container.div;
   const eleId = data.container.id;
   if (isElementSelected(containerDiv)) {
-    return;
+    return null;
   }
   const div = document.createElement("div");
-  div.setAttribute("id", `select-frame-${data.container.id}`);
+  div.setAttribute("id", `select-frame-${eleId}`);
   div.style.width = "calc(100% + 12px)";
   div.style.height = "calc(100% + 12px)";
   div.style.position = "absolute";
@@ -16,8 +31,14 @@ export function selectElement(data: CurrentDrawingData): void {
   div.style.top = "-6px";
   div.style.left = "-6px";
   div.style.cursor = "all-scroll";
-  addToolsToSelectionDiv(div, eleId);
-  containerDiv.appendChild(div);
+  return div;
+}
+export function selectElement(data: CurrentDrawingData): void {
+  const selectFrame = makeSelectFrameDiv(data);
+  if (selectFrame) {
+    addToolsToSelectionDiv(selectFrame, data.container.id);
+    data.container.div.appendChild(selectFrame);
+  }
 }
 
 function addToolsToSelectionDiv(div: HTMLDivElement, eleId: string): void {

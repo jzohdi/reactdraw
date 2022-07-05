@@ -17,6 +17,7 @@ export type TopToolBarProps = {
 const TopBarContainer = styled.div`
   display: flex;
   background-color: ${COLORS.primary.light};
+  z-index: 1;
 `;
 
 export function TopToolBar({

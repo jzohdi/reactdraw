@@ -15,6 +15,7 @@ export type DrawingTools = {
   ) => void;
   onDrawing: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
+  onUpdate: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
   cursor?: string;
 };
 
