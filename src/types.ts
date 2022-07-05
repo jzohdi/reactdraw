@@ -19,16 +19,16 @@ export type DrawingTools = {
 };
 
 export type Point = [number, number];
-
+export type RectBounds = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
 export type DrawingContainer = {
   div: HTMLDivElement;
   id: string;
-  bounds: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
+  bounds: RectBounds;
 };
 export type CurrentDrawingData = {
   coords: Point[];

@@ -14,11 +14,13 @@ import { Children } from "react";
 import {
   getRelativePoint,
   getTouchCoords,
+  isRectBounding,
   makeid,
   makeNewBoundingDiv,
 } from "../utils";
 import SelectTool from "../SelectTool";
 import { CURSOR_ID } from "../constants";
+import { selectElement, unselectElement } from "./utils";
 
 type ElementsMap = {
   [id: string]: CurrentDrawingData;
@@ -48,6 +50,8 @@ export default function ReactDraw({
       if (!container) {
         return;
       }
+      const target = e.target;
+      console.log({ target });
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
       const newDrawingData = makeNewBoundingDiv(
@@ -68,6 +72,9 @@ export default function ReactDraw({
       const relativePoint = getRelativePoint(point, container);
       currentDrawingData.coords.push(relativePoint);
       currentDrawingTool.onDrawing(currentDrawingData, container);
+      if (CURSOR_ID === currentDrawingTool.id) {
+        handleTrySelectObjects(currentDrawingData, renderedElementsMap.current);
+      }
     }
 
     function endDrawMouse() {
@@ -102,6 +109,7 @@ export default function ReactDraw({
     container.addEventListener("touchmove", drawTouch, { passive: false });
     container.addEventListener("touchcancel", endDrawTouch);
     container.addEventListener("touchend", endDrawTouch);
+    container.addEventListener("mouseleave", endDrawMouse);
 
     return () => {
       container.removeEventListener("mousedown", startDrawMouse);
@@ -111,8 +119,25 @@ export default function ReactDraw({
       container.removeEventListener("touchmove", drawTouch);
       container.removeEventListener("touchcancel", endDrawTouch);
       container.removeEventListener("touchend", endDrawTouch);
+      container.removeEventListener("mouseleave", endDrawMouse);
     };
   }, [currentDrawingTool]);
+
+  // TODO: only select after checking all,
+  // if more than one selected changed the type
+  const handleTrySelectObjects = (
+    currData: CurrentDrawingData,
+    renderedMap: ElementsMap
+  ) => {
+    for (const elementId in renderedMap) {
+      const eleData = renderedMap[elementId];
+      if (isRectBounding(currData.container.bounds, eleData.container.bounds)) {
+        selectElement(eleData);
+      } else {
+        unselectElement(eleData);
+      }
+    }
+  };
 
   const handleSelectTopTool = (toolId: string) => {
     if (currentDrawingTool.id !== toolId) {

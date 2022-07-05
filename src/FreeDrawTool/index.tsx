@@ -41,7 +41,7 @@ const freeDrawTool: DrawingTools = {
     data.element = newSvg;
   },
   onDrawEnd: (data) => {
-    console.log(data);
+    console.log("free draw end");
   },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };

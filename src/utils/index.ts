@@ -1,4 +1,9 @@
-import { CurrentDrawingData, DrawingContainer, Point } from "../types";
+import {
+  CurrentDrawingData,
+  DrawingContainer,
+  Point,
+  RectBounds,
+} from "../types";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 export function makeid(length: number) {
@@ -245,4 +250,16 @@ export function setContainerRect(data: CurrentDrawingData): Point[] {
   div.style.height = `${maxY - minY}px`;
 
   return data.coords;
+}
+
+export function isRectBounding(
+  bounds: RectBounds,
+  object: RectBounds
+): boolean {
+  return (
+    bounds.top <= object.top &&
+    bounds.bottom >= object.bottom &&
+    bounds.left <= object.left &&
+    bounds.right >= object.right
+  );
 }
