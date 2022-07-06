@@ -8,14 +8,11 @@ export type LayoutOption = "default" | LayoutAbsolute | "fit";
 
 export type DrawingTools = {
   icon: JSX.Element;
-  id?: string;
-  onDrawStart: (
-    data: CurrentDrawingData,
-    viewContainer: HTMLDivElement
-  ) => void;
-  onDrawing: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
-  onDrawEnd: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
-  onUpdate: (data: CurrentDrawingData, viewContainer: HTMLDivElement) => void;
+  id: string;
+  onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onUpdate: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   cursor?: string;
 };
 
@@ -31,16 +28,15 @@ export type DrawingContainer = {
   id: string;
   bounds: RectBounds;
 };
-export type CurrentDrawingData = {
+export type DrawingData = {
   coords: Point[];
   container: DrawingContainer;
   element: JSX.Element | SVGSVGElement | null;
   style: {
     lineWidth: number;
+    zIndex: number;
   };
 };
-
-export type DrawingToolsWithId = DrawingTools & { id: string };
 
 export type ReactDrawProps = {
   children?: ReactChild;

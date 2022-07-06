@@ -1,9 +1,4 @@
-import {
-  CurrentDrawingData,
-  DrawingContainer,
-  Point,
-  RectBounds,
-} from "../types";
+import { DrawingData, DrawingContainer, Point, RectBounds } from "../types";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 export function makeid(length: number) {
@@ -46,7 +41,7 @@ function isBrowser() {
 export function makeNewBoundingDiv(
   relativePoint: Point,
   lineWidth: number
-): CurrentDrawingData {
+): DrawingData {
   if (!isBrowser()) {
     throw new Error("new bounding div called on the server.");
   }
@@ -56,7 +51,7 @@ export function makeNewBoundingDiv(
     pointY,
     lineWidth
   );
-  const data: CurrentDrawingData = {
+  const data: DrawingData = {
     coords: [relativePoint],
     element: null,
     container: {
@@ -70,6 +65,7 @@ export function makeNewBoundingDiv(
       },
     },
     style: {
+      zIndex: 1,
       lineWidth,
     },
   };
@@ -100,6 +96,8 @@ function makeNewDiv(
   div.style.position = "absolute";
   div.style.left = left + "px";
   div.style.top = top + "px";
+  div.style.pointerEvents = "none";
+  div.style.zIndex = "1";
   return {
     div,
     id,
@@ -191,7 +189,7 @@ export function mapPointToRect(
  * Returns true if the most recent coordinate did expand the bounds
  * @param data
  */
-export function expandContainer(data: CurrentDrawingData): boolean {
+export function expandContainer(data: DrawingData): boolean {
   let didExapnd = false;
   const [newX, newY] = data.coords[data.coords.length - 1];
   const container = data.container;
@@ -225,7 +223,7 @@ export function expandContainer(data: CurrentDrawingData): boolean {
  * has the side effect of altering the container to be the
  * correct position and dimensions;
  */
-export function setContainerRect(data: CurrentDrawingData): Point[] {
+export function setContainerRect(data: DrawingData): Point[] {
   if (data.coords.length < 2) {
     throw new Error("data coords must be at least length 2");
   }
@@ -265,11 +263,10 @@ export function isRectBounding(
 }
 
 export function dragDivs(
-  objects: CurrentDrawingData[],
+  objects: DrawingData[],
   prevPoint: Point,
   newPoint: Point
 ): void {
-  console.log(objects, prevPoint, newPoint);
   const [currentMouseX, currentMouseY] = newPoint;
   const [prevMouseX, prevMouseY] = prevPoint;
   const newLeft = currentMouseX - prevMouseX;
@@ -284,4 +281,31 @@ export function dragDivs(
     div.style.top = bounds.top + "px";
     div.style.left = bounds.left + "px";
   }
+}
+
+export function distance(pointA: Point, pointB: Point): number {
+  return Math.sqrt(
+    Math.pow(Math.abs(pointA[0] - pointB[0]), 2) +
+      Math.pow(Math.abs(pointA[1] - pointB[1]), 2)
+  );
+}
+
+export function makeBoundingRect(point: Point): RectBounds {
+  const [x, y] = point;
+  return { top: y, right: x, bottom: y, left: x };
+}
+export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
+  let { top, right, bottom, left } = bounds;
+  const [x, y] = point;
+  if (y > bottom) {
+    bottom = y;
+  } else if (y < top) {
+    top = y;
+  }
+  if (x < left) {
+    left = x;
+  } else if (x > right) {
+    right = x;
+  }
+  return { top, right, bottom, left };
 }

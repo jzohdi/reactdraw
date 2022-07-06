@@ -1,13 +1,13 @@
 import { COLORS } from "../constants";
-import { CurrentDrawingData } from "../types";
+import { DrawingData } from "../types";
 
-export function unselectAll(selectedObjects: CurrentDrawingData[]): void {
+export function unselectAll(selectedObjects: DrawingData[]): void {
   for (const obj of selectedObjects) {
     unselectElement(obj);
   }
 }
 
-export function selectManyElements(selectObjects: CurrentDrawingData[]): void {
+export function selectManyElements(selectObjects: DrawingData[]): void {
   for (const data of selectObjects) {
     const selectFrame = makeSelectFrameDiv(data);
     if (selectFrame) {
@@ -16,7 +16,7 @@ export function selectManyElements(selectObjects: CurrentDrawingData[]): void {
   }
 }
 
-function makeSelectFrameDiv(data: CurrentDrawingData) {
+function makeSelectFrameDiv(data: DrawingData) {
   const containerDiv = data.container.div;
   const eleId = data.container.id;
   if (isElementSelected(containerDiv)) {
@@ -31,9 +31,10 @@ function makeSelectFrameDiv(data: CurrentDrawingData) {
   div.style.top = "-6px";
   div.style.left = "-6px";
   div.style.cursor = "all-scroll";
+  div.style.pointerEvents = "all";
   return div;
 }
-export function selectElement(data: CurrentDrawingData): void {
+export function selectElement(data: DrawingData): void {
   const selectFrame = makeSelectFrameDiv(data);
   if (selectFrame) {
     addToolsToSelectionDiv(selectFrame, data.container.id);
@@ -45,19 +46,24 @@ function addToolsToSelectionDiv(div: HTMLDivElement, eleId: string): void {
   const topLeftCorner = cornerButton(true, false, false, true);
   //   topLeftCorner.setAttribute("id", )
   topLeftCorner.style.cursor = "nw-resize";
+  topLeftCorner.id = `button-tl-${eleId}`;
   // leftTopCorner.
   const topRightCorner = cornerButton(true, true);
+  topRightCorner.id = `button-tr-${eleId}`;
   topRightCorner.style.cursor = "ne-resize";
   const bottomRightCorner = cornerButton(false, true, true);
+  bottomRightCorner.id = `button-br-${eleId}`;
   bottomRightCorner.style.cursor = "se-resize";
   const bottomLeftCorner = cornerButton(false, false, true, true);
   bottomLeftCorner.style.cursor = "sw-resize";
+  bottomLeftCorner.id = `button-bl-${eleId}`;
   div.appendChild(topLeftCorner);
   div.appendChild(topRightCorner);
   div.appendChild(bottomRightCorner);
   div.appendChild(bottomLeftCorner);
 
   const rotateButton = cornerButton();
+  rotateButton.id = `button-rotate-${eleId}`;
   rotateButton.style.top = "-45px";
   rotateButton.style.cursor = "grab";
   rotateButton.style.left = "calc(50% - 8px)";
@@ -99,7 +105,7 @@ function cornerButton(
   }
   return button;
 }
-export function unselectElement(data: CurrentDrawingData): void {
+export function unselectElement(data: DrawingData): void {
   const { div, id } = data.container;
   if (isElementSelected(div) && div.lastElementChild) {
     // div.lastElementChild.removeEventListener()

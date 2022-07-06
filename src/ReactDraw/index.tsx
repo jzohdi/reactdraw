@@ -2,25 +2,28 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Container from "./Container";
 import { TopToolBar } from "./TopToolBar";
 import {
-  CurrentDrawingData,
+  DrawingData,
   DrawingTools,
-  DrawingToolsWithId,
   LayoutOption,
   Point,
   ReactChild,
   ReactDrawProps,
+  RectBounds,
 } from "../types";
 import { Children } from "react";
 import {
+  addPointToBounds,
+  distance,
   dragDivs,
   getRelativePoint,
   getTouchCoords,
   isRectBounding,
+  makeBoundingRect,
   makeid,
   makeNewBoundingDiv,
 } from "../utils";
 import SelectTool from "../SelectTool";
-import { CURSOR_ID } from "../constants";
+import { CURSOR_ID, SELECT_TOOL_DRAG_MIN_DISTANCE } from "../constants";
 import {
   selectElement,
   selectManyElements,
@@ -29,7 +32,7 @@ import {
 } from "./utils";
 
 type ElementsMap = {
-  [id: string]: CurrentDrawingData;
+  [id: string]: DrawingData;
 };
 
 type SelectMode =
@@ -45,12 +48,12 @@ export default function ReactDraw({
   topBarTools,
   ...props
 }: ReactDrawProps): JSX.Element {
+  topBarTools = [SelectTool].concat(topBarTools);
   const drawingAreaRef = useRef<HTMLDivElement>(null);
-  const topTools = useMemo(() => getTopTools(topBarTools), [topBarTools]);
-  const [currentDrawingTool, setCurrentDrawingTool] = useState(topTools[0]);
+  const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
   const { layout } = validateProps(children, props.layout);
   const renderedElementsMap = useRef<ElementsMap>({});
-  const currentElement = useRef<CurrentDrawingData | null>(null);
+  const currDrawObj = useRef<DrawingData | null>(null);
   const [currentLineWidth, setCurrentLineWidth] = useState(4);
   const drawingAreaId = useRef<string>(`drawing-area-container-${makeid(6)}`);
   const currentlySelectedElements = useRef<string[]>([]);
@@ -72,9 +75,6 @@ export default function ReactDraw({
       );
     }
   };
-  //   const handleStartDragging = () => {
-
-  //   }
 
   const unselectEverything = () => {
     unselectAll(
@@ -119,15 +119,11 @@ export default function ReactDraw({
       }
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
-      const target = e.target as HTMLDivElement;
+      const target = e.target as HTMLDivElement | HTMLButtonElement;
+      //   console.log("got here");
       if (target.id.includes("select-frame")) {
         previousMousePos.current = relativePoint;
         currentSelectMode.current = "drag";
-        // target.addEventListener("mousemove", handleMove);
-        // target.addEventListener("mouseup", () => {
-        //   target.removeEventListener("mousemove", handleMove);
-        // });
-        // handleStartDragging()
         return;
       } else {
         unselectEverything();
@@ -136,22 +132,19 @@ export default function ReactDraw({
         relativePoint,
         currentLineWidth
       );
-      currentElement.current = newDrawingData;
+      currDrawObj.current = newDrawingData;
       container?.append(newDrawingData.container.div);
       currentDrawingTool.onDrawStart(newDrawingData, container);
     }
 
     function drawMouse(e: MouseEvent) {
-      const currentDrawingData = currentElement.current;
+      const currentDrawingData = currDrawObj.current;
       if (!currentDrawingData || !container) {
         return;
       }
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
-      //   console.log("got here");
       if (currentSelectMode.current !== null) {
-        // handleSelectToolOperation(relativePoint);
-        // previousMousePos.current = relativePoint;
         return;
       }
       currentDrawingData.coords.push(relativePoint);
@@ -161,19 +154,33 @@ export default function ReactDraw({
       }
     }
 
-    function endDrawMouse() {
-      const currentDrawingData = currentElement.current;
+    function endDrawMouse(e: MouseEvent) {
+      const currentDrawingData = currDrawObj.current;
       if (!currentDrawingData || !container) {
         return;
       }
-      if (currentDrawingTool.id === CURSOR_ID) {
-        currentSelectMode.current = null;
-        previousMousePos.current = null;
-      }
-      currentElement.current = null;
-      renderedElementsMap.current[currentDrawingData.container.id] =
-        currentDrawingData;
+      const point: Point = [e.clientX, e.clientY];
+      const relativePoint = getRelativePoint(point, container);
+      currentSelectMode.current = null;
+      previousMousePos.current = null;
+      currDrawObj.current = null;
       currentDrawingTool.onDrawEnd(currentDrawingData, container);
+      if (CURSOR_ID !== currentDrawingTool.id) {
+        renderedElementsMap.current[currentDrawingData.container.id] =
+          currentDrawingData;
+      } else {
+        // if the distance from mouse down to mouse up is small, then see if user tried to select something.
+        const firstPoint = currentDrawingData.coords[0];
+        if (
+          distance(relativePoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE
+        ) {
+          const bounds = addPointToBounds(
+            makeBoundingRect(firstPoint),
+            relativePoint
+          );
+          handleTryClickObject(renderedElementsMap.current, bounds);
+        }
+      }
     }
 
     function startDrawTouch(e: TouchEvent) {
@@ -217,7 +224,7 @@ export default function ReactDraw({
   // TODO: only select after checking all,
   // if more than one selected changed the type
   const handleTrySelectObjects = (
-    currData: CurrentDrawingData,
+    currData: DrawingData,
     renderedMap: ElementsMap
   ) => {
     let elementIdsToSelect = [];
@@ -236,9 +243,33 @@ export default function ReactDraw({
     currentlySelectedElements.current = elementIdsToSelect;
   };
 
+  const handleTryClickObject = (
+    renderedMap: ElementsMap,
+    bounds: RectBounds
+  ) => {
+    let itemToSelect = null;
+    for (const eleId in renderedMap) {
+      const eleData = renderedMap[eleId];
+      unselectElement(eleData);
+      if (isRectBounding(eleData.container.bounds, bounds)) {
+        const eleIsOnTop =
+          itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
+        if (eleIsOnTop) {
+          itemToSelect = eleData;
+        }
+      }
+    }
+    if (itemToSelect !== null) {
+      selectElement(itemToSelect);
+      currentlySelectedElements.current = [itemToSelect.container.id];
+    }
+  };
+
   const handleSelectTopTool = (toolId: string) => {
     if (currentDrawingTool.id !== toolId) {
-      const selectedTool = topTools.find((tool) => tool.id === toolId);
+      const selectedTool = topBarTools.find(
+        (tool: DrawingTools) => tool.id === toolId
+      );
       if (!!selectedTool) {
         setCurrentDrawingTool(selectedTool);
       }
@@ -251,7 +282,7 @@ export default function ReactDraw({
   return (
     <Container layout={layout}>
       <TopToolBar
-        tools={topTools}
+        tools={topBarTools}
         onSelectTool={handleSelectTopTool}
         currentTool={currentDrawingTool.id}
       />
@@ -274,17 +305,6 @@ export default function ReactDraw({
 		}
 	  `}</style>
     </Container>
-  );
-}
-
-function getTopTools(topTools: DrawingTools[]): DrawingToolsWithId[] {
-  return [SelectTool].concat(
-    topTools.map(({ id, ...rest }) => {
-      if (id === CURSOR_ID) {
-        throw new Error("Cannot give tool with reserved cursor id");
-      }
-      return !!id ? { id, ...rest } : { ...rest, id: makeid(6) };
-    })
   );
 }
 

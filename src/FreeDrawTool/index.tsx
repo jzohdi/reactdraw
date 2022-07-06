@@ -1,6 +1,6 @@
 import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { CurrentDrawingData, DrawingTools } from "../types";
+import { DrawingData, DrawingTools } from "../types";
 import {
   expandContainer,
   createCircle,
@@ -12,6 +12,7 @@ import {
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
 const freeDrawTool: DrawingTools = {
+  id: "free-draw-tool",
   icon: <PencilBoldIcon />,
   onDrawStart: (data) => {
     const lineWidth = data.style.lineWidth;
@@ -49,7 +50,7 @@ const freeDrawTool: DrawingTools = {
 
 export default freeDrawTool;
 
-function getBoxSize(data: CurrentDrawingData) {
+function getBoxSize(data: DrawingData) {
   const bounds = data.container.bounds;
   return {
     width: bounds.right - bounds.left,
@@ -58,7 +59,7 @@ function getBoxSize(data: CurrentDrawingData) {
 }
 
 function svgPathFromData(
-  data: CurrentDrawingData,
+  data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGPathElement {
   const newPath = document.createElementNS(
@@ -74,7 +75,7 @@ function svgPathFromData(
   return newPath;
 }
 function getPathDString(
-  data: CurrentDrawingData,
+  data: DrawingData,
   viewContainer: HTMLDivElement
 ): string {
   let pathString = "";
