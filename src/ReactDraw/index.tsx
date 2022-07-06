@@ -63,26 +63,10 @@ export default function ReactDraw({
     if (!prevPoint) {
       return;
     }
+    const { objects } = getSelectedDrawingObjects();
     if (currentSelectMode.current === "drag") {
-      dragDivs(
-        currentlySelectedElements.current.map(
-          (id) => renderedElementsMap.current[id]
-        ),
-        prevPoint,
-        newPoint
-      );
+      dragDivs(objects, prevPoint, newPoint);
     }
-  };
-
-  const unselectEverything = () => {
-    unselectAll(
-      currentlySelectedElements.current.map(
-        (id) => renderedElementsMap.current[id]
-      )
-    );
-    currentSelectMode.current = null;
-    previousMousePos.current = null;
-    currentlySelectedElements.current = [];
   };
 
   /**
@@ -90,7 +74,11 @@ export default function ReactDraw({
    * @param relativePoint a point [x, y] relative to the drawing area box
    * @returns
    */
-  function starDraw(eventTarget: EventTarget | null, relativePoint: Point) {
+  function starDraw(
+    eventTarget: EventTarget | null,
+    relativePoint: Point,
+    didPressShift: boolean
+  ) {
     const container = drawingAreaRef.current;
     if (!container) {
       return;
@@ -99,9 +87,11 @@ export default function ReactDraw({
     if (didStartSelectAction(target, relativePoint)) {
       return;
     }
+    if (!(isUsingSelectTool() && didPressShift)) {
+      unselectEverythingAndReturnPrevious();
+    }
     const newDrawingData = makeNewBoundingDiv(relativePoint, currentLineWidth);
     currDrawObj.current = newDrawingData;
-    unselectEverything();
     container?.append(newDrawingData.container.div);
     currentDrawingTool.onDrawStart(newDrawingData, container);
   }
@@ -124,7 +114,7 @@ export default function ReactDraw({
     }
   }
 
-  function endDraw(relativePoint: Point) {
+  function endDraw(relativePoint: Point, didPressShift: boolean) {
     const currentDrawingData = currDrawObj.current;
     const container = drawingAreaRef.current;
     if (!currentDrawingData || !container) {
@@ -139,7 +129,7 @@ export default function ReactDraw({
         currentDrawingData;
       return;
     }
-    tryClickObject(currentDrawingData, relativePoint);
+    tryClickObject(currentDrawingData, relativePoint, didPressShift);
   }
 
   /**
@@ -150,12 +140,16 @@ export default function ReactDraw({
    * @param drawingData
    * @param lastPoint
    */
-  const tryClickObject = (drawingData: DrawingData, lastPoint: Point) => {
+  const tryClickObject = (
+    drawingData: DrawingData,
+    lastPoint: Point,
+    didPressShift: boolean
+  ) => {
     // if the distance from mouse down to mouse up is small, then see if user tried to select something.
     const firstPoint = drawingData.coords[0];
     if (distance(lastPoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE) {
       const bounds = addPointToBounds(makeBoundingRect(firstPoint), lastPoint);
-      handleTryClickObject(renderedElementsMap.current, bounds);
+      handleTryClickObject(renderedElementsMap.current, bounds, didPressShift);
     }
   };
 
@@ -219,7 +213,7 @@ export default function ReactDraw({
     function startDrawMouse(e: MouseEvent) {
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(e.target, relativePoint);
+      starDraw(e.target, relativePoint, e.shiftKey);
     }
 
     function drawMouse(e: MouseEvent) {
@@ -231,13 +225,13 @@ export default function ReactDraw({
     function endDrawMouse(e: MouseEvent) {
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
-      endDraw(relativePoint);
+      endDraw(relativePoint, e.shiftKey);
     }
 
     function startDrawTouch(e: TouchEvent) {
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(e.target, relativePoint);
+      starDraw(e.target, relativePoint, e.shiftKey);
     }
 
     function drawTouch(e: TouchEvent) {
@@ -248,7 +242,7 @@ export default function ReactDraw({
     function endDrawTouch(e: TouchEvent) {
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
-      endDraw(relativePoint);
+      endDraw(relativePoint, e.shiftKey);
     }
 
     container.addEventListener("mousedown", startDrawMouse);
@@ -297,22 +291,17 @@ export default function ReactDraw({
         elementIdsToSelect.push(elementId);
       }
     }
-    if (elementIdsToSelect.length === 1) {
-      selectElement(renderedMap[elementIdsToSelect[0]]);
-    } else if (elementIdsToSelect.length > 1) {
-      selectManyElements(elementIdsToSelect.map((id) => renderedMap[id]));
-    }
-    currentlySelectedElements.current = elementIdsToSelect;
+    handleSelectIds(elementIdsToSelect);
   };
 
   const handleTryClickObject = (
     renderedMap: ElementsMap,
-    bounds: RectBounds
+    bounds: RectBounds,
+    didPressShift: boolean
   ) => {
     let itemToSelect = null;
     for (const eleId in renderedMap) {
       const eleData = renderedMap[eleId];
-      unselectElement(eleData);
       if (isRectBounding(eleData.container.bounds, bounds)) {
         const eleIsOnTop =
           itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
@@ -321,10 +310,49 @@ export default function ReactDraw({
         }
       }
     }
-    if (itemToSelect !== null) {
-      selectElement(itemToSelect);
-      currentlySelectedElements.current = [itemToSelect.container.id];
+
+    // unselect everything.
+    let { ids } = unselectEverythingAndReturnPrevious();
+
+    // if did not press shift, all prev will be not selected
+    if (!didPressShift) {
+      ids = [];
     }
+    // if item to select found, add to ids
+    if (itemToSelect !== null) {
+      ids = ids.concat([itemToSelect.container.id]);
+    }
+    handleSelectIds(ids);
+  };
+
+  const handleSelectIds = (objectIds: string[]) => {
+    currentlySelectedElements.current = objectIds;
+    const objects = getElementsByIds(objectIds);
+    if (objects.length === 1) {
+      return selectElement(objects[0]);
+    }
+    if (objects.length > 1) {
+      return selectManyElements(objects);
+    }
+  };
+  const getElementsByIds = (ids: string[]): DrawingData[] => {
+    return ids.map((id) => renderedElementsMap.current[id]);
+  };
+
+  const unselectEverythingAndReturnPrevious = () => {
+    const { objects, ids } = getSelectedDrawingObjects();
+    unselectAll(objects);
+    currentSelectMode.current = null;
+    previousMousePos.current = null;
+    currentlySelectedElements.current = [];
+    return { ids, objects };
+  };
+  const getSelectedDrawingObjects = () => {
+    const ids = currentlySelectedElements.current;
+    return {
+      objects: getElementsByIds(ids),
+      ids,
+    };
   };
 
   const handleSelectTopTool = (toolId: string) => {
@@ -337,7 +365,7 @@ export default function ReactDraw({
       }
     }
     if (toolId !== CURSOR_ID) {
-      unselectEverything();
+      unselectEverythingAndReturnPrevious();
     }
   };
 
