@@ -4,7 +4,7 @@ import { DrawingTools } from "../types";
 import { COLORS, CURSOR_ID } from "../constants";
 import { setContainerRect } from "../utils";
 
-const SelectTool: DrawingTools = {
+const selectTool: DrawingTools = {
   icon: <CusorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
   id: CURSOR_ID,
   onDrawStart: (data) => {
@@ -24,4 +24,4 @@ const SelectTool: DrawingTools = {
   onUpdate: (data) => {},
 };
 
-export default SelectTool;
+export default selectTool;

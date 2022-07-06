@@ -22,7 +22,6 @@ import {
   makeid,
   makeNewBoundingDiv,
 } from "../utils";
-import SelectTool from "../SelectTool";
 import { CURSOR_ID, SELECT_TOOL_DRAG_MIN_DISTANCE } from "../constants";
 import {
   selectElement,
@@ -48,7 +47,6 @@ export default function ReactDraw({
   topBarTools,
   ...props
 }: ReactDrawProps): JSX.Element {
-  topBarTools = [SelectTool].concat(topBarTools);
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
   const { layout } = validateProps(children, props.layout);
@@ -87,112 +85,170 @@ export default function ReactDraw({
     currentlySelectedElements.current = [];
   };
 
+  /**
+   * @param eventTarget The target of the mouse or touch event
+   * @param relativePoint a point [x, y] relative to the drawing area box
+   * @returns
+   */
+  function starDraw(eventTarget: EventTarget | null, relativePoint: Point) {
+    const container = drawingAreaRef.current;
+    if (!container) {
+      return;
+    }
+    const target = eventTarget as HTMLDivElement | HTMLButtonElement;
+    if (didStartSelectAction(target, relativePoint)) {
+      return;
+    }
+    const newDrawingData = makeNewBoundingDiv(relativePoint, currentLineWidth);
+    currDrawObj.current = newDrawingData;
+    unselectEverything();
+    container?.append(newDrawingData.container.div);
+    currentDrawingTool.onDrawStart(newDrawingData, container);
+  }
+
+  function drawing(relativePoint: Point) {
+    // need to do this first because currentDrawing data is null during
+    // select mode.
+    if (isPerformingSelectAction()) {
+      return;
+    }
+    const container = drawingAreaRef.current;
+    const currentDrawingData = currDrawObj.current;
+    if (!currentDrawingData || !container) {
+      return;
+    }
+    currentDrawingData.coords.push(relativePoint);
+    currentDrawingTool.onDrawing(currentDrawingData, container);
+    if (CURSOR_ID === currentDrawingTool.id) {
+      handleTrySelectObjects(currentDrawingData, renderedElementsMap.current);
+    }
+  }
+
+  function endDraw(relativePoint: Point) {
+    const currentDrawingData = currDrawObj.current;
+    const container = drawingAreaRef.current;
+    if (!currentDrawingData || !container) {
+      return;
+    }
+    currentSelectMode.current = null;
+    previousMousePos.current = null;
+    currDrawObj.current = null;
+    currentDrawingTool.onDrawEnd(currentDrawingData, container);
+    if (!isUsingSelectTool()) {
+      renderedElementsMap.current[currentDrawingData.container.id] =
+        currentDrawingData;
+      return;
+    }
+    tryClickObject(currentDrawingData, relativePoint);
+  }
+
+  /**
+   * If the user is using the select tool, the draw end function couldve
+   * been intended to click on an object. We can check for this by
+   * checking if the [x,y] position of the click on mouseup/touchend (lastPoint),
+   * is within a min distnace from the initial [x, y] start.
+   * @param drawingData
+   * @param lastPoint
+   */
+  const tryClickObject = (drawingData: DrawingData, lastPoint: Point) => {
+    // if the distance from mouse down to mouse up is small, then see if user tried to select something.
+    const firstPoint = drawingData.coords[0];
+    if (distance(lastPoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE) {
+      const bounds = addPointToBounds(makeBoundingRect(firstPoint), lastPoint);
+      handleTryClickObject(renderedElementsMap.current, bounds);
+    }
+  };
+
+  const isUsingSelectTool = (): boolean => {
+    return CURSOR_ID === currentDrawingTool.id;
+  };
+
+  const isPerformingSelectAction = (): boolean => {
+    return (
+      previousMousePos.current !== null && currentSelectMode.current !== null
+    );
+  };
+
+  /**
+   * Checks if the event target is an object that should
+   * start a selection action (clicking on the select-frame,
+   * click on one of the expand corner buttons, rotate button)
+   */
+  const didStartSelectAction = (
+    target: HTMLDivElement | HTMLButtonElement,
+    relativePoint: Point
+  ): boolean => {
+    if (!target) {
+      throw new Error("Did start select action recieved null as target");
+    }
+    if (target.id.includes("select-frame")) {
+      previousMousePos.current = relativePoint;
+      currentSelectMode.current = "drag";
+      return true;
+    }
+    return false;
+  };
+
+  function moveObject(relativePoint: Point) {
+    if (isPerformingSelectAction()) {
+      handleSelectToolOperation(relativePoint);
+      previousMousePos.current = relativePoint;
+    }
+  }
+
   useEffect(() => {
     const container = drawingAreaRef.current;
     if (!container) {
       return;
     }
 
-    function handleMove(e: MouseEvent) {
-      if (
-        previousMousePos.current !== null &&
-        currentSelectMode.current !== null
-      ) {
-        const point: Point = [e.clientX, e.clientY];
-        const relativePoint = getRelativePoint(point, container);
-        handleSelectToolOperation(relativePoint);
-        previousMousePos.current = relativePoint;
-      }
+    function handleMouseMoveObject(e: MouseEvent) {
+      const point: Point = [e.clientX, e.clientY];
+      const relativePoint = getRelativePoint(point, container);
+      moveObject(relativePoint);
     }
-    function handleStopMove() {
-      if (
-        previousMousePos.current !== null &&
-        currentSelectMode.current !== null
-      ) {
-        currentSelectMode.current = null;
-        previousMousePos.current = null;
-      }
+    function handleTouchMoveObject(e: TouchEvent) {
+      const startPoint = getTouchCoords(e);
+      const relativePoint = getRelativePoint(startPoint, container);
+      moveObject(relativePoint);
+    }
+    function handleStopMoveObject() {
+      currentSelectMode.current = null;
+      previousMousePos.current = null;
     }
     function startDrawMouse(e: MouseEvent) {
-      if (!container) {
-        return;
-      }
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
-      const target = e.target as HTMLDivElement | HTMLButtonElement;
-      //   console.log("got here");
-      if (target.id.includes("select-frame")) {
-        previousMousePos.current = relativePoint;
-        currentSelectMode.current = "drag";
-        return;
-      } else {
-        unselectEverything();
-      }
-      const newDrawingData = makeNewBoundingDiv(
-        relativePoint,
-        currentLineWidth
-      );
-      currDrawObj.current = newDrawingData;
-      container?.append(newDrawingData.container.div);
-      currentDrawingTool.onDrawStart(newDrawingData, container);
+      starDraw(e.target, relativePoint);
     }
 
     function drawMouse(e: MouseEvent) {
-      const currentDrawingData = currDrawObj.current;
-      if (!currentDrawingData || !container) {
-        return;
-      }
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
-      if (currentSelectMode.current !== null) {
-        return;
-      }
-      currentDrawingData.coords.push(relativePoint);
-      currentDrawingTool.onDrawing(currentDrawingData, container);
-      if (CURSOR_ID === currentDrawingTool.id) {
-        handleTrySelectObjects(currentDrawingData, renderedElementsMap.current);
-      }
+      drawing(relativePoint);
     }
 
     function endDrawMouse(e: MouseEvent) {
-      const currentDrawingData = currDrawObj.current;
-      if (!currentDrawingData || !container) {
-        return;
-      }
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
-      currentSelectMode.current = null;
-      previousMousePos.current = null;
-      currDrawObj.current = null;
-      currentDrawingTool.onDrawEnd(currentDrawingData, container);
-      if (CURSOR_ID !== currentDrawingTool.id) {
-        renderedElementsMap.current[currentDrawingData.container.id] =
-          currentDrawingData;
-      } else {
-        // if the distance from mouse down to mouse up is small, then see if user tried to select something.
-        const firstPoint = currentDrawingData.coords[0];
-        if (
-          distance(relativePoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE
-        ) {
-          const bounds = addPointToBounds(
-            makeBoundingRect(firstPoint),
-            relativePoint
-          );
-          handleTryClickObject(renderedElementsMap.current, bounds);
-        }
-      }
+      endDraw(relativePoint);
     }
 
     function startDrawTouch(e: TouchEvent) {
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
+      starDraw(e.target, relativePoint);
     }
-
-    function endDrawTouch() {}
 
     function drawTouch(e: TouchEvent) {
       const point = getTouchCoords(e);
       const relativePoint = getRelativePoint(point, container);
+      drawing(relativePoint);
+    }
+    function endDrawTouch(e: TouchEvent) {
+      const startPoint = getTouchCoords(e);
+      const relativePoint = getRelativePoint(startPoint, container);
+      endDraw(relativePoint);
     }
 
     container.addEventListener("mousedown", startDrawMouse);
@@ -205,8 +261,12 @@ export default function ReactDraw({
     container.addEventListener("touchcancel", endDrawTouch);
     container.addEventListener("touchend", endDrawTouch);
     container.addEventListener("mouseleave", endDrawMouse);
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleStopMove);
+    window.addEventListener("mousemove", handleMouseMoveObject);
+    window.addEventListener("mouseup", handleStopMoveObject);
+    window.addEventListener("touchmove", handleTouchMoveObject, {
+      passive: false,
+    });
+    window.addEventListener("touchend", handleStopMoveObject);
     return () => {
       container.removeEventListener("mousedown", startDrawMouse);
       container.removeEventListener("mouseup", endDrawMouse);
@@ -216,8 +276,10 @@ export default function ReactDraw({
       container.removeEventListener("touchcancel", endDrawTouch);
       container.removeEventListener("touchend", endDrawTouch);
       container.removeEventListener("mouseleave", endDrawMouse);
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleStopMove);
+      window.removeEventListener("mousemove", handleMouseMoveObject);
+      window.removeEventListener("mouseup", handleStopMoveObject);
+      window.removeEventListener("touchmove", handleTouchMoveObject);
+      window.removeEventListener("touchend", handleStopMoveObject);
     };
   }, [currentDrawingTool]);
 
