@@ -15,14 +15,21 @@ import {
   addPointToBounds,
   distance,
   dragDivs,
+  getCenterPoint,
   getRelativePoint,
   getTouchCoords,
   isRectBounding,
   makeBoundingRect,
   makeid,
   makeNewBoundingDiv,
+  rotateDiv,
 } from "../utils";
-import { CURSOR_ID, SELECT_TOOL_DRAG_MIN_DISTANCE } from "../constants";
+import {
+  CURSOR_ID,
+  ROTATE_BUTTON_PRE,
+  SELECT_FRAME_PRE,
+  SELECT_TOOL_DRAG_MIN_DISTANCE,
+} from "../constants";
 import {
   selectElement,
   selectManyElements,
@@ -66,6 +73,14 @@ export default function ReactDraw({
     const { objects } = getSelectedDrawingObjects();
     if (currentSelectMode.current === "drag") {
       dragDivs(objects, prevPoint, newPoint);
+    } else if (currentSelectMode.current === "rotate") {
+      if (objects.length > 1) {
+        throw new Error(
+          "should not be able to preform this action on more than object"
+        );
+      }
+      const referenceCenter = getCenterPoint(objects[0].container.bounds);
+      rotateDiv(objects[0], newPoint, referenceCenter);
     }
   };
 
@@ -165,7 +180,7 @@ export default function ReactDraw({
 
   /**
    * Checks if the event target is an object that should
-   * start a selection action (clicking on the select-frame,
+   * start a selection action (clicking on the select frame,
    * click on one of the expand corner buttons, rotate button)
    */
   const didStartSelectAction = (
@@ -175,9 +190,13 @@ export default function ReactDraw({
     if (!target) {
       throw new Error("Did start select action recieved null as target");
     }
-    if (target.id.includes("select-frame")) {
+    if (target.id.includes(SELECT_FRAME_PRE)) {
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "drag";
+      return true;
+    } else if (target.id.includes(ROTATE_BUTTON_PRE)) {
+      previousMousePos.current = relativePoint;
+      currentSelectMode.current = "rotate";
       return true;
     }
     return false;

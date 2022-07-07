@@ -1,5 +1,12 @@
-import { COLORS } from "../constants";
-import { DrawingData } from "../types";
+import {
+  ROTATE_BUTTON_PRE,
+  ROTATE_BUTTON_STYLES,
+  ROTATE_DOTTED_LINE_STYLES,
+  SELECTED_CORNER_BUTTON,
+  SELECT_FRAME_DIV_STYLES,
+  SELECT_FRAME_PRE,
+} from "../constants";
+import { DrawingData, PartialCSS } from "../types";
 
 export function unselectAll(selectedObjects: DrawingData[]): void {
   for (const obj of selectedObjects) {
@@ -23,15 +30,8 @@ function makeSelectFrameDiv(data: DrawingData) {
     return null;
   }
   const div = document.createElement("div");
-  div.setAttribute("id", `select-frame-${eleId}`);
-  div.style.width = "calc(100% + 12px)";
-  div.style.height = "calc(100% + 12px)";
-  div.style.position = "absolute";
-  div.style.border = `2px dotted ${COLORS.primary.main}`;
-  div.style.top = "-6px";
-  div.style.left = "-6px";
-  div.style.cursor = "all-scroll";
-  div.style.pointerEvents = "all";
+  div.setAttribute("id", `${SELECT_FRAME_PRE}-${eleId}`);
+  setStyles(div, SELECT_FRAME_DIV_STYLES);
   return div;
 }
 export function selectElement(data: DrawingData): void {
@@ -43,36 +43,21 @@ export function selectElement(data: DrawingData): void {
 }
 
 function addToolsToSelectionDiv(div: HTMLDivElement, eleId: string): void {
-  const topLeftCorner = cornerButton(true, false, false, true);
-  //   topLeftCorner.setAttribute("id", )
-  topLeftCorner.style.cursor = "nw-resize";
-  topLeftCorner.id = `button-tl-${eleId}`;
-  // leftTopCorner.
-  const topRightCorner = cornerButton(true, true);
-  topRightCorner.id = `button-tr-${eleId}`;
-  topRightCorner.style.cursor = "ne-resize";
-  const bottomRightCorner = cornerButton(false, true, true);
-  bottomRightCorner.id = `button-br-${eleId}`;
-  bottomRightCorner.style.cursor = "se-resize";
-  const bottomLeftCorner = cornerButton(false, false, true, true);
-  bottomLeftCorner.style.cursor = "sw-resize";
-  bottomLeftCorner.id = `button-bl-${eleId}`;
+  const topLeftCorner = cornerButton(eleId, true, false, false, true);
+  const topRightCorner = cornerButton(eleId, true, true);
+  const bottomRightCorner = cornerButton(eleId, false, true, true);
+  const bottomLeftCorner = cornerButton(eleId, false, false, true, true);
+
   div.appendChild(topLeftCorner);
   div.appendChild(topRightCorner);
   div.appendChild(bottomRightCorner);
   div.appendChild(bottomLeftCorner);
 
-  const rotateButton = cornerButton();
-  rotateButton.id = `button-rotate-${eleId}`;
-  rotateButton.style.top = "-45px";
-  rotateButton.style.cursor = "grab";
-  rotateButton.style.left = "calc(50% - 8px)";
+  const rotateButton = cornerButton(eleId);
+  rotateButton.id = `${ROTATE_BUTTON_PRE}-${eleId}`;
+  setStyles(rotateButton, ROTATE_BUTTON_STYLES);
   const divLine = document.createElement("div");
-  divLine.style.width = "0px";
-  divLine.style.height = "35px";
-  divLine.style.borderLeft = "2px dotted black";
-  divLine.style.position = "absolute";
-  divLine.style.left = "5px";
+  setStyles(divLine, ROTATE_DOTTED_LINE_STYLES);
   rotateButton.appendChild(divLine);
   div.appendChild(rotateButton);
 }
@@ -80,29 +65,31 @@ function addToolsToSelectionDiv(div: HTMLDivElement, eleId: string): void {
 const CORNER_BUTTON_OFFSET = -12;
 
 function cornerButton(
+  eleId: string,
   top?: boolean,
   right?: boolean,
   bottom?: boolean,
   left?: boolean
 ): HTMLButtonElement {
   const button = document.createElement("button");
-  button.style.position = "absolute";
-  button.style.borderRadius = "50%";
-  button.style.width = "16px";
-  button.style.height = "16px";
-  //   button.style.cursor = "pointer";
+  setStyles(button, SELECTED_CORNER_BUTTON);
+  let buttonId = "";
   if (top) {
     button.style.top = `${CORNER_BUTTON_OFFSET}px`;
+    buttonId += "n";
+  } else if (bottom) {
+    button.style.bottom = `${CORNER_BUTTON_OFFSET}px`;
+    buttonId += "s";
   }
   if (right) {
     button.style.right = `${CORNER_BUTTON_OFFSET}px`;
-  }
-  if (bottom) {
-    button.style.bottom = `${CORNER_BUTTON_OFFSET}px`;
-  }
-  if (left) {
+    buttonId += "e";
+  } else if (left) {
     button.style.left = `${CORNER_BUTTON_OFFSET}px`;
+    buttonId += "w";
   }
+  button.id = `corner-button-${buttonId}-${eleId}`;
+  button.style.cursor = `${buttonId}-resize`;
   return button;
 }
 export function unselectElement(data: DrawingData): void {
@@ -114,5 +101,12 @@ export function unselectElement(data: DrawingData): void {
 }
 
 function isElementSelected(div: HTMLDivElement) {
-  return div.lastElementChild?.id.includes("select-frame");
+  return div.lastElementChild?.id.includes(SELECT_FRAME_PRE);
+}
+
+export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
+  for (const key in styles) {
+    (<any>div.style)[key] = styles[key];
+  }
+  return div;
 }

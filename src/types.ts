@@ -43,3 +43,5 @@ export type ReactDrawProps = {
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
 };
+
+export type PartialCSS = Partial<CSSStyleDeclaration>;

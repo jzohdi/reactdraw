@@ -283,6 +283,18 @@ export function dragDivs(
   }
 }
 
+export function rotateDiv(
+  object: DrawingData,
+  newPoint: Point,
+  referenceCenter: Point
+) {
+  const div = object.container.div;
+  const x = newPoint[0] - referenceCenter[0];
+  const y = newPoint[1] - referenceCenter[1];
+  const angleDeg = (Math.atan2(y, x) * 180) / Math.PI + 90;
+  div.style.transform = `rotate(${angleDeg}deg)`;
+}
+
 export function distance(pointA: Point, pointB: Point): number {
   return Math.sqrt(
     Math.pow(Math.abs(pointA[0] - pointB[0]), 2) +
@@ -294,6 +306,13 @@ export function makeBoundingRect(point: Point): RectBounds {
   const [x, y] = point;
   return { top: y, right: x, bottom: y, left: x };
 }
+/**
+ * Expands the bounds of a current bounding rect { top, left, right, bottom}
+ * if the point is outside of the current.
+ * @param bounds
+ * @param point
+ * @returns
+ */
 export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
   let { top, right, bottom, left } = bounds;
   const [x, y] = point;
@@ -308,4 +327,12 @@ export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
     right = x;
   }
   return { top, right, bottom, left };
+}
+
+export function getCenterPoint(bounds: RectBounds): Point {
+  const height = bounds.bottom - bounds.top;
+  const y = bounds.top + height / 2;
+  const width = bounds.right - bounds.left;
+  const x = bounds.left + width / 2;
+  return [x, y];
 }
