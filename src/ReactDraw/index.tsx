@@ -5,10 +5,12 @@ import {
   DrawingData,
   DrawingTools,
   LayoutOption,
+  OnUpdateContext,
   Point,
   ReactChild,
   ReactDrawProps,
   RectBounds,
+  SelectMode,
 } from "../types";
 import { Children } from "react";
 import {
@@ -25,29 +27,32 @@ import {
   rotateDiv,
 } from "../utils";
 import {
+  CORNER_BUTTON_PRE,
   CURSOR_ID,
   ROTATE_BUTTON_PRE,
   SELECT_FRAME_PRE,
   SELECT_TOOL_DRAG_MIN_DISTANCE,
 } from "../constants";
 import {
+  getCornerMode,
   selectElement,
   selectManyElements,
   unselectAll,
   unselectElement,
 } from "./utils";
+import { resizeNW, resizeSE, resizeNE, resizeSW } from "../utils/resizeObject";
 
 type ElementsMap = {
   [id: string]: DrawingData;
 };
 
-type SelectMode =
-  | "drag"
-  | "rotate"
-  | "resizeTL"
-  | "resizeTR"
-  | "resizeBR"
-  | "resizeBL";
+function requireLength1(arr: any[]): void {
+  if (arr.length > 1) {
+    throw new Error(
+      "should not be able to preform this action on more than object"
+    );
+  }
+}
 
 export default function ReactDraw({
   children,
@@ -71,17 +76,50 @@ export default function ReactDraw({
       return;
     }
     const { objects } = getSelectedDrawingObjects();
-    if (currentSelectMode.current === "drag") {
+    const mode = currentSelectMode.current;
+    if (mode === null) {
+      return;
+    }
+    if (mode === "drag") {
       dragDivs(objects, prevPoint, newPoint);
-    } else if (currentSelectMode.current === "rotate") {
-      if (objects.length > 1) {
-        throw new Error(
-          "should not be able to preform this action on more than object"
-        );
-      }
+    } else if (mode === "rotate") {
+      requireLength1(objects);
       const referenceCenter = getCenterPoint(objects[0].container.bounds);
       rotateDiv(objects[0], newPoint, referenceCenter);
+      return;
     }
+
+    const viewContainer = drawingAreaRef.current;
+    if (!viewContainer) {
+      throw new Error("no view container while resizing ne");
+    }
+    const updateContext: OnUpdateContext = {
+      viewContainer,
+      previousPoint: prevPoint,
+      newPoint,
+      mode,
+    };
+    const item = objects[0];
+    requireLength1(objects);
+    // so that relative change is used
+    const pointDiff: Point = [
+      newPoint[0] - prevPoint[0],
+      newPoint[1] - prevPoint[1],
+    ];
+    if (mode === "resize-ne") {
+      resizeNE(item, pointDiff);
+    } else if (mode === "resize-nw") {
+      resizeNW(item, pointDiff);
+    } else if (mode === "resize-se") {
+      resizeSE(item, pointDiff);
+    } else if (mode === "resize-sw") {
+      resizeSW(item, pointDiff);
+    }
+    const toolUsed = topBarTools.find((o) => o.id === item.toolId);
+    if (!toolUsed) {
+      throw new Error("could not find the used tool");
+    }
+    toolUsed.onUpdate(item, updateContext);
   };
 
   /**
@@ -105,7 +143,11 @@ export default function ReactDraw({
     if (!(isUsingSelectTool() && didPressShift)) {
       unselectEverythingAndReturnPrevious();
     }
-    const newDrawingData = makeNewBoundingDiv(relativePoint, currentLineWidth);
+    const newDrawingData = makeNewBoundingDiv(
+      relativePoint,
+      currentLineWidth,
+      currentDrawingTool.id
+    );
     currDrawObj.current = newDrawingData;
     container?.append(newDrawingData.container.div);
     currentDrawingTool.onDrawStart(newDrawingData, container);
@@ -197,6 +239,10 @@ export default function ReactDraw({
     } else if (target.id.includes(ROTATE_BUTTON_PRE)) {
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "rotate";
+      return true;
+    } else if (target.id.includes(CORNER_BUTTON_PRE)) {
+      previousMousePos.current = relativePoint;
+      currentSelectMode.current = getCornerMode(target.id);
       return true;
     }
     return false;

@@ -1,6 +1,6 @@
 import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { DrawingData, DrawingTools } from "../types";
+import { DrawingData, DrawingTools, Point } from "../types";
 import {
   expandContainer,
   createCircle,
@@ -19,6 +19,7 @@ const freeDrawTool: DrawingTools = {
     // const relativeDiv = makeRelativeDiv();
     const newSvg = createSvg(lineWidth, lineWidth);
     // const newPath = createPath();
+    // newSvg.style.transform = "scale(1.0, 1.0)";
     const newPath = createCircle(lineWidth / 2);
     newSvg.appendChild(newPath);
     // relativeDiv.appendChild(newSvg);
@@ -30,10 +31,11 @@ const freeDrawTool: DrawingTools = {
     expandContainer(data);
     const boxSize = getBoxSize(data);
     const newSvg = createSvg(boxSize.width, boxSize.height);
+
     // const relativeDiv = makeRelativeDiv();
     const path = svgPathFromData(data, viewContainer);
-    path.style.width = "100%";
-    path.style.height = "100%";
+    // path.style.width = boxSize.width + "px";
+    // path.style.height = boxSize.height + "px";
     newSvg.appendChild(path);
     data.container.div.innerHTML = "";
     // relativeDiv.appendChild(newSvg);
@@ -44,11 +46,47 @@ const freeDrawTool: DrawingTools = {
   onDrawEnd: (data) => {
     console.log("free draw end");
   },
-  onUpdate: () => {},
+  onUpdate: (data, ctx) => {
+    if (!data.element) {
+      return;
+    }
+    // const { previousPoint, newPoint } = ctx;
+    // const bounds = data.container.bounds;
+    const { width, height } = getOriginalDimensions(
+      data.element as SVGSVGElement
+    );
+    const newWidth = data.container.bounds.right - data.container.bounds.left;
+    const newHeight = data.container.bounds.bottom - data.container.bounds.top;
+    const widthDiff = newWidth / width;
+    const heightDiff = newHeight / height;
+    const svgEle = (data.element as SVGSVGElement)
+      .lastElementChild as SVGPathElement;
+    // const xDiff = getPercentDiff(width, newPoint[0] - previousPoint[0]);
+    // const yDiff = getPercentDiff(height, previousPoint[1] - newPoint[1]);
+    // const currentScale = getCurrentScale(svgEle);
+    // console.log({ yDiff, xDiff }, currentScale);
+    // svgEle.style.transform = `scale(${currentScale.x + xDiff}, ${
+    //   currentScale.y + yDiff
+    // })`;
+    svgEle.style.transform = `scale(${widthDiff}, ${heightDiff})`;
+  },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };
 
 export default freeDrawTool;
+
+function getOriginalDimensions(svg: SVGSVGElement) {
+  const viewBox = svg.getAttribute("viewbox");
+  if (!viewBox) {
+    throw new Error("no viewbox found on ele");
+  }
+  const each = viewBox.split(" ");
+  return { width: parseFloat(each[2]), height: parseFloat(each[3]) };
+}
+
+function getPercentDiff(base: number, diff: number): number {
+  return diff / base;
+}
 
 function getBoxSize(data: DrawingData) {
   const bounds = data.container.bounds;
@@ -56,6 +94,16 @@ function getBoxSize(data: DrawingData) {
     width: bounds.right - bounds.left,
     height: bounds.bottom - bounds.top,
   };
+}
+const regex = /\d+\.?\d*/g;
+
+function getCurrentScale(element: SVGPathElement | HTMLDivElement) {
+  const result = element.style.transform.match(regex);
+  console.log("result:", result);
+  if (!result) {
+    return { x: 1, y: 1 };
+  }
+  return { x: parseFloat(result[0]), y: parseFloat(result[1]) };
 }
 
 function svgPathFromData(
@@ -79,17 +127,22 @@ function getPathDString(
   viewContainer: HTMLDivElement
 ): string {
   let pathString = "";
+  let lastPoint = data.coords[0];
   for (let i = 0; i < data.coords.length; i++) {
     const point = data.coords[i];
     const mappedPoint = mapPointToRect(point, data.container, viewContainer);
-    if (i === 0) {
-      pathString += `M ${mappedPoint[0]} ${mappedPoint[1]}`;
-    } else {
-      pathString += `L ${mappedPoint[0]} ${mappedPoint[1]}`;
-    }
+    pathString += getPathPoint(mappedPoint, lastPoint, i);
+    lastPoint = mappedPoint;
     if (i !== data.coords.length - 1) {
-      pathString += "";
+      pathString += " ";
     }
   }
   return pathString;
+}
+
+function getPathPoint(curr: Point, prev: Point, index: number): string {
+  if (index === 0) {
+    return `M ${curr[0]} ${curr[1]}`;
+  }
+  return `l ${curr[0] - prev[0]} ${curr[1] - prev[1]}`;
 }

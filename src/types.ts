@@ -6,13 +6,20 @@ export type LayoutAbsolute = {
 
 export type LayoutOption = "default" | LayoutAbsolute | "fit";
 
+export type OnUpdateContext = {
+  viewContainer: HTMLDivElement;
+  previousPoint: Point;
+  newPoint: Point;
+  mode: SelectMode;
+};
+
 export type DrawingTools = {
   icon: JSX.Element;
   id: string;
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onUpdate: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
   cursor?: string;
 };
 
@@ -36,6 +43,7 @@ export type DrawingData = {
     lineWidth: number;
     zIndex: number;
   };
+  toolId: string;
 };
 
 export type ReactDrawProps = {
@@ -45,3 +53,10 @@ export type ReactDrawProps = {
 };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
+export type SelectMode =
+  | "drag"
+  | "rotate"
+  | "resize-nw"
+  | "resize-ne"
+  | "resize-se"
+  | "resize-sw";

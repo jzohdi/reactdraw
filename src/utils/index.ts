@@ -40,7 +40,8 @@ function isBrowser() {
 
 export function makeNewBoundingDiv(
   relativePoint: Point,
-  lineWidth: number
+  lineWidth: number,
+  toolId: string
 ): DrawingData {
   if (!isBrowser()) {
     throw new Error("new bounding div called on the server.");
@@ -54,6 +55,7 @@ export function makeNewBoundingDiv(
   const data: DrawingData = {
     coords: [relativePoint],
     element: null,
+    toolId,
     container: {
       id,
       div,
@@ -125,7 +127,7 @@ export function createSvg(w: number, h: number): SVGSVGElement {
   newSVG.setAttribute("viewbox", `0 0 ${w} ${h}`);
   //   newSVG.style.position = "absolute";
   //   newSVG.style.top = "0";
-  //   newSVG.style.left = "0";
+  //   newSVG.style.transform = "scale(1.0, 1.0)";
   newSVG.style.width = "100%";
   newSVG.style.height = "100%";
   return newSVG;

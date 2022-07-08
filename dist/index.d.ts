@@ -4,13 +4,19 @@ type LayoutAbsolute = {
     height: number | string;
 };
 type LayoutOption = "default" | LayoutAbsolute | "fit";
+type OnUpdateContext = {
+    viewContainer: HTMLDivElement;
+    previousPoint: Point;
+    newPoint: Point;
+    mode: SelectMode;
+};
 type DrawingTools = {
     icon: JSX.Element;
     id: string;
     onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
     onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
     onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-    onUpdate: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+    onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
     cursor?: string;
 };
 type Point = [
@@ -36,13 +42,16 @@ type DrawingData = {
         lineWidth: number;
         zIndex: number;
     };
+    toolId: string;
 };
 type ReactDrawProps = {
     children?: ReactChild;
     layout?: LayoutOption;
     topBarTools: DrawingTools[];
 };
+type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
 declare function ReactDraw({ children, topBarTools, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
-export { ReactDraw, freeDrawTool };
+declare const selectTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool };
 //# sourceMappingURL=index.d.ts.map

@@ -5,6 +5,7 @@ export const SELECT_TOOL_DRAG_MIN_DISTANCE = 75;
 export const CURSOR_ID = "react-draw-cursor";
 export const ROTATE_BUTTON_PRE = "button-rotate";
 export const SELECT_FRAME_PRE = "select-frame";
+export const CORNER_BUTTON_PRE = "corner-button";
 export const COLORS = {
   primary: {
     light: "#bddefb",
