@@ -38,7 +38,7 @@ export type DrawingContainer = {
 export type DrawingData = {
   coords: Point[];
   container: DrawingContainer;
-  element: JSX.Element | SVGSVGElement | null;
+  element: HTMLElement | SVGSVGElement | null;
   style: {
     lineWidth: number;
     zIndex: number;

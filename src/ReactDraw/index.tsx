@@ -71,6 +71,69 @@ export default function ReactDraw({
   const previousMousePos = useRef<Point | null>(null);
   const currentSelectMode = useRef<SelectMode | null>(null);
 
+  const getViewContainer = () => {
+    const viewContainer = drawingAreaRef.current;
+    if (!viewContainer) {
+      throw new Error("no view container while resizing");
+    }
+    return viewContainer;
+  };
+
+  const isUsingSelectTool = (): boolean => {
+    return CURSOR_ID === currentDrawingTool.id;
+  };
+
+  const isPerformingSelectAction = (): boolean => {
+    return (
+      previousMousePos.current !== null && currentSelectMode.current !== null
+    );
+  };
+
+  /**
+   * If the select mode is to resize one of the corners, this function
+   * will handle resizing of the wrapper div and then call the
+   * update function of the tool that created that drawing element.
+   */
+  const handleResize = (
+    mode: SelectMode,
+    data: DrawingData,
+    ctx: OnUpdateContext
+  ) => {
+    // so that relative change is used
+    const pointDiff: Point = getPointDiff(ctx.newPoint, ctx.previousPoint);
+    if (mode === "resize-ne") {
+      resizeNE(data, pointDiff);
+    } else if (mode === "resize-nw") {
+      resizeNW(data, pointDiff);
+    } else if (mode === "resize-se") {
+      resizeSE(data, pointDiff);
+    } else if (mode === "resize-sw") {
+      resizeSW(data, pointDiff);
+    } else {
+      throw new Error("resize mode not recognized");
+    }
+    const toolUsed = getToolById(topBarTools, data.toolId);
+    toolUsed.onUpdate(data, ctx);
+  };
+
+  /**
+   * if the drawing mode is rotate, this function will
+   * handle rotating the wrapper div and return true
+   * else returns false.
+   */
+  const didHandleRotate = (
+    mode: SelectMode,
+    data: DrawingData,
+    newPoint: Point
+  ): boolean => {
+    if (mode === "rotate") {
+      const referenceCenter = getCenterPoint(data.container.bounds);
+      rotateDiv(data, newPoint, referenceCenter);
+      return true;
+    }
+    return false;
+  };
+
   const handleSelectToolOperation = (newPoint: Point) => {
     const prevPoint = previousMousePos.current;
     if (!prevPoint) {
@@ -83,43 +146,18 @@ export default function ReactDraw({
     }
     if (mode === "drag") {
       return dragDivs(objects, prevPoint, newPoint);
-    } else if (mode === "rotate") {
-      requireLength1(objects);
-      const referenceCenter = getCenterPoint(objects[0].container.bounds);
-      return rotateDiv(objects[0], newPoint, referenceCenter);
     }
-
-    const viewContainer = drawingAreaRef.current;
-    if (!viewContainer) {
-      throw new Error("no view container while resizing ne");
+    requireLength1(objects);
+    const item = objects[0];
+    if (didHandleRotate(mode, item, newPoint)) {
+      return;
     }
-    const updateContext: OnUpdateContext = {
-      viewContainer,
+    return handleResize(mode, item, {
+      viewContainer: getViewContainer(),
       previousPoint: prevPoint,
       newPoint,
       mode,
-    };
-    const item = objects[0];
-    requireLength1(objects);
-    // so that relative change is used
-    const pointDiff: Point = [
-      newPoint[0] - prevPoint[0],
-      newPoint[1] - prevPoint[1],
-    ];
-    if (mode === "resize-ne") {
-      resizeNE(item, pointDiff);
-    } else if (mode === "resize-nw") {
-      resizeNW(item, pointDiff);
-    } else if (mode === "resize-se") {
-      resizeSE(item, pointDiff);
-    } else if (mode === "resize-sw") {
-      resizeSW(item, pointDiff);
-    }
-    const toolUsed = topBarTools.find((o) => o.id === item.toolId);
-    if (!toolUsed) {
-      throw new Error("could not find the used tool");
-    }
-    toolUsed.onUpdate(item, updateContext);
+    });
   };
 
   /**
@@ -132,12 +170,9 @@ export default function ReactDraw({
     relativePoint: Point,
     didPressShift: boolean
   ) {
-    const container = drawingAreaRef.current;
-    if (!container) {
-      return;
-    }
+    const container = getViewContainer();
     const target = eventTarget as HTMLDivElement | HTMLButtonElement;
-    console.log({ target });
+    // console.log({ target });
     if (didStartSelectAction(target, relativePoint)) {
       return;
     }
@@ -150,22 +185,18 @@ export default function ReactDraw({
       currentDrawingTool.id
     );
     currDrawObj.current = newDrawingData;
-    container?.append(newDrawingData.container.div);
+    container.append(newDrawingData.container.div);
     currentDrawingTool.onDrawStart(newDrawingData, container);
   }
 
   function drawing(relativePoint: Point) {
     // need to do this first because currentDrawing data is null during
     // select mode.
-    if (isPerformingSelectAction()) {
-      return;
-    }
-    const container = drawingAreaRef.current;
     const currentDrawingData = currDrawObj.current;
-    console.log("is drawing");
-    if (!currentDrawingData || !container) {
+    if (isPerformingSelectAction() || !currentDrawingData) {
       return;
     }
+    const container = getViewContainer();
     currentDrawingData.coords.push(relativePoint);
     currentDrawingTool.onDrawing(currentDrawingData, container);
     if (CURSOR_ID === currentDrawingTool.id) {
@@ -175,14 +206,13 @@ export default function ReactDraw({
 
   function endDraw(relativePoint: Point, didPressShift: boolean) {
     const currentDrawingData = currDrawObj.current;
-    const container = drawingAreaRef.current;
-    if (!currentDrawingData || !container) {
-      return;
-    }
     currentSelectMode.current = null;
     previousMousePos.current = null;
     currDrawObj.current = null;
-    currentDrawingTool.onDrawEnd(currentDrawingData, container);
+    if (!currentDrawingData) {
+      return;
+    }
+    currentDrawingTool.onDrawEnd(currentDrawingData, getViewContainer());
     if (!isUsingSelectTool()) {
       renderedElementsMap.current[currentDrawingData.container.id] =
         currentDrawingData;
@@ -196,8 +226,6 @@ export default function ReactDraw({
    * been intended to click on an object. We can check for this by
    * checking if the [x,y] position of the click on mouseup/touchend (lastPoint),
    * is within a min distnace from the initial [x, y] start.
-   * @param drawingData
-   * @param lastPoint
    */
   const tryClickObject = (
     drawingData: DrawingData,
@@ -210,16 +238,6 @@ export default function ReactDraw({
       const bounds = addPointToBounds(makeBoundingRect(firstPoint), lastPoint);
       handleTryClickObject(renderedElementsMap.current, bounds, didPressShift);
     }
-  };
-
-  const isUsingSelectTool = (): boolean => {
-    return CURSOR_ID === currentDrawingTool.id;
-  };
-
-  const isPerformingSelectAction = (): boolean => {
-    return (
-      previousMousePos.current !== null && currentSelectMode.current !== null
-    );
   };
 
   /**
@@ -235,17 +253,17 @@ export default function ReactDraw({
       throw new Error("Did start select action recieved null as target");
     }
     if (target.id.includes(SELECT_FRAME_PRE)) {
-      console.log("starting selection action move");
+      //   console.log("starting selection action move");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "drag";
       return true;
     } else if (target.id.includes(ROTATE_BUTTON_PRE)) {
-      console.log("starting selection action rotate ");
+      //   console.log("starting selection action rotate ");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "rotate";
       return true;
     } else if (target.id.includes(CORNER_BUTTON_PRE)) {
-      console.log("starting selection action corner ");
+      //   console.log("starting selection action corner ");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = getCornerMode(target.id);
       return true;
@@ -355,14 +373,10 @@ export default function ReactDraw({
     currData: DrawingData,
     renderedMap: ElementsMap
   ) => {
-    let elementIdsToSelect = [];
-    for (const elementId in renderedMap) {
-      const eleData = renderedMap[elementId];
-      unselectElement(eleData);
-      if (isRectBounding(currData.container.bounds, eleData.container.bounds)) {
-        elementIdsToSelect.push(elementId);
-      }
-    }
+    const elementIdsToSelect = getElementIdsInsideOfBounds(
+      renderedMap,
+      currData.container.bounds
+    );
     handleSelectIds(elementIdsToSelect);
   };
 
@@ -371,18 +385,7 @@ export default function ReactDraw({
     bounds: RectBounds,
     didPressShift: boolean
   ) => {
-    let itemToSelect = null;
-    for (const eleId in renderedMap) {
-      const eleData = renderedMap[eleId];
-      if (isRectBounding(eleData.container.bounds, bounds)) {
-        const eleIsOnTop =
-          itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
-        if (eleIsOnTop) {
-          itemToSelect = eleData;
-        }
-      }
-    }
-
+    const clickedEle = getElementsThatBoundsAreWithin(renderedMap, bounds);
     // unselect everything.
     let { ids } = unselectEverythingAndReturnPrevious();
 
@@ -391,8 +394,8 @@ export default function ReactDraw({
       ids = [];
     }
     // if item to select found, add to ids
-    if (itemToSelect !== null) {
-      ids = ids.concat([itemToSelect.container.id]);
+    if (clickedEle !== null) {
+      ids = ids.concat([clickedEle.container.id]);
     }
     handleSelectIds(ids);
   };
@@ -429,9 +432,7 @@ export default function ReactDraw({
 
   const handleSelectTopTool = (toolId: string) => {
     if (currentDrawingTool.id !== toolId) {
-      const selectedTool = topBarTools.find(
-        (tool: DrawingTools) => tool.id === toolId
-      );
+      const selectedTool = getToolById(topBarTools, toolId);
       if (!!selectedTool) {
         setCurrentDrawingTool(selectedTool);
       }
@@ -481,4 +482,48 @@ function validateProps(children: ReactChild, layout?: LayoutOption) {
     layout = "default";
   }
   return { numChildren, layout };
+}
+
+function getToolById(tools: DrawingTools[], id: string): DrawingTools {
+  const tool = tools.find((t) => t.id === id);
+  if (!tool) {
+    throw new Error("could not find the used tool");
+  }
+  return tool;
+}
+
+function getPointDiff(pointA: Point, pointB: Point): Point {
+  return [pointA[0] - pointB[0], pointA[1] - pointB[1]];
+}
+
+function getElementsThatBoundsAreWithin(
+  renderedMap: ElementsMap,
+  bounds: RectBounds
+) {
+  let itemToSelect = null;
+  for (const eleId in renderedMap) {
+    const eleData = renderedMap[eleId];
+    if (isRectBounding(eleData.container.bounds, bounds)) {
+      const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
+      if (eleIsOnTop) {
+        itemToSelect = eleData;
+      }
+    }
+  }
+  return itemToSelect;
+}
+
+function getElementIdsInsideOfBounds(
+  renderedMap: ElementsMap,
+  bounds: RectBounds
+) {
+  const elementIdsToSelect = [];
+  for (const elementId in renderedMap) {
+    const eleData = renderedMap[elementId];
+    unselectElement(eleData);
+    if (isRectBounding(bounds, eleData.container.bounds)) {
+      elementIdsToSelect.push(elementId);
+    }
+  }
+  return elementIdsToSelect;
 }

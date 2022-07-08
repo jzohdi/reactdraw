@@ -4,14 +4,22 @@ import ReactDraw from "../ReactDraw";
 import { DrawingTools, ReactDrawProps } from "../types";
 import freeDrawTool from "../FreeDrawTool";
 import selectTool from "../SelectTool";
+import squareTool from "../SquareTool";
+import circlTool from "../CircleTool";
+
 export default {
-  title: "Example/ReactDraw",
+  title: "ReactDraw",
   component: ReactDraw,
 };
 
 const Template: Story<ReactDrawProps> = (args) => <ReactDraw {...args} />;
 
-const topBarTools: DrawingTools[] = [selectTool, freeDrawTool];
+const topBarTools: DrawingTools[] = [
+  selectTool,
+  freeDrawTool,
+  squareTool,
+  circlTool,
+];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});
 

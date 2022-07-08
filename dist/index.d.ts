@@ -37,7 +37,7 @@ type DrawingContainer = {
 type DrawingData = {
     coords: Point[];
     container: DrawingContainer;
-    element: JSX.Element | SVGSVGElement | null;
+    element: HTMLElement | SVGSVGElement | null;
     style: {
         lineWidth: number;
         zIndex: number;
@@ -54,5 +54,7 @@ type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | 
 declare function ReactDraw({ children, topBarTools, hideTopBar, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
-export { ReactDraw, freeDrawTool, selectTool };
+declare const squareTool: DrawingTools;
+declare const circlTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool };
 //# sourceMappingURL=index.d.ts.map

@@ -1,11 +1,11 @@
 import React from "react";
-import { CusorClickIcon } from "@jzohdi/jsx-icons";
+import { CursorClickIcon } from "@jzohdi/jsx-icons";
 import { DrawingTools } from "../types";
 import { COLORS, CURSOR_ID } from "../constants";
 import { setContainerRect } from "../utils";
 
 const selectTool: DrawingTools = {
-  icon: <CusorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
+  icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
   id: CURSOR_ID,
   onDrawStart: (data) => {
     data.container.div.style.border = `1px solid ${COLORS.primary.main}`;

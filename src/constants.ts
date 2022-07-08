@@ -1,11 +1,20 @@
 import { PartialCSS } from "./types";
 
-export const BPmd = 450;
-export const SELECT_TOOL_DRAG_MIN_DISTANCE = 75;
+//============== TOOL IDS =========================
 export const CURSOR_ID = "react-draw-cursor";
+export const SQUARE_TOOL_ID = "react-draw-square-tool";
+export const CIRCLE_TOOL_ID = "react-draw-circle-tool";
+
+//============== TOOL IDS =========================
 export const ROTATE_BUTTON_PRE = "button-rotate";
 export const SELECT_FRAME_PRE = "select-frame";
 export const CORNER_BUTTON_PRE = "corner-button";
+
+//============== STYLES =========================
+// break point medium
+export const BPmd = 450;
+// max distnace for a select click stop - end to be considered a click
+export const SELECT_TOOL_DRAG_MIN_DISTANCE = 75;
 export const COLORS = {
   primary: {
     light: "#bddefb",
@@ -16,8 +25,8 @@ export const COLORS = {
   },
 };
 export const SELECT_FRAME_DIV_STYLES: PartialCSS = {
-  width: "calc(100% + 12px)",
-  height: "calc(100% + 12px)",
+  width: "calc(100% + 16px)",
+  height: "calc(100% + 16px)",
   position: "absolute",
   border: `2px dotted ${COLORS.primary.main}`,
   top: "-6px",
@@ -47,3 +56,4 @@ export const SELECTED_CORNER_BUTTON: PartialCSS = {
   width: "16px",
   height: "16px",
 };
+//============== STYLES =========================
