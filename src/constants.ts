@@ -38,6 +38,7 @@ export const ROTATE_DOTTED_LINE_STYLES: PartialCSS = {
   borderLeft: "2px dotted black",
   position: "absolute",
   left: "5px",
+  pointerEvents: "none",
 };
 
 export const SELECTED_CORNER_BUTTON: PartialCSS = {

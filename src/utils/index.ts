@@ -50,7 +50,8 @@ export function makeNewBoundingDiv(
   const { id, div, top, left, right, bottom } = makeNewDiv(
     pointX,
     pointY,
-    lineWidth
+    lineWidth,
+    toolId
   );
   const data: DrawingData = {
     coords: [relativePoint],
@@ -86,13 +87,14 @@ type MakeNewDivOutput = {
 function makeNewDiv(
   pointX: number,
   pointY: number,
-  lineWidth: number
+  lineWidth: number,
+  toolId: string
 ): MakeNewDivOutput {
   const id = makeid(6);
   const div = document.createElement("div");
   const left = pointX - lineWidth;
   const top = pointY - lineWidth;
-  div.id = id;
+  div.id = `${toolId}-${id}`;
   div.style.width = `${lineWidth * 2}px`;
   div.style.height = `${lineWidth * 2}px`;
   div.style.position = "absolute";

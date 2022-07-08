@@ -48,9 +48,10 @@ type ReactDrawProps = {
     children?: ReactChild;
     layout?: LayoutOption;
     topBarTools: DrawingTools[];
+    hideTopBar?: boolean;
 };
 type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
-declare function ReactDraw({ children, topBarTools, ...props }: ReactDrawProps): JSX.Element;
+declare function ReactDraw({ children, topBarTools, hideTopBar, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 export { ReactDraw, freeDrawTool, selectTool };

@@ -59,6 +59,7 @@ function addToolsToSelectionDiv(div: HTMLDivElement, eleId: string): void {
   setStyles(rotateButton, ROTATE_BUTTON_STYLES);
   const divLine = document.createElement("div");
   setStyles(divLine, ROTATE_DOTTED_LINE_STYLES);
+  divLine.id = `line-div-${eleId}`;
   rotateButton.appendChild(divLine);
   div.appendChild(rotateButton);
 }

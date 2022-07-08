@@ -20,6 +20,11 @@ const selectTool: DrawingTools = {
     div.style.border = "none";
     div.style.backgroundColor = "transparent";
     div.parentElement?.removeChild(div);
+    console.log("select tool end");
+    const ele = document.getElementById(data.container.id);
+    if (ele) {
+      ele.remove();
+    }
   },
   onUpdate: (data) => {},
 };

@@ -50,6 +50,7 @@ export type ReactDrawProps = {
   children?: ReactChild;
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
+  hideTopBar?: boolean;
 };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;

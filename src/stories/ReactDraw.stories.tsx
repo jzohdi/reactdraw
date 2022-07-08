@@ -19,6 +19,12 @@ DefaultLayoutWithoutChildren.args = {
   topBarTools,
 };
 
+export const HideTopBar = Template.bind({});
+HideTopBar.args = {
+  topBarTools: [freeDrawTool],
+  hideTopBar: true,
+};
+
 export const DefaultLayoutWithChildren = Template.bind({});
 
 DefaultLayoutWithChildren.args = {

@@ -57,6 +57,7 @@ function requireLength1(arr: any[]): void {
 export default function ReactDraw({
   children,
   topBarTools,
+  hideTopBar,
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -81,12 +82,11 @@ export default function ReactDraw({
       return;
     }
     if (mode === "drag") {
-      dragDivs(objects, prevPoint, newPoint);
+      return dragDivs(objects, prevPoint, newPoint);
     } else if (mode === "rotate") {
       requireLength1(objects);
       const referenceCenter = getCenterPoint(objects[0].container.bounds);
-      rotateDiv(objects[0], newPoint, referenceCenter);
-      return;
+      return rotateDiv(objects[0], newPoint, referenceCenter);
     }
 
     const viewContainer = drawingAreaRef.current;
@@ -137,6 +137,7 @@ export default function ReactDraw({
       return;
     }
     const target = eventTarget as HTMLDivElement | HTMLButtonElement;
+    console.log({ target });
     if (didStartSelectAction(target, relativePoint)) {
       return;
     }
@@ -161,6 +162,7 @@ export default function ReactDraw({
     }
     const container = drawingAreaRef.current;
     const currentDrawingData = currDrawObj.current;
+    console.log("is drawing");
     if (!currentDrawingData || !container) {
       return;
     }
@@ -233,14 +235,17 @@ export default function ReactDraw({
       throw new Error("Did start select action recieved null as target");
     }
     if (target.id.includes(SELECT_FRAME_PRE)) {
+      console.log("starting selection action move");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "drag";
       return true;
     } else if (target.id.includes(ROTATE_BUTTON_PRE)) {
+      console.log("starting selection action rotate ");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = "rotate";
       return true;
     } else if (target.id.includes(CORNER_BUTTON_PRE)) {
+      console.log("starting selection action corner ");
       previousMousePos.current = relativePoint;
       currentSelectMode.current = getCornerMode(target.id);
       return true;
@@ -326,6 +331,7 @@ export default function ReactDraw({
       passive: false,
     });
     window.addEventListener("touchend", handleStopMoveObject);
+    window.addEventListener("touchcancel", handleStopMoveObject);
     return () => {
       container.removeEventListener("mousedown", startDrawMouse);
       container.removeEventListener("mouseup", endDrawMouse);
@@ -339,6 +345,7 @@ export default function ReactDraw({
       window.removeEventListener("mouseup", handleStopMoveObject);
       window.removeEventListener("touchmove", handleTouchMoveObject);
       window.removeEventListener("touchend", handleStopMoveObject);
+      window.removeEventListener("touchcancel", handleStopMoveObject);
     };
   }, [currentDrawingTool]);
 
@@ -436,11 +443,13 @@ export default function ReactDraw({
 
   return (
     <Container layout={layout}>
-      <TopToolBar
-        tools={topBarTools}
-        onSelectTool={handleSelectTopTool}
-        currentTool={currentDrawingTool.id}
-      />
+      {!hideTopBar && (
+        <TopToolBar
+          tools={topBarTools}
+          onSelectTool={handleSelectTopTool}
+          currentTool={currentDrawingTool.id}
+        />
+      )}
       <div
         id={drawingAreaId.current}
         style={{

@@ -50,8 +50,6 @@ const freeDrawTool: DrawingTools = {
     if (!data.element) {
       return;
     }
-    // const { previousPoint, newPoint } = ctx;
-    // const bounds = data.container.bounds;
     const { width, height } = getOriginalDimensions(
       data.element as SVGSVGElement
     );
@@ -61,13 +59,6 @@ const freeDrawTool: DrawingTools = {
     const heightDiff = newHeight / height;
     const svgEle = (data.element as SVGSVGElement)
       .lastElementChild as SVGPathElement;
-    // const xDiff = getPercentDiff(width, newPoint[0] - previousPoint[0]);
-    // const yDiff = getPercentDiff(height, previousPoint[1] - newPoint[1]);
-    // const currentScale = getCurrentScale(svgEle);
-    // console.log({ yDiff, xDiff }, currentScale);
-    // svgEle.style.transform = `scale(${currentScale.x + xDiff}, ${
-    //   currentScale.y + yDiff
-    // })`;
     svgEle.style.transform = `scale(${widthDiff}, ${heightDiff})`;
   },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
