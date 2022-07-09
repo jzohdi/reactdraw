@@ -56,5 +56,7 @@ declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
 declare const circlTool: DrawingTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool };
+declare const diamondTool: DrawingTools;
+declare const straightLineTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool };
 //# sourceMappingURL=index.d.ts.map

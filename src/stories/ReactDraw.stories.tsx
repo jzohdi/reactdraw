@@ -2,10 +2,15 @@ import React from "react";
 import { Story } from "@storybook/react";
 import ReactDraw from "../ReactDraw";
 import { DrawingTools, ReactDrawProps } from "../types";
-import freeDrawTool from "../FreeDrawTool";
-import selectTool from "../SelectTool";
-import squareTool from "../SquareTool";
-import circlTool from "../CircleTool";
+
+import {
+  circleTool,
+  squareTool,
+  selectTool,
+  freeDrawTool,
+  diamondTool,
+  straightLineTool,
+} from "../../src";
 
 export default {
   title: "ReactDraw",
@@ -18,7 +23,9 @@ const topBarTools: DrawingTools[] = [
   selectTool,
   freeDrawTool,
   squareTool,
-  circlTool,
+  circleTool,
+  diamondTool,
+  straightLineTool,
 ];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});

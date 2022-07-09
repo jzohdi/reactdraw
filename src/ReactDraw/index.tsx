@@ -285,11 +285,13 @@ export default function ReactDraw({
     }
 
     function handleMouseMoveObject(e: MouseEvent) {
+      e.preventDefault();
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
       moveObject(relativePoint);
     }
     function handleTouchMoveObject(e: TouchEvent) {
+      e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
       moveObject(relativePoint);
@@ -317,17 +319,20 @@ export default function ReactDraw({
     }
 
     function startDrawTouch(e: TouchEvent) {
+      e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
       starDraw(e.target, relativePoint, e.shiftKey);
     }
 
     function drawTouch(e: TouchEvent) {
+      e.preventDefault();
       const point = getTouchCoords(e);
       const relativePoint = getRelativePoint(point, container);
       drawing(relativePoint);
     }
     function endDrawTouch(e: TouchEvent) {
+      e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
       endDraw(relativePoint, e.shiftKey);

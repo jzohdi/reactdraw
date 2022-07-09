@@ -4,6 +4,8 @@ import { PartialCSS } from "./types";
 export const CURSOR_ID = "react-draw-cursor";
 export const SQUARE_TOOL_ID = "react-draw-square-tool";
 export const CIRCLE_TOOL_ID = "react-draw-circle-tool";
+export const DIAMOND_TOOL_ID = "react-draw-diamond-tool";
+export const STRAIGHT_LINE_TOOL_ID = "react-draw-line-tool";
 
 //============== TOOL IDS =========================
 export const ROTATE_BUTTON_PRE = "button-rotate";

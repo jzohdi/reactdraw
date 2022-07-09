@@ -6,8 +6,10 @@ import {
   createCircle,
   createSvg,
   mapPointToRect,
+  scaleSvg,
   //   makeRelativeDiv,
 } from "../utils";
+import { createPathSvg } from "../utils/svgUtils";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
@@ -50,34 +52,12 @@ const freeDrawTool: DrawingTools = {
     if (!data.element) {
       return;
     }
-    const { width, height } = getOriginalDimensions(
-      data.element as SVGSVGElement
-    );
-    const newWidth = data.container.bounds.right - data.container.bounds.left;
-    const newHeight = data.container.bounds.bottom - data.container.bounds.top;
-    const widthDiff = newWidth / width;
-    const heightDiff = newHeight / height;
-    const svgEle = (data.element as SVGSVGElement)
-      .lastElementChild as SVGPathElement;
-    svgEle.style.transform = `scale(${widthDiff}, ${heightDiff})`;
+    scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };
 
 export default freeDrawTool;
-
-function getOriginalDimensions(svg: SVGSVGElement) {
-  const viewBox = svg.getAttribute("viewbox");
-  if (!viewBox) {
-    throw new Error("no viewbox found on ele");
-  }
-  const each = viewBox.split(" ");
-  return { width: parseFloat(each[2]), height: parseFloat(each[3]) };
-}
-
-function getPercentDiff(base: number, diff: number): number {
-  return diff / base;
-}
 
 function getBoxSize(data: DrawingData) {
   const bounds = data.container.bounds;
@@ -86,30 +66,12 @@ function getBoxSize(data: DrawingData) {
     height: bounds.bottom - bounds.top,
   };
 }
-const regex = /\d+\.?\d*/g;
-
-function getCurrentScale(element: SVGPathElement | HTMLDivElement) {
-  const result = element.style.transform.match(regex);
-  console.log("result:", result);
-  if (!result) {
-    return { x: 1, y: 1 };
-  }
-  return { x: parseFloat(result[0]), y: parseFloat(result[1]) };
-}
 
 function svgPathFromData(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGPathElement {
-  const newPath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  newPath.setAttribute("fill", "transparent");
-  newPath.setAttribute("stroke", "black");
-  newPath.setAttribute("stroke-width", "4px");
-  newPath.setAttribute("stroke-linejoin", "round");
-  newPath.setAttribute("stroke-linecap", "round");
+  const newPath = createPathSvg(data.style.lineWidth);
   newPath.setAttribute("d", getPathDString(data, viewContainer));
   return newPath;
 }

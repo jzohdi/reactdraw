@@ -162,6 +162,29 @@ export function createPath(): SVGPathElement {
   return newPath;
 }
 
+/**
+ * Assumes that the svg has a viewBox set the the original dimensions
+ * and that the svg has a single path child ele
+ */
+export function scaleSvg(svgEle: SVGSVGElement, bounds: RectBounds): void {
+  const { width, height } = getOriginalDimensions(svgEle);
+  const newWidth = bounds.right - bounds.left;
+  const newHeight = bounds.bottom - bounds.top;
+  const widthDiff = newWidth / width;
+  const heightDiff = newHeight / height;
+  const pathEle = (svgEle as SVGSVGElement).lastElementChild as SVGPathElement;
+  pathEle.style.transform = `scale(${widthDiff}, ${heightDiff})`;
+}
+
+function getOriginalDimensions(svg: SVGSVGElement) {
+  const viewBox = svg.getAttribute("viewbox");
+  if (!viewBox) {
+    throw new Error("no viewbox found on ele");
+  }
+  const each = viewBox.split(" ");
+  return { width: parseFloat(each[2]), height: parseFloat(each[3]) };
+}
+
 export function createCircle(radius: number) {
   if (!isBrowser()) {
     throw new Error("createPath called on server");
