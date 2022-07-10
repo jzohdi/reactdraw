@@ -13,6 +13,12 @@ export type OnUpdateContext = {
   mode: SelectMode;
 };
 
+/**
+ * icon: the icon to be displayed in the top bar tools
+ * id: required so that react draw can identify objects created by this id.
+ * cursor: sets the the cursor of the mouse while over the viewContainer
+ * ----
+ */
 export type DrawingTools = {
   icon: JSX.Element;
   id: string;

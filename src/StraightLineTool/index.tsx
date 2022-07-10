@@ -1,15 +1,10 @@
-import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { STRAIGHT_LINE_TOOL_ID } from "../constants";
-import { DrawingData, DrawingTools, Point } from "../types";
-import {
-  createCircle,
-  createSvg,
-  mapPointToRect,
-  scaleSvg,
-  setContainerRect,
-} from "../utils";
-import { createPathSvg } from "../utils/svgUtils";
+import { DrawingData, DrawingTools } from "../types";
+import { scaleSvg, setContainerRect } from "../utils";
+import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
+import { createCircle, createSvg } from "../utils/svgUtils";
+import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
 
 const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
@@ -50,31 +45,7 @@ function makeLineSvg(
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const newSvg = createSvg(width + lineWidth, height + lineWidth);
-  const path = drawLineFromStartToEnd(data, viewContainer);
-  newSvg.appendChild(path);
+  const lineEle = drawLineFromStartToEnd(data, viewContainer);
+  newSvg.appendChild(lineEle);
   return newSvg;
-}
-
-function drawLineFromStartToEnd(
-  data: DrawingData,
-  viewContainer: HTMLDivElement
-): SVGPathElement {
-  const coords = data.coords;
-  const lineWidth = data.style.lineWidth;
-  if (coords.length < 2) {
-    throw new Error("draw line from start to end must have at least 2 coords");
-  }
-  const pathEle = createPathSvg(lineWidth);
-  // if you're not first you're last
-  const first = mapPointToRect(coords[0], data.container, viewContainer);
-  const last = mapPointToRect(
-    coords[coords.length - 1],
-    data.container,
-    viewContainer
-  );
-  //   const
-  const startPoint = `M ${first[0]} ${first[1]}`;
-  const endPoint = `L ${last[0]} ${last[1]}`;
-  pathEle.setAttribute("d", `${startPoint} ${endPoint}`);
-  return pathEle;
 }

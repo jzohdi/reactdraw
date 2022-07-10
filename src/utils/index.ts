@@ -34,7 +34,7 @@ export function getRelativePoint(
   return [point[0] - rect.left, point[1] - rect.top];
 }
 
-function isBrowser() {
+export function isBrowser() {
   return typeof window !== undefined;
 }
 
@@ -112,29 +112,6 @@ function makeNewDiv(
   };
 }
 
-export function createSvg(w: number, h: number): SVGSVGElement {
-  if (!isBrowser()) {
-    throw new Error("createSVG called on server");
-  }
-  const newSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  //   newSVG.setAttribute("width", `${w}px`);
-  //   newSVG.setAttribute("height", `${h}px`);
-  newSVG.setAttributeNS(
-    "http://www.w3.org/2000/xmlns/",
-    "xmlns:xlink",
-    "http://www.w3.org/1999/xlink"
-  );
-  //   newSVG.setAttribute("version", "1.1");
-  //   newSVG.setAttribute("preserveAspectRatio", "none");
-  newSVG.setAttribute("viewbox", `0 0 ${w} ${h}`);
-  //   newSVG.style.position = "absolute";
-  //   newSVG.style.top = "0";
-  //   newSVG.style.transform = "scale(1.0, 1.0)";
-  newSVG.style.width = "100%";
-  newSVG.style.height = "100%";
-  return newSVG;
-}
-
 export function makeRelativeDiv() {
   const div = document.createElement("div");
   if (!div) {
@@ -144,22 +121,6 @@ export function makeRelativeDiv() {
   div.style.height = "100%";
   div.style.position = "relative";
   return div;
-}
-
-export function createPath(): SVGPathElement {
-  if (!isBrowser()) {
-    throw new Error("createPath called on server");
-  }
-  const newPath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  newPath.setAttribute("fill", "black");
-  newPath.setAttribute("stroke-width", "1px");
-  newPath.setAttribute("stroke-linejoin", "round");
-  newPath.setAttribute("stroke-linecap", "round");
-  newPath.setAttribute("d", "M 0 0 L 1 1");
-  return newPath;
 }
 
 /**
@@ -183,19 +144,6 @@ function getOriginalDimensions(svg: SVGSVGElement) {
   }
   const each = viewBox.split(" ");
   return { width: parseFloat(each[2]), height: parseFloat(each[3]) };
-}
-
-export function createCircle(radius: number) {
-  if (!isBrowser()) {
-    throw new Error("createPath called on server");
-  }
-  const ele = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  ele.setAttribute("fill", "black");
-  ele.setAttribute("cx", `${Math.ceil(radius / 2)}`);
-  ele.setAttribute("cy", `${Math.ceil(radius / 2)}`);
-  ele.setAttribute("r", `${radius}`);
-  //   ele.setAttribute("d", "M 0 0 L 1 1");
-  return ele;
 }
 
 export function mapPointToRect(
@@ -256,7 +204,7 @@ export function setContainerRect(data: DrawingData): Point[] {
   }
   const [firstX, firstY] = data.coords[0];
   const [lastX, lastY] = data.coords[data.coords.length - 1];
-
+  const lineWidth = data.style.lineWidth;
   const minX = Math.min(firstX, lastX);
   const minY = Math.min(firstY, lastY);
   const maxX = Math.max(firstX, lastX);
@@ -271,8 +219,8 @@ export function setContainerRect(data: DrawingData): Point[] {
 
   div.style.top = minY + "px";
   div.style.left = minX + "px";
-  div.style.width = `${maxX - minX}px`;
-  div.style.height = `${maxY - minY}px`;
+  div.style.width = `${maxX - minX + lineWidth}px`;
+  div.style.height = `${maxY - minY + lineWidth}px`;
 
   return data.coords;
 }

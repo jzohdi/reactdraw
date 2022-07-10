@@ -10,6 +10,7 @@ import {
   freeDrawTool,
   diamondTool,
   straightLineTool,
+  //   arrowTool,
 } from "../../src";
 
 export default {
@@ -26,6 +27,7 @@ const topBarTools: DrawingTools[] = [
   circleTool,
   diamondTool,
   straightLineTool,
+  //   arrowTool,
 ];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});

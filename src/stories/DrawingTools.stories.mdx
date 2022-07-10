@@ -1,0 +1,124 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Drawing Tools" />
+
+# Drawing Tools
+
+ReactDraw uses a plugin system for drawing tools.
+This allows you to have full control over the functionality of the component.
+You can import the tools you want, hook in to the drawing stages, and create your own tools.
+The type definition of a drawing tool is described by the typescript below.
+
+<ul>
+  <li>
+    <strong>icon: </strong> the icon to be displayed in the top bar tools
+  </li>
+  <li>
+    <strong>id</strong> required so that react draw can identify objects created
+    by this id
+  </li>
+  <li>
+    <strong>cursor</strong> sets the the cursor of the mouse while over the
+    viewContainer
+  </li>
+  <li>
+    <strong>onDrawStart</strong> called on mousedown/touchstart. includes data
+    like the coordinates, etc. (see more below)
+  </li>
+  <li>
+    <strong>onDrawing</strong> called during each new point. (mousemove)
+  </li>
+  <li>
+    <strong>onDrawEnd</strong> called after mouseup/touchend
+  </li>
+  <li>
+    <strong>onUpdate</strong> called when the object is being resized (corner
+    expand action while using select tool)
+  </li>
+  <li>
+    <strong>DrawingData</strong> includes the mouse coordinates, the container
+    div, current styles, etc.
+  </li>
+  <li>
+    <strong>viewContainer</strong> the div that is the react-draw full drawing
+    area. This is used to help calculate relative coordinates.
+  </li>
+</ul>
+
+More of the types included in the <b>Type Descriptions</b> page.
+
+```typescript
+type DrawingTools = {
+  icon: JSX.Element;
+  id: string;
+  onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
+  cursor?: string;
+};
+```
+
+## Free Draw Tool
+
+For example here is the free draw tool implementation.
+
+<p>
+  During <b>onDrawStart</b> the free draw tool creates a circle since there is
+  only a single <b>data.coords `Point`</b>. An svg element is created and then
+  appended a child to the object container. The object container is a <b>div</b>
+  element that is created for you at the correct position in the <b>
+    "viewContainer"
+  </b>
+</p>
+<p>
+  During <b>onDrawing</b> the tool must expand the <b>"viewContainer" div</b> to
+  be the correct dimensions. Then a new svg is created based on the{" "}
+  <b>data.coords</b> information. It's important to note that the{" "}
+  <b>data.coords</b> points are <b>[x, y]</b> coordinates relative to the{" "}
+  <b>viewContainer</b>. Drawing in the top left corner of the drawing area will
+  be represented by <b>[0, 0]</b> and the bottom right corner is represented by{" "}
+  <b>[width, height]</b>.
+</p>
+<p>
+  During <b>onDrawEnd</b> no more work needs to be done.
+</p>
+<p>
+  During <b>onUpdate</b> the div has been set to the correct dimensions for you
+  and so we need to take care of scaling the svg inside.
+</p>
+
+```typescript
+const freeDrawTool: DrawingTools = {
+  id: "free-draw-tool",
+  icon: <PencilBoldIcon />,
+  onDrawStart: (data) => {
+    const lineWidth = data.style.lineWidth;
+    const newSvg = createSvg(lineWidth, lineWidth);
+    const newPath = createCircle(lineWidth / 2);
+    newSvg.appendChild(newPath);
+    data.container.div.appendChild(newSvg);
+    data.element = newSvg;
+  },
+  onDrawing: (data, viewContainer) => {
+    expandContainer(data);
+    const boxSize = getBoxSize(data);
+    const newSvg = createSvg(boxSize.width, boxSize.height);
+    const path = svgPathFromData(data, viewContainer);
+    newSvg.appendChild(path);
+    data.container.div.innerHTML = "";
+    data.container.div.appendChild(newSvg);
+    data.element = newSvg;
+  },
+  onDrawEnd: (data) => {
+    console.log("free draw end");
+  },
+  onUpdate: (data, ctx) => {
+    if (!data.element) {
+      return;
+    }
+    scaleSvg(data.element as SVGSVGElement, data.container.bounds);
+  },
+  cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
+};
+```

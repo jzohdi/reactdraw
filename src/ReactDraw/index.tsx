@@ -285,13 +285,13 @@ export default function ReactDraw({
     }
 
     function handleMouseMoveObject(e: MouseEvent) {
-      e.preventDefault();
+      //   e.preventDefault();
       const point: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(point, container);
       moveObject(relativePoint);
     }
     function handleTouchMoveObject(e: TouchEvent) {
-      e.preventDefault();
+      //   e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
       moveObject(relativePoint);

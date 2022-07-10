@@ -2,8 +2,8 @@ import { DiamondBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { DIAMOND_TOOL_ID } from "../constants";
 import { DrawingData, DrawingTools, RectBounds } from "../types";
-import { createSvg, scaleSvg, setContainerRect } from "../utils";
-import { createPathSvg } from "../utils/svgUtils";
+import { scaleSvg, setContainerRect } from "../utils";
+import { createPathSvg, createSvg } from "../utils/svgUtils";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,

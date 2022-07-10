@@ -5,3 +5,4 @@ export { default as squareTool } from "./SquareTool";
 export { default as circleTool } from "./CircleTool";
 export { default as diamondTool } from "./DiamondTool";
 export { default as straightLineTool } from "./StraightLineTool";
+// export { default as arrowTool } from "./ArrowTool";

@@ -6,8 +6,9 @@ export const SQUARE_TOOL_ID = "react-draw-square-tool";
 export const CIRCLE_TOOL_ID = "react-draw-circle-tool";
 export const DIAMOND_TOOL_ID = "react-draw-diamond-tool";
 export const STRAIGHT_LINE_TOOL_ID = "react-draw-line-tool";
+export const ARROW_TOOL_ID = "react-draw-arrow-tool";
 
-//============== TOOL IDS =========================
+//============== BUTTON ID PREFIX ================
 export const ROTATE_BUTTON_PRE = "button-rotate";
 export const SELECT_FRAME_PRE = "select-frame";
 export const CORNER_BUTTON_PRE = "corner-button";
