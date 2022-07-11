@@ -71,6 +71,7 @@ export function makeNewBoundingDiv(
       zIndex: 1,
       lineWidth,
     },
+    customData: null,
   };
   return data;
 }

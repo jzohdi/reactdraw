@@ -5,9 +5,10 @@ import {
   DrawingData,
   DrawingTools,
   LayoutOption,
-  OnUpdateContext,
+  onResizeContext,
   Point,
   ReactChild,
+  ReactDrawContext,
   ReactDrawProps,
   RectBounds,
   SelectMode,
@@ -97,7 +98,7 @@ export default function ReactDraw({
   const handleResize = (
     mode: SelectMode,
     data: DrawingData,
-    ctx: OnUpdateContext
+    ctx: onResizeContext
   ) => {
     // so that relative change is used
     const pointDiff: Point = getPointDiff(ctx.newPoint, ctx.previousPoint);
@@ -113,7 +114,7 @@ export default function ReactDraw({
       throw new Error("resize mode not recognized");
     }
     const toolUsed = getToolById(topBarTools, data.toolId);
-    toolUsed.onUpdate(data, ctx);
+    toolUsed.onResize(data, ctx);
   };
 
   /**
@@ -134,6 +135,14 @@ export default function ReactDraw({
     return false;
   };
 
+  const alertAfterUpdate = (data: DrawingData) => {
+    const { tool, ctx } = getToolAndContext(data.toolId);
+    if (!tool || !ctx || !tool.onAfterUpdate) {
+      return;
+    }
+    tool.onAfterUpdate(data, ctx);
+  };
+
   const handleSelectToolOperation = (newPoint: Point) => {
     const prevPoint = previousMousePos.current;
     if (!prevPoint) {
@@ -145,19 +154,24 @@ export default function ReactDraw({
       return;
     }
     if (mode === "drag") {
-      return dragDivs(objects, prevPoint, newPoint);
+      dragDivs(objects, prevPoint, newPoint);
+      if (objects.length === 1) {
+        alertAfterUpdate(objects[0]);
+      }
+      return;
     }
     requireLength1(objects);
     const item = objects[0];
     if (didHandleRotate(mode, item, newPoint)) {
-      return;
+      return alertAfterUpdate(item);
     }
-    return handleResize(mode, item, {
+    handleResize(mode, item, {
       viewContainer: getViewContainer(),
       previousPoint: prevPoint,
       newPoint,
       mode,
     });
+    alertAfterUpdate(item);
   };
 
   /**
@@ -409,11 +423,33 @@ export default function ReactDraw({
     currentlySelectedElements.current = objectIds;
     const objects = getElementsByIds(objectIds);
     if (objects.length === 1) {
+      notifyTool(objects[0]);
       return selectElement(objects[0]);
     }
     if (objects.length > 1) {
       return selectManyElements(objects);
     }
+  };
+  const notifyTool = (data: DrawingData) => {
+    const { tool, ctx } = getToolAndContext(data.toolId);
+    if (!tool || !ctx || !tool.onSelect) {
+      return;
+    }
+    tool.onSelect(data, ctx);
+  };
+  const getToolAndContext = (toolId: string) => {
+    const tool = getToolById(topBarTools, toolId);
+    if (!tool) {
+      return { tool: null, ctx: null };
+    }
+    const viewContainer = drawingAreaRef.current;
+    if (!viewContainer) {
+      return { tool, ctx: null };
+    }
+    const ctx: ReactDrawContext = {
+      viewContainer: drawingAreaRef.current,
+    };
+    return { tool, ctx };
   };
   const getElementsByIds = (ids: string[]): DrawingData[] => {
     return ids.map((id) => renderedElementsMap.current[id]);

@@ -4,19 +4,30 @@ type LayoutAbsolute = {
     height: number | string;
 };
 type LayoutOption = "default" | LayoutAbsolute | "fit";
-type OnUpdateContext = {
+type onResizeContext = {
     viewContainer: HTMLDivElement;
     previousPoint: Point;
     newPoint: Point;
     mode: SelectMode;
 };
+type ReactDrawContext = {
+    viewContainer: HTMLDivElement;
+};
+/**
+ * icon: the icon to be displayed in the top bar tools
+ * id: required so that react draw can identify objects created by this id.
+ * cursor: sets the the cursor of the mouse while over the viewContainer
+ * ----
+ */
 type DrawingTools = {
     icon: JSX.Element;
     id: string;
     onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
     onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
     onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-    onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
+    onResize: (data: DrawingData, ctx: onResizeContext) => void;
+    onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+    onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
     cursor?: string;
 };
 type Point = [
@@ -43,6 +54,7 @@ type DrawingData = {
         zIndex: number;
     };
     toolId: string;
+    customData: any;
 };
 type ReactDrawProps = {
     children?: ReactChild;
@@ -58,5 +70,6 @@ declare const squareTool: DrawingTools;
 declare const circlTool: DrawingTools;
 declare const diamondTool: DrawingTools;
 declare const straightLineTool: DrawingTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool };
+declare const textAreaTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool };
 //# sourceMappingURL=index.d.ts.map

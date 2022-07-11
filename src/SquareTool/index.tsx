@@ -18,7 +18,7 @@ const squareTool: DrawingTools = {
     data.coords.splice(1);
   },
   onDrawEnd: (data) => {},
-  onUpdate(data, ctx) {},
+  onResize(data, ctx) {},
 };
 
 export default squareTool;

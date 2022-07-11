@@ -32,7 +32,7 @@ The type definition of a drawing tool is described by the typescript below.
     <strong>onDrawEnd</strong> called after mouseup/touchend
   </li>
   <li>
-    <strong>onUpdate</strong> called when the object is being resized (corner
+    <strong>onResize</strong> called when the object is being resized (corner
     expand action while using select tool)
   </li>
   <li>
@@ -54,7 +54,7 @@ type DrawingTools = {
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
+  onResize: (data: DrawingData, ctx: onResizeContext) => void;
   cursor?: string;
 };
 ```
@@ -84,7 +84,7 @@ For example here is the free draw tool implementation.
   During <b>onDrawEnd</b> no more work needs to be done.
 </p>
 <p>
-  During <b>onUpdate</b> the div has been set to the correct dimensions for you
+  During <b>onResize</b> the div has been set to the correct dimensions for you
   and so we need to take care of scaling the svg inside.
 </p>
 
@@ -113,7 +113,7 @@ const freeDrawTool: DrawingTools = {
   onDrawEnd: (data) => {
     console.log("free draw end");
   },
-  onUpdate: (data, ctx) => {
+  onResize: (data, ctx) => {
     if (!data.element) {
       return;
     }

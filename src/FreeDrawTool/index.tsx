@@ -46,7 +46,7 @@ const freeDrawTool: DrawingTools = {
   onDrawEnd: (data) => {
     console.log("free draw end");
   },
-  onUpdate: (data, ctx) => {
+  onResize: (data, ctx) => {
     if (!data.element) {
       return;
     }

@@ -33,7 +33,7 @@ const arrowTool: DrawingTools = {
     data.coords.splice(1);
   },
   onDrawEnd: (data) => {},
-  onUpdate(data, ctx) {
+  onResize(data, ctx) {
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
 };
@@ -109,7 +109,7 @@ function makeArrowLines(
     theta += offset;
   }
   const cosTheta = Math.cos(theta);
-  const sinTheta = Math.sin(theta);
+  const sinTheta = Math.sign(theta);
 
   const x3 = x2 + lenRatio * ((x1 - x2) * cosTheta + (y1 - y2) * sinTheta);
   const y3 = y2 + lenRatio * ((y1 - y2) * cosTheta + (x1 - x2) * sinTheta);

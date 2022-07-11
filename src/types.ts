@@ -6,13 +6,16 @@ export type LayoutAbsolute = {
 
 export type LayoutOption = "default" | LayoutAbsolute | "fit";
 
-export type OnUpdateContext = {
+export type onResizeContext = {
   viewContainer: HTMLDivElement;
   previousPoint: Point;
   newPoint: Point;
   mode: SelectMode;
 };
 
+export type ReactDrawContext = {
+  viewContainer: HTMLDivElement;
+};
 /**
  * icon: the icon to be displayed in the top bar tools
  * id: required so that react draw can identify objects created by this id.
@@ -25,7 +28,9 @@ export type DrawingTools = {
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onUpdate: (data: DrawingData, ctx: OnUpdateContext) => void;
+  onResize: (data: DrawingData, ctx: onResizeContext) => void;
+  onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
   cursor?: string;
 };
 
@@ -50,6 +55,7 @@ export type DrawingData = {
     zIndex: number;
   };
   toolId: string;
+  customData: any;
 };
 
 export type ReactDrawProps = {

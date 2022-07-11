@@ -26,7 +26,7 @@ const selectTool: DrawingTools = {
       ele.remove();
     }
   },
-  onUpdate: (data) => {},
+  onResize: (data) => {},
 };
 
 export default selectTool;

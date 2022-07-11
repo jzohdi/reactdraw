@@ -28,7 +28,7 @@ const straightLineTool: DrawingTools = {
     data.coords.splice(1);
   },
   onDrawEnd: (data) => {},
-  onUpdate(data, ctx) {
+  onResize(data, ctx) {
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
 };
