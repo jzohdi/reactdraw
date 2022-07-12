@@ -14,12 +14,7 @@ const textAreaTool: DrawingTools = {
     setupContainer(data);
   },
   onDrawing(data, viewContainer) {},
-  onDrawEnd(data, viewContainer) {
-    // const { div, bounds } = data.container;
-    // const { width, height } = div.getBoundingClientRect();
-    // bounds.bottom = bounds.top + height;
-    // bounds.right = bounds.left + width;
-  },
+  onDrawEnd(data, viewContainer) {},
   onResize(data, ctx) {},
   onSelect(data, ctx) {
     const textArea = data.element;
@@ -31,6 +26,9 @@ const textAreaTool: DrawingTools = {
       data.customData.handler = null;
     }
     placeCaretAtEnd(textArea as HTMLDivElement);
+  },
+  onUnSelect(data) {
+    setBoundsFromDiv(data.container.div, data.container.bounds);
   },
   onAfterUpdate(data) {
     const textArea = data.element;

@@ -28,9 +28,11 @@ export type DrawingTools = {
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  doResize?: (data: DrawingData, ctx: onResizeContext) => void;
   onResize: (data: DrawingData, ctx: onResizeContext) => void;
   onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   cursor?: string;
 };
 

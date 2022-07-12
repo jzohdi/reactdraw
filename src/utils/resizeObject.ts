@@ -9,6 +9,7 @@ export function resizeNE(data: DrawingData, point: Point) {
     bounds.left + 5 >= bounds.right + xDiff ||
     bounds.bottom - 5 <= bounds.top + yDiff
   ) {
+    console.log("got here");
     return;
   }
   bounds.top += yDiff;

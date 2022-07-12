@@ -102,7 +102,10 @@ export default function ReactDraw({
   ) => {
     // so that relative change is used
     const pointDiff: Point = getPointDiff(ctx.newPoint, ctx.previousPoint);
-    if (mode === "resize-ne") {
+    const toolUsed = getToolById(topBarTools, data.toolId);
+    if (toolUsed.doResize) {
+      toolUsed.doResize(data, ctx);
+    } else if (mode === "resize-ne") {
       resizeNE(data, pointDiff);
     } else if (mode === "resize-nw") {
       resizeNW(data, pointDiff);
@@ -113,7 +116,6 @@ export default function ReactDraw({
     } else {
       throw new Error("resize mode not recognized");
     }
-    const toolUsed = getToolById(topBarTools, data.toolId);
     toolUsed.onResize(data, ctx);
   };
 
@@ -458,6 +460,12 @@ export default function ReactDraw({
   const unselectEverythingAndReturnPrevious = () => {
     const { objects, ids } = getSelectedDrawingObjects();
     unselectAll(objects);
+    if (objects.length === 1) {
+      const { tool, ctx } = getToolAndContext(objects[0].toolId);
+      if (tool && ctx && tool.onUnSelect) {
+        tool.onUnSelect(objects[0], ctx);
+      }
+    }
     currentSelectMode.current = null;
     previousMousePos.current = null;
     currentlySelectedElements.current = [];

@@ -96,14 +96,16 @@ function cornerButton(
 }
 export function unselectElement(data: DrawingData): void {
   const { div, id } = data.container;
-  if (isElementSelected(div) && div.lastElementChild) {
+  const selectFrame = div.querySelector('[id^="select-frame"');
+  if (selectFrame !== null) {
     // div.lastElementChild.removeEventListener()
-    div.removeChild(div.lastElementChild);
+    div.removeChild(selectFrame);
   }
 }
 
 function isElementSelected(div: HTMLDivElement) {
-  return div.lastElementChild?.id.includes(SELECT_FRAME_PRE);
+  return div.querySelector('[id^="select-frame"') !== null;
+  //   return div.lastElementChild?.id.includes(SELECT_FRAME_PRE);
 }
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
