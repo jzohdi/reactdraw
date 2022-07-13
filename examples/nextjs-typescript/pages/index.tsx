@@ -3,8 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { ReactDraw, freeDrawTool } from "@jzohdi/react-draw";
-// import { ReactDraw, freeDrawTool } from "../../../dist/index.esm";
-// import { freeDrawTool } from "../../../dist/";
 
 const Home: NextPage = () => {
   return (

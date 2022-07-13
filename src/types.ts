@@ -91,6 +91,7 @@ export type ReactDrawProps = {
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
   hideTopBar?: boolean;
+  id: string;
 };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;

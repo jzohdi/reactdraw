@@ -86,8 +86,9 @@ type ReactDrawProps = {
     layout?: LayoutOption;
     topBarTools: DrawingTools[];
     hideTopBar?: boolean;
+    id: string;
 };
-declare function ReactDraw({ children, topBarTools, hideTopBar, ...props }: ReactDrawProps): JSX.Element;
+declare function ReactDraw({ children, topBarTools, hideTopBar, id, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;

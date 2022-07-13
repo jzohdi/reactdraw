@@ -14,18 +14,14 @@ import {
   ReactDrawProps,
 } from "../types";
 import { Children } from "react";
-import {
-  getRelativePoint,
-  getTouchCoords,
-  makeid,
-  makeNewBoundingDiv,
-} from "../utils";
+import { getRelativePoint, getTouchCoords, makeNewBoundingDiv } from "../utils";
 import { changeCtxForTool } from "../utils/utils";
 
 export default function ReactDraw({
   children,
   topBarTools,
   hideTopBar,
+  id,
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -34,7 +30,7 @@ export default function ReactDraw({
   const renderedElementsMap = useRef<DrawingDataMap>({});
   const currDrawObj = useRef<DrawingData | null>(null);
   const [currentLineWidth, setCurrentLineWidth] = useState(4);
-  const drawingAreaId = useRef<string>(`drawing-area-container-${makeid(6)}`);
+  const drawingAreaId = useRef<string>(`drawing-area-container-${id}`);
   const previousMousePos = useRef<Point | null>(null);
   const latestEvent = useRef<CapturedEvent>(null);
   const customState = useRef<CustomState>(setupCustomStateSpace(topBarTools));
