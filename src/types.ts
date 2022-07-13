@@ -1,3 +1,5 @@
+import { MutableRefObject } from "react";
+
 export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 export type LayoutAbsolute = {
   width: number | string;
@@ -12,9 +14,26 @@ export type onResizeContext = {
   newPoint: Point;
   mode: SelectMode;
 };
+export type DrawingDataMap = {
+  [id: string]: DrawingData;
+};
 
+export type CapturedEvent = MouseEvent | TouchEvent | null;
+
+export type DrawingToolCustomState = {
+  [stateKey: string]: any;
+};
+
+export type CustomState = {
+  [toolId: string]: DrawingToolCustomState;
+};
 export type ReactDrawContext = {
   viewContainer: HTMLDivElement;
+  objectsMap: DrawingDataMap;
+  lastEvent: CapturedEvent;
+  prevMousePosition: MutableRefObject<Point | null>;
+  drawingTools: DrawingTools[];
+  customState: DrawingToolCustomState;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -25,14 +44,18 @@ export type ReactDrawContext = {
 export type DrawingTools = {
   icon: JSX.Element;
   id: string;
+  setupCustomState?: (state: CustomState) => any;
+  onPickTool?: (ctx: ReactDrawContext) => void;
+  onUnPickTool?: (ctx: ReactDrawContext) => void;
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
   doResize?: (data: DrawingData, ctx: onResizeContext) => void;
   onResize: (data: DrawingData, ctx: onResizeContext) => void;
   onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
   cursor?: string;
 };
 
@@ -57,7 +80,9 @@ export type DrawingData = {
     zIndex: number;
   };
   toolId: string;
-  customData: any;
+  customData: {
+    [key: string]: any;
+  };
 };
 
 export type ReactDrawProps = {

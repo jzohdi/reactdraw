@@ -7,3 +7,4 @@ export { default as diamondTool } from "./DiamondTool";
 export { default as straightLineTool } from "./StraightLineTool";
 // export { default as arrowTool } from "./ArrowTool";
 export { default as textAreaTool } from "./TextAreaTool";
+export { default as eraseTool } from "./EraseTool";

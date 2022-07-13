@@ -22,7 +22,6 @@ const straightLineTool: DrawingTools = {
     newSvg.appendChild(newPath);
     div.append(newSvg);
     data.element = newSvg;
-    data.customData = {};
   },
   onDrawing: (data, viewContainer) => {
     setContainerRect(data);

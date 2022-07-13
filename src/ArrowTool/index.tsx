@@ -23,7 +23,7 @@ const arrowTool: DrawingTools = {
     div.append(newSvg);
     data.element = newSvg;
   },
-  onDrawing: (data, viewContainer) => {
+  onDrawing: (data, { viewContainer }) => {
     setContainerRect(data);
     const div = data.container.div;
     const newSvg = makeArrowSvg(data, viewContainer);

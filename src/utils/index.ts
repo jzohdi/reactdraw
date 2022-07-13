@@ -1,4 +1,10 @@
-import { DrawingData, DrawingContainer, Point, RectBounds } from "../types";
+import {
+  DrawingData,
+  DrawingContainer,
+  Point,
+  RectBounds,
+  DrawingDataMap,
+} from "../types";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 export function makeid(length: number) {
@@ -71,7 +77,7 @@ export function makeNewBoundingDiv(
       zIndex: 1,
       lineWidth,
     },
-    customData: null,
+    customData: {},
   };
   return data;
 }
@@ -226,6 +232,23 @@ export function setContainerRect(data: DrawingData): Point[] {
   return data.coords;
 }
 
+export function getElementsThatBoundsAreWithin(
+  renderedMap: DrawingDataMap,
+  bounds: RectBounds
+) {
+  let itemToSelect = null;
+  for (const eleId in renderedMap) {
+    const eleData = renderedMap[eleId];
+    if (isRectBounding(eleData.container.bounds, bounds)) {
+      const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
+      if (eleIsOnTop) {
+        itemToSelect = eleData;
+      }
+    }
+  }
+  return itemToSelect;
+}
+
 export function isRectBounding(
   bounds: RectBounds,
   object: RectBounds
@@ -311,4 +334,12 @@ export function getCenterPoint(bounds: RectBounds): Point {
   const width = bounds.right - bounds.left;
   const x = bounds.left + width / 2;
   return [x, y];
+}
+
+export function getBoxSize(data: DrawingData) {
+  const bounds = data.container.bounds;
+  return {
+    width: bounds.right - bounds.left,
+    height: bounds.bottom - bounds.top,
+  };
 }

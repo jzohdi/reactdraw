@@ -12,6 +12,7 @@ import {
   straightLineTool,
   //   arrowTool,
   textAreaTool,
+  eraseTool,
 } from "../../src";
 
 export default {
@@ -30,6 +31,7 @@ const topBarTools: DrawingTools[] = [
   straightLineTool,
   //   arrowTool,
   textAreaTool,
+  eraseTool,
 ];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});

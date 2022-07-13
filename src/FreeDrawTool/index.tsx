@@ -3,6 +3,7 @@ import React from "react";
 import { DrawingData, DrawingTools, Point } from "../types";
 import {
   expandContainer,
+  getBoxSize,
   mapPointToRect,
   scaleSvg,
   //   makeRelativeDiv,
@@ -27,7 +28,7 @@ const freeDrawTool: DrawingTools = {
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
-  onDrawing: (data, viewContainer) => {
+  onDrawing: (data, { viewContainer }) => {
     expandContainer(data);
     const boxSize = getBoxSize(data);
     const newSvg = createSvg(boxSize.width, boxSize.height);
@@ -56,14 +57,6 @@ const freeDrawTool: DrawingTools = {
 };
 
 export default freeDrawTool;
-
-function getBoxSize(data: DrawingData) {
-  const bounds = data.container.bounds;
-  return {
-    width: bounds.right - bounds.left,
-    height: bounds.bottom - bounds.top,
-  };
-}
 
 function svgPathFromData(
   data: DrawingData,
