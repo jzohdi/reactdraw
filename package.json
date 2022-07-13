@@ -3,7 +3,8 @@
   "version": "0.0.19",
   "description": "",
   "files": [
-    "dist/**"
+    "dist/**",
+    "README.md"
   ],
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -20,8 +21,8 @@
   "author": "",
   "license": "ISC",
   "peerDependencies": {
-    "react": "^17.0.2",
-    "styled-components": "^5.3.5"
+    "react": ">= 16.8.0",
+    "styled-components": ">= 5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
