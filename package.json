@@ -22,6 +22,7 @@
   "license": "ISC",
   "peerDependencies": {
     "react": ">= 16.8.0",
+    "react-dom": ">= 16.8.0",
     "styled-components": ">= 5.3.5"
   },
   "devDependencies": {
