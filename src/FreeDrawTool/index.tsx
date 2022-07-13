@@ -45,7 +45,7 @@ const freeDrawTool: DrawingTools = {
     data.element = newSvg;
   },
   onDrawEnd: (data) => {
-    console.log("free draw end");
+    // console.log("free draw end");
   },
   onResize: (data, ctx) => {
     if (!data.element) {

@@ -54,7 +54,7 @@ type DrawingTools = {
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onResize: (data: DrawingData, ctx: onResizeContext) => void;
+  onResize: (data: DrawingData, ctx: OnResizeContext) => void;
   cursor?: string;
 };
 ```
@@ -111,7 +111,7 @@ const freeDrawTool: DrawingTools = {
     data.element = newSvg;
   },
   onDrawEnd: (data) => {
-    console.log("free draw end");
+    // console.log("free draw end");
   },
   onResize: (data, ctx) => {
     if (!data.element) {

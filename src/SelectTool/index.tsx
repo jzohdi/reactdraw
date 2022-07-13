@@ -27,6 +27,7 @@ import {
 } from "./utils";
 import { CURSOR_ID } from "./constants";
 import { SelectToolCustomState } from "./types";
+import { changeCtxForTool, getToolById } from "../utils/utils";
 
 const selectTool: DrawingTools = {
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
@@ -63,6 +64,29 @@ const selectTool: DrawingTools = {
     const objects = selectedIds.map((id) => ctx.objectsMap[id]);
     unselectAll(objects, ctx);
     state.selectedIds = [];
+  },
+  onKeyPress(event, ctx) {
+    const keyPressed = event.key;
+    const shouldDeleteSelected = keyPressed === "Delete";
+    if (!shouldDeleteSelected) {
+      return;
+    }
+    const state = ctx.customState as SelectToolCustomState;
+    const selectedIds = state.selectedIds;
+    if (selectedIds.length < 1) {
+      return;
+    }
+    const objects = getElementsByIds(ctx.objectsMap, selectedIds);
+    unselectAll(objects, ctx);
+    const viewContainer = ctx.viewContainer;
+    for (const object of objects) {
+      viewContainer.removeChild(object.container.div);
+      delete ctx.objectsMap[object.container.id];
+      const tool = getToolById(ctx.drawingTools, object.toolId);
+      if (tool.onDeleteObject) {
+        tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
+      }
+    }
   },
 };
 

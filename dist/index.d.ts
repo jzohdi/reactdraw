@@ -1,17 +1,33 @@
+import { MutableRefObject } from "react";
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
     height: number | string;
 };
 type LayoutOption = "default" | LayoutAbsolute | "fit";
-type onResizeContext = {
+type OnResizeContext = {
     viewContainer: HTMLDivElement;
     previousPoint: Point;
     newPoint: Point;
-    mode: SelectMode;
+};
+type DrawingDataMap = {
+    [id: string]: DrawingData;
+};
+type CapturedEvent = MouseEvent | TouchEvent | null;
+type DrawingToolCustomState = {
+    [stateKey: string]: any;
+};
+type CustomState = {
+    [toolId: string]: DrawingToolCustomState;
 };
 type ReactDrawContext = {
     viewContainer: HTMLDivElement;
+    objectsMap: DrawingDataMap;
+    lastEvent: CapturedEvent;
+    prevMousePosition: MutableRefObject<Point | null>;
+    drawingTools: DrawingTools[];
+    customState: DrawingToolCustomState;
+    fullState: CustomState;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -22,14 +38,19 @@ type ReactDrawContext = {
 type DrawingTools = {
     icon: JSX.Element;
     id: string;
+    setupCustomState?: (state: CustomState) => any;
+    onPickTool?: (ctx: ReactDrawContext) => void;
+    onUnPickTool?: (ctx: ReactDrawContext) => void;
     onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-    onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-    onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-    doResize?: (data: DrawingData, ctx: onResizeContext) => void;
-    onResize: (data: DrawingData, ctx: onResizeContext) => void;
+    onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
+    onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
+    doResize?: (data: DrawingData, ctx: OnResizeContext) => void;
+    onResize: (data: DrawingData, ctx: OnResizeContext) => void;
     onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
     onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
     onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+    onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
+    onKeyPress?: (event: KeyboardEvent, ctx: ReactDrawContext) => void;
     cursor?: string;
 };
 type Point = [
@@ -56,7 +77,9 @@ type DrawingData = {
         zIndex: number;
     };
     toolId: string;
-    customData: any;
+    customData: {
+        [key: string]: any;
+    };
 };
 type ReactDrawProps = {
     children?: ReactChild;
@@ -64,7 +87,6 @@ type ReactDrawProps = {
     topBarTools: DrawingTools[];
     hideTopBar?: boolean;
 };
-type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
 declare function ReactDraw({ children, topBarTools, hideTopBar, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
@@ -73,5 +95,8 @@ declare const circlTool: DrawingTools;
 declare const diamondTool: DrawingTools;
 declare const straightLineTool: DrawingTools;
 declare const textAreaTool: DrawingTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool };
+// TODO: alter item on drawing
+// then finally delete stuff on draw end
+declare const eraseTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool };
 //# sourceMappingURL=index.d.ts.map

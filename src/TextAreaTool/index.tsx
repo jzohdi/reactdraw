@@ -15,7 +15,13 @@ const textAreaTool: DrawingTools = {
   },
   onDrawing(data, viewContainer) {},
   onDrawEnd(data, viewContainer) {},
-  onResize(data, ctx) {},
+  onResize(data, ctx) {
+    const textArea = data.element;
+    if (!textArea) {
+      return;
+    }
+    placeCaretAtEnd(textArea as HTMLDivElement);
+  },
   onSelect(data, ctx) {
     const textArea = data.element;
     if (!textArea) {
@@ -28,6 +34,14 @@ const textAreaTool: DrawingTools = {
     placeCaretAtEnd(textArea as HTMLDivElement);
   },
   onUnSelect(data) {
+    const textArea = data.element;
+    if (!textArea) {
+      return;
+    }
+    if (data.customData.handler) {
+      textArea.removeEventListener("keypress", data.customData.handler);
+      data.customData.handler = null;
+    }
     setBoundsFromDiv(data.container.div, data.container.bounds);
   },
   onAfterUpdate(data) {
@@ -93,11 +107,12 @@ function setupContainer(data: DrawingData) {
     const { width, height } = trueBounds;
     bounds.bottom = bounds.top + height;
     bounds.right = bounds.left + width;
-    console.log("setting bounds on typing");
+    // console.log("setting bounds on typing");
   }
   data.customData = {
     handler: setBoundsOnTyping,
   };
+  // TODO: verify this is not leaked
   cursorDiv.addEventListener("keypress", setBoundsOnTyping);
   div.appendChild(cursorDiv);
   setBoundsFromDiv(div, bounds);

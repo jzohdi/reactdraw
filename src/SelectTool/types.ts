@@ -1,4 +1,4 @@
-import { Point } from "../types";
+import { DrawingData, Point } from "../types";
 
 // store event listeners in custom state so that can be refered to later
 export type EventHandler = {
@@ -14,3 +14,5 @@ export type SelectToolCustomState = {
   };
   prevPoint: Point | null;
 };
+
+export type ResizeFunction = (data: DrawingData, pointDiff: Point) => void;

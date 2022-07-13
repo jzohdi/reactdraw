@@ -1,4 +1,10 @@
-import { DrawingTools, PartialCSS, SelectMode } from "../types";
+import {
+  DrawingData,
+  DrawingTools,
+  PartialCSS,
+  ReactDrawContext,
+  SelectMode,
+} from "../types";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
@@ -30,4 +36,21 @@ export function getToolById(tools: DrawingTools[], toolId: string) {
     throw new Error("could not find the used tool");
   }
   return tool;
+}
+
+export function alertAfterUpdate(data: DrawingData, ctx: ReactDrawContext) {
+  const toolId = data.toolId;
+  const tool = ctx.drawingTools.find((t) => t.id === toolId);
+  if (!tool || !tool.onAfterUpdate) {
+    return;
+  }
+  tool.onAfterUpdate(data, changeCtxForTool(ctx, toolId));
+}
+
+// TODO: verify this isn't a problem
+export function changeCtxForTool(
+  ctx: ReactDrawContext,
+  toolId: string
+): ReactDrawContext {
+  return { ...ctx, customState: ctx.fullState[toolId] };
 }

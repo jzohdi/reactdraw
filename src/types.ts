@@ -8,11 +8,10 @@ export type LayoutAbsolute = {
 
 export type LayoutOption = "default" | LayoutAbsolute | "fit";
 
-export type onResizeContext = {
+export type OnResizeContext = {
   viewContainer: HTMLDivElement;
   previousPoint: Point;
   newPoint: Point;
-  mode: SelectMode;
 };
 export type DrawingDataMap = {
   [id: string]: DrawingData;
@@ -34,6 +33,7 @@ export type ReactDrawContext = {
   prevMousePosition: MutableRefObject<Point | null>;
   drawingTools: DrawingTools[];
   customState: DrawingToolCustomState;
+  fullState: CustomState;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -50,12 +50,13 @@ export type DrawingTools = {
   onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
   onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
-  doResize?: (data: DrawingData, ctx: onResizeContext) => void;
-  onResize: (data: DrawingData, ctx: onResizeContext) => void;
+  doResize?: (data: DrawingData, ctx: OnResizeContext) => void;
+  onResize: (data: DrawingData, ctx: OnResizeContext) => void;
   onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onKeyPress?: (event: KeyboardEvent, ctx: ReactDrawContext) => void;
   cursor?: string;
 };
 
@@ -100,3 +101,4 @@ export type SelectMode =
   | "resize-ne"
   | "resize-se"
   | "resize-sw";
+export type HTMLEvent = keyof HTMLElementEventMap;

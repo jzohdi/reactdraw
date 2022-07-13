@@ -43,7 +43,6 @@ const straightLineTool: DrawingTools = {
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.container.div;
     div.removeChild(data.element as SVGSVGElement);
-    console.log();
     // const newSvg = makeLineSvg(data, viewContainer);
     div.appendChild(newSvg);
     data.element = newSvg;
