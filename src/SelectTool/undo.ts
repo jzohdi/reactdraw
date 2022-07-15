@@ -1,7 +1,8 @@
 import { ActionObject, ReactDrawContext, RectBounds } from "../types";
-import { alertAfterUpdate, getToolById } from "../utils/utils";
+import { getObjectFromMap, getToolById } from "../utils/utils";
+import { alertAfterUpdate } from "../utils/alertAfterUpdate";
 import { DragUndoData, ResizeUndoData, RotateUndoData } from "./types";
-import { getRotateFromDiv } from "./utils";
+import { getRotateFromDiv } from "./getRotateFromDiv";
 
 export function handleDragUndo(
   action: ActionObject,
@@ -10,7 +11,7 @@ export function handleDragUndo(
   const data = action.data as DragUndoData[];
   const redoData: DragUndoData[] = [];
   for (const obj of data) {
-    const object = ctx.objectsMap[obj.objectId];
+    const object = getObjectFromMap(ctx.objectsMap, obj.objectId);
     const { bounds, div } = object.container;
     const { left, top } = obj;
     redoData.push({
@@ -36,7 +37,7 @@ export function handleRotateUndo(
   const data = action.data as RotateUndoData[];
   const redoData: RotateUndoData[] = [];
   for (const obj of data) {
-    const object = ctx.objectsMap[obj.objectId];
+    const object = getObjectFromMap(ctx.objectsMap, obj.objectId);
     const { div } = object.container;
     const currRotate = getRotateFromDiv(div);
     redoData.push({
@@ -54,7 +55,7 @@ export function handelResizUndo(
   action: ActionObject,
   ctx: ReactDrawContext
 ): ActionObject {
-  const object = ctx.objectsMap[action.objectId];
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   const undoData = action.data as ResizeUndoData;
   const currBounds = object.container.bounds;
   const redoBounds: RectBounds = { ...currBounds };

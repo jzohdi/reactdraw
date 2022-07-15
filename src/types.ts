@@ -13,19 +13,14 @@ export type OnResizeContext = {
   previousPoint: Point;
   newPoint: Point;
 };
-export type DrawingDataMap = {
-  [id: string]: DrawingData;
-};
+export type DrawingDataMap = Map<string, DrawingData>;
 
 export type CapturedEvent = MouseEvent | TouchEvent | null;
 
-export type DrawingToolCustomState = {
-  [stateKey: string]: any;
-};
+export type DrawingToolCustomState = any;
 
-export type CustomState = {
-  [toolId: string]: DrawingToolCustomState;
-};
+export type CustomState = Map<string, DrawingToolCustomState>;
+
 export type ReactDrawContext = {
   viewContainer: HTMLDivElement;
   objectsMap: DrawingDataMap;
@@ -63,6 +58,7 @@ export type DrawingTools = {
   onUnMount?: (ctx: ReactDrawContext) => void;
   onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
   onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
   cursor?: string;
 };
 
@@ -97,9 +93,7 @@ export type DrawingData = {
     zIndex: number;
   };
   toolId: string;
-  customData: {
-    [key: string]: any;
-  };
+  customData: Map<string, any>;
 };
 
 export type DisplayMode = "disabled" | "hide" | "show";
@@ -111,9 +105,7 @@ export type ActionTools = {
   handleContext: (ctx: ReactDrawContext) => void;
 };
 
-export type BottomToolDisplayMap = {
-  [id: string]: DisplayMode;
-};
+export type BottomToolDisplayMap = Map<string, DisplayMode>;
 
 export type ReactDrawProps = {
   children?: ReactChild;

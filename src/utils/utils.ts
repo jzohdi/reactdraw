@@ -1,8 +1,8 @@
 import { SELECT_TOOL_ID } from "../SelectTool/constants";
-import { SelectToolCustomState } from "../SelectTool/types";
-import { unselectElement } from "../SelectTool/utils";
+import { unselectElement } from "../SelectTool/unselectElement";
 import {
   DrawingData,
+  DrawingDataMap,
   DrawingTools,
   PartialCSS,
   ReactDrawContext,
@@ -41,35 +41,37 @@ export function getToolById(tools: DrawingTools[], toolId: string) {
   return tool;
 }
 
-export function alertAfterUpdate(data: DrawingData, ctx: ReactDrawContext) {
-  const toolId = data.toolId;
-  const tool = ctx.drawingTools.find((t) => t.id === toolId);
-  if (!tool || !tool.onAfterUpdate) {
-    return;
-  }
-  tool.onAfterUpdate(data, changeCtxForTool(ctx, toolId));
-}
-
 // TODO: verify this isn't a problem
 export function changeCtxForTool(
   ctx: ReactDrawContext,
   toolId: string
 ): ReactDrawContext {
-  return { ...ctx, customState: ctx.fullState[toolId] };
+  return { ...ctx, customState: ctx.fullState.get(toolId) };
 }
 
 export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
   const { objectsMap, viewContainer } = ctx;
-  const object = ctx.objectsMap[objectId];
+  const object = getObjectFromMap(ctx.objectsMap, objectId);
 
   // if deleting a selected element, remove select
   unselectElement(object, changeCtxForTool(ctx, SELECT_TOOL_ID));
 
   const { div, id } = object.container;
   viewContainer.removeChild(div);
-  delete objectsMap[id];
+  objectsMap.delete(id);
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDeleteObject) {
     tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
   }
+}
+
+export function getObjectFromMap(
+  map: DrawingDataMap,
+  objectId: string
+): DrawingData {
+  const object = map.get(objectId);
+  if (!object) {
+    throw new Error("could not get object from map");
+  }
+  return object;
 }

@@ -15,6 +15,8 @@ import {
   eraseTool,
   undoTool,
   redoTool,
+  trashTool,
+  duplicateTool,
 } from "../../src";
 
 export default {
@@ -36,7 +38,12 @@ const topBarTools: DrawingTools[] = [
   eraseTool,
 ];
 
-const bottomBarTools: ActionTools[] = [undoTool, redoTool];
+const bottomBarTools: ActionTools[] = [
+  undoTool,
+  redoTool,
+  trashTool,
+  duplicateTool,
+];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});
 

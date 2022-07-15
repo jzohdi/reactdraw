@@ -116,7 +116,7 @@ export function BottomToolBar({
       </MenuButton>
       {tools.map((tool) => {
         const toolId = tool.id;
-        const toolDisplayMode = displayMap[toolId];
+        const toolDisplayMode = displayMap.get(toolId) || "hide";
         return (
           <BottomToolButton
             disabled={toolDisplayMode === "disabled"}

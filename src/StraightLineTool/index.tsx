@@ -11,6 +11,7 @@ type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
 type StraightLineCustomData = {
   orientation: Orientation;
 };
+const ORIENT_KEY = "orientation";
 
 const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
@@ -29,7 +30,7 @@ const straightLineTool: DrawingTools = {
     const firstPoint = data.coords[0];
     const lastPoint = data.coords[data.coords.length - 1];
     const orientation = calcOrientation(firstPoint, lastPoint);
-    (data.customData as StraightLineCustomData).orientation = orientation;
+    data.customData.set(ORIENT_KEY, orientation);
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.container.div;
     // const newSvg = makeLineSvg(data, viewContainer);
@@ -40,7 +41,10 @@ const straightLineTool: DrawingTools = {
   },
   onDrawEnd: saveCreateToUndoStack,
   onResize(data, ctx) {
-    const orientation = (data.customData as StraightLineCustomData).orientation;
+    const orientation = data.customData.get(ORIENT_KEY);
+    if (!orientation) {
+      throw new Error("orientation not set");
+    }
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.container.div;
     div.removeChild(data.element as SVGSVGElement);

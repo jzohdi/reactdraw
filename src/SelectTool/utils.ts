@@ -1,9 +1,4 @@
-import {
-  DrawingData,
-  DrawingDataMap,
-  DrawingTools,
-  ReactDrawContext,
-} from "../types";
+import { DrawingData, DrawingTools, ReactDrawContext } from "../types";
 import { resizeNE, resizeNW, resizeSE, resizeSW } from "../utils/resizeObject";
 import { changeCtxForTool, getToolById, setStyles } from "../utils/utils";
 import {
@@ -14,11 +9,14 @@ import {
   SELECTED_CORNER_BUTTON,
   SELECT_FRAME_DIV_STYLES,
   SELECT_FRAME_PRE,
+  SELECT_TOOL_ID,
 } from "./constants";
 import addHandlersToSelectFrame from "./dragHandler";
+import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import addHandlersToCornerButton from "./resizeHandler";
 import addHandlersToRotateButton from "./rotateHandler";
 import { SelectToolCustomState } from "./types";
+import { unselectElement } from "./unselectElement";
 
 export function selectManyElements(
   selectObjects: DrawingData[],
@@ -66,20 +64,6 @@ export function unselectEverythingAndReturnPrevious(ctx: ReactDrawContext) {
   prevMousePosition.current = null;
   const prevIds = selectedIds.splice(0, selectedIds.length);
   return { ids: prevIds, objects };
-}
-
-export function getElementsByIds(
-  objects: DrawingDataMap,
-  ids: string[]
-): DrawingData[] {
-  return ids.map((id) => objects[id]);
-}
-
-export function getSelectedDrawingObjects(
-  selectedIds: string[],
-  objects: DrawingDataMap
-) {
-  return selectedIds.map((id) => objects[id]);
 }
 
 export function notifyTool(
@@ -180,47 +164,12 @@ function cornerButton(
   return button;
 }
 
-/**
- * Unselecting an element requires also cleaning up the event listeners
- * TODO: this could be a performance hit.
- * @param data
- * @param ctx
- */
-export function unselectElement(
-  data: DrawingData,
-  ctx: ReactDrawContext
-): void {
-  const objectId = data.container.id;
-  const { div } = data.container;
-  const state = ctx.customState as SelectToolCustomState;
-  const handlers = state.handlers[objectId];
-  if (handlers) {
-    // console.log("removing ", handlers.length, "handlers");
-    for (const handler of handlers) {
-      handler.ele.removeEventListener(handler.eventName, handler.fn);
-    }
+export function getSelectedIdsFromFullState(ctx: ReactDrawContext): string[] {
+  const selectState = ctx.fullState.get(
+    SELECT_TOOL_ID
+  ) as SelectToolCustomState;
+  if (!selectState) {
+    throw new Error("no select state present");
   }
-  const selectFrame = div.querySelector('[id^="select-frame"');
-  state.handlers[objectId] = [];
-  if (selectFrame !== null) {
-    div.removeChild(selectFrame);
-  }
-  const indexInSelectedIds = state.selectedIds.indexOf(objectId);
-  if (indexInSelectedIds >= 0) {
-    state.selectedIds.splice(indexInSelectedIds, 1);
-  }
-}
-
-const rotateNumRegex = /-{0,1}\d+\.*\d*/g;
-
-export function getRotateFromDiv(div: HTMLDivElement): number {
-  const rotateStyle = div.style.transform;
-  if (!rotateStyle) {
-    return 0;
-  }
-  const match = rotateStyle.match(rotateNumRegex);
-  if (!match) {
-    return 0;
-  }
-  return parseFloat(match[0]);
+  return [...selectState.selectedIds];
 }

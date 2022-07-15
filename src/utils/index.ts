@@ -5,6 +5,7 @@ import {
   RectBounds,
   DrawingDataMap,
 } from "../types";
+import { getObjectFromMap } from "./utils";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 export function makeid(length: number) {
@@ -77,7 +78,7 @@ export function makeNewBoundingDiv(
       zIndex: 1,
       lineWidth,
     },
-    customData: {},
+    customData: new Map(),
   };
   return data;
 }
@@ -237,8 +238,7 @@ export function getElementsThatBoundsAreWithin(
   bounds: RectBounds
 ) {
   let itemToSelect = null;
-  for (const eleId in renderedMap) {
-    const eleData = renderedMap[eleId];
+  for (const [eleId, eleData] of renderedMap.entries()) {
     if (isRectBounding(eleData.container.bounds, bounds)) {
       const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
       if (eleIsOnTop) {

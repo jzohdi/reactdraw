@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { ResizeFunction, ResizeUndoData, SelectToolCustomState } from "./types";
 import { getRelativePoint, getTouchCoords } from "../utils";
-import { getSelectedDrawingObjects } from "./utils";
+import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import { getToolById } from "../utils/utils";
 import { SELECT_TOOL_ID } from "./constants";
 import { pushActionToStack } from "../utils/undo";

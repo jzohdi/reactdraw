@@ -1,7 +1,13 @@
 import { EraserIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { ERASE_TOOL_ID } from "../constants";
-import { ActionObject, DrawingData, DrawingTools, Point } from "../types";
+import {
+  ActionObject,
+  DrawingData,
+  DrawingTools,
+  Point,
+  ReactDrawContext,
+} from "../types";
 import {
   expandContainer,
   getBoxSize,
@@ -21,9 +27,7 @@ const eraserIconBase64 =
   "PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOSAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjA2MTYgMC41ODY1NzNMNS4zMTE1OSA1LjMzNjU3TDAuNTgxNTg1IDEwLjE3NjZDMC4yMDkwODQgMTAuNTUxMyAwIDExLjA1ODIgMCAxMS41ODY2QzAgMTIuMTE0OSAwLjIwOTA4NCAxMi42MjE4IDAuNTgxNTg1IDEyLjk5NjZMNC44ODE1OSAxNy4yOTY2QzUuMDY3ODUgMTcuNDgxMyA1LjMxOTI1IDE3LjU4NTUgNS41ODE1OSAxNy41ODY2SDE3LjU4MTZWMTUuNTg2NkgxMC41ODE2TDE3LjgwMTYgOC4zNjY1N0MxNy45ODc1IDguMTgwODMgMTguMTM1MSA3Ljk2MDI1IDE4LjIzNTcgNy43MTc0NUMxOC4zMzY0IDcuNDc0NjYgMTguMzg4MiA3LjIxNDQgMTguMzg4MiA2Ljk1MTU3QzE4LjM4ODIgNi42ODg3NCAxOC4zMzY0IDYuNDI4NDkgMTguMjM1NyA2LjE4NTY5QzE4LjEzNTEgNS45NDI5IDE3Ljk4NzUgNS43MjIzMiAxNy44MDE2IDUuNTM2NTdMMTIuODkxNiAwLjU4NjU3M0MxMi43MDU4IDAuNDAwNjIgMTIuNDg1MyAwLjI1MzEwMiAxMi4yNDI1IDAuMTUyNDU0QzExLjk5OTcgMC4wNTE4MDUzIDExLjczOTQgMCAxMS40NzY2IDBDMTEuMjEzOCAwIDEwLjk1MzUgMC4wNTE4MDUzIDEwLjcxMDcgMC4xNTI0NTRDMTAuNDY3OSAwLjI1MzEwMiAxMC4yNDczIDAuNDAwNjIgMTAuMDYxNiAwLjU4NjU3M1YwLjU4NjU3M1pNNS45OTE1OSAxNS41ODY2TDEuOTkxNTkgMTEuNTg2Nkw2Ljc0MTU5IDYuNzQ2NTdMNy40ODE1OSA1Ljk5NjU3TDEyLjQzMTYgMTAuOTQ2Nkw3Ljg3MTU5IDE1LjUwNjZMNy44MDE1OSAxNS41ODY2SDUuOTkxNTlaIiBmaWxsPSJibGFjayI+PC9wYXRoPgo8L3N2Zz4=";
 
 type EraseToolCustomState = {
-  deletedObjects: {
-    [id: string]: DrawingData;
-  };
+  deletedObjects: Map<string, DrawingData>;
 };
 
 // TODO: alter item on drawing
@@ -34,7 +38,7 @@ const eraseTool: DrawingTools = {
   cursor: `url('data:image/svg+xml;base64,${eraserIconBase64}') 0 16, pointer`,
   setupCustomState(): EraseToolCustomState {
     return {
-      deletedObjects: {},
+      deletedObjects: new Map(),
     };
   },
   onDrawStart(data, viewContainer) {},
@@ -52,17 +56,20 @@ const eraseTool: DrawingTools = {
     const bounds = makeBoundingRect(lastPoint);
     const objectKeys = Object.keys(ctx.objectsMap);
     for (const objectId of objectKeys) {
-      const object = ctx.objectsMap[objectId];
+      const object = ctx.objectsMap.get(objectId);
+      if (!object) {
+        continue;
+      }
       if (isRectBounding(object.container.bounds, bounds)) {
         deleteObjectAndNotify(objectId, ctx);
-        ctx.customState.deletedObjects[objectId] = object;
+        addObjectToCustomState(ctx, object);
       }
     }
   },
   onDrawEnd(data, ctx) {
     const { objectsMap, viewContainer } = ctx;
     viewContainer.removeChild(data.container.div);
-    delete objectsMap[data.container.id];
+    objectsMap.delete(data.container.id);
     const action: ActionObject = {
       toolId: data.toolId,
       toolType: "top-bar-tool",
@@ -91,6 +98,14 @@ const eraseTool: DrawingTools = {
 };
 
 export default eraseTool;
+
+function addObjectToCustomState(
+  ctx: ReactDrawContext,
+  object: DrawingData
+): void {
+  const state = ctx.customState as EraseToolCustomState;
+  state.deletedObjects.set(object.container.id, object);
+}
 
 function getEraserPath(
   data: DrawingData,

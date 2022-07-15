@@ -12,6 +12,7 @@ import {
   saveCreateToUndoStack,
   undoCreate,
 } from "../utils/undo";
+import { getObjectFromMap } from "../utils/utils";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -73,7 +74,7 @@ function undoTextAreaInput(
   action: ActionObject,
   ctx: ReactDrawContext
 ): ActionObject {
-  const drawingObj = ctx.objectsMap[action.objectId];
+  const drawingObj = getObjectFromMap(ctx.objectsMap, action.objectId);
   const ele = drawingObj.element as HTMLDivElement;
   if (!ele) {
     throw new Error("tried to undo text but no ele found");
@@ -90,13 +91,15 @@ function cleanHandlers(data: DrawingData, deleteCapture: boolean) {
   if (!textArea) {
     return;
   }
-  if (data.customData.handler) {
-    textArea.removeEventListener("keypress", data.customData.handler);
-    data.customData.handler = null;
+  const handler = data.customData.get("handler");
+  if (handler) {
+    textArea.removeEventListener("keypress", handler);
+    data.customData.delete("handler");
   }
-  if (deleteCapture && data.customData.capture) {
-    textArea.removeEventListener("input", data.customData.capture);
-    data.customData.capture = null;
+  const capture = data.customData.get("capture");
+  if (deleteCapture && !!capture) {
+    textArea.removeEventListener("input", capture);
+    data.customData.delete("capture");
   }
 }
 
@@ -158,12 +161,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
     bounds.right = bounds.left + width;
     // console.log("setting bounds on typing");
   }
-  const customData: TextAreaCustomData = {
-    handler: setBoundsOnTyping,
-    capture: null,
-    lastCapture: null,
-  };
-  data.customData = customData;
+  data.customData.set("handler", setBoundsOnTyping);
   // TODO: verify this is not leaked
   cursorDiv.addEventListener("keypress", setBoundsOnTyping);
   div.appendChild(cursorDiv);
@@ -184,11 +182,11 @@ type TextAreaCustomData = {
 };
 function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
   const div = data.element as HTMLDivElement;
-  const customData = data.customData as TextAreaCustomData;
+  const customData = data.customData;
   function captureDidType(e: Event) {
     const currentMS = new Date().getTime();
-    const lastCaptureMS = customData.lastCapture;
-    if (lastCaptureMS === null) {
+    const lastCaptureMS = customData.get("lastCapture");
+    if (!lastCaptureMS) {
       const action: ActionObject = {
         toolId: data.toolId,
         action: "input",
@@ -208,10 +206,10 @@ function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
       };
       pushActionToStack(action, ctx);
     }
-    customData.lastCapture = currentMS;
+    customData.set("lastCapture", currentMS);
   }
   div.addEventListener("input", captureDidType);
-  customData.capture = captureDidType;
+  customData.set("capture", captureDidType);
 }
 
 function makeCursorDiv() {

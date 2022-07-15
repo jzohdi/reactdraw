@@ -33,7 +33,7 @@ export default function ReactDraw({
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
   const { layout } = validateProps(children, props.layout);
-  const renderedElementsMap = useRef<DrawingDataMap>({});
+  const renderedElementsMap = useRef<DrawingDataMap>(new Map());
   const currDrawObj = useRef<DrawingData | null>(null);
   const [currentLineWidth, setCurrentLineWidth] = useState(4);
   const drawingAreaId = useRef<string>(`drawing-area-container-${id}`);
@@ -44,20 +44,24 @@ export default function ReactDraw({
   const redoStack = useRef<ActionObject[]>([]);
   const showMenu = useState(false);
   const [bottomToolsDisplayMap, setBottomToolsDisplayMap] =
-    useState<BottomToolDisplayMap>({});
+    useState<BottomToolDisplayMap>(new Map());
 
   const makeBottomBarDisplayMap = () => {
-    const bottomDisplayMap: BottomToolDisplayMap = {};
+    const bottomDisplayMap: BottomToolDisplayMap = new Map();
     return bottomBarTools.reduce((prev, curr) => {
-      prev[curr.id] = curr.getDisplayMode(getReactDrawContext());
+      prev.set(curr.id, curr.getDisplayMode(getReactDrawContext()));
       return prev;
     }, bottomDisplayMap);
   };
 
   const updateBottomToolDisplayMap = () => {
     const newMap = makeBottomBarDisplayMap();
-    for (const key in newMap) {
-      if (newMap[key] !== bottomToolsDisplayMap[key]) {
+    if (newMap.size !== bottomToolsDisplayMap.size) {
+      return setBottomToolsDisplayMap(newMap);
+    }
+    const newMapKeys = newMap.keys();
+    for (const key of newMapKeys) {
+      if (newMap.get(key) !== bottomToolsDisplayMap.get(key)) {
         return setBottomToolsDisplayMap(newMap);
       }
     }
@@ -76,7 +80,7 @@ export default function ReactDraw({
       lastEvent: latestEvent.current,
       prevMousePosition: previousMousePos,
       drawingTools: topBarTools,
-      customState: fullState[currentDrawingTool.id],
+      customState: fullState.get(currentDrawingTool.id),
       fullState,
       undoStack: undoStack.current,
       redoStack: redoStack.current,
@@ -137,8 +141,10 @@ export default function ReactDraw({
       return;
     }
     currentDrawingData.coords.push(relativePoint);
-    renderedElementsMap.current[currentDrawingData.container.id] =
-      currentDrawingData;
+    renderedElementsMap.current.set(
+      currentDrawingData.container.id,
+      currentDrawingData
+    );
     currentDrawingTool.onDrawEnd(currentDrawingData, getReactDrawContext());
     updateBottomToolDisplayMap();
   }
@@ -308,11 +314,12 @@ function getToolById(tools: DrawingTools[], id: string): DrawingTools {
   return tool;
 }
 function setupCustomStateSpace(tools: DrawingTools[]): CustomState {
-  const state: CustomState = {};
+  const state: CustomState = new Map();
   return tools.reduce((prev, curr) => {
-    prev[curr.id] = {};
     if (curr.setupCustomState) {
-      prev[curr.id] = curr.setupCustomState(prev[curr.id]);
+      prev.set(curr.id, curr.setupCustomState(state));
+    } else {
+      prev.set(curr.id, {});
     }
     return prev;
   }, state);

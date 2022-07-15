@@ -17,14 +17,14 @@ import {
   setContainerRect,
 } from "../utils";
 import {
-  getElementsByIds,
   notifyTool,
   selectElement,
   selectManyElements,
   unselectAll,
-  unselectElement,
   unselectEverythingAndReturnPrevious,
 } from "./utils";
+import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
+import { unselectElement } from "./unselectElement";
 import { SELECT_TOOL_ID } from "./constants";
 import { SelectToolCustomState, UndoAction } from "./types";
 import { handelResizUndo, handleDragUndo, handleRotateUndo } from "./undo";
@@ -49,7 +49,7 @@ const selectTool: DrawingTools = {
   onDrawEnd: (data, ctx) => {
     const { objectsMap, viewContainer } = ctx;
     viewContainer.removeChild(data.container.div);
-    delete objectsMap[data.container.id];
+    objectsMap.delete(data.container.id);
     tryClickObject(data, ctx);
   },
   onResize: (data) => {},
@@ -71,7 +71,7 @@ const selectTool: DrawingTools = {
     if (selectedIds.length === 0) {
       return;
     }
-    const objects = selectedIds.map((id) => ctx.objectsMap[id]);
+    const objects = getSelectedDrawingObjects(selectedIds, ctx.objectsMap);
     unselectAll(objects, ctx);
     state.selectedIds = [];
   },
@@ -92,7 +92,7 @@ const selectTool: DrawingTools = {
         toolId: SELECT_TOOL_ID,
         toolType: "top-bar-tool",
         objectId: "",
-        data: selectedIds,
+        data: [...selectedIds],
         action: "delete",
       },
       ctx
@@ -183,7 +183,7 @@ const handleTryClickObject = (
 
 function handleSelectIds(ctx: ReactDrawContext, objectIds: string[]) {
   (ctx.customState as SelectToolCustomState).selectedIds = objectIds;
-  const objects = getElementsByIds(ctx.objectsMap, objectIds);
+  const objects = getSelectedDrawingObjects(objectIds, ctx.objectsMap);
   if (objects.length === 1) {
     notifyTool(ctx.drawingTools, objects[0], ctx);
     return selectElement(objects[0], ctx);
@@ -217,12 +217,11 @@ function getElementIdsInsideOfBounds(
   ctx: ReactDrawContext
 ) {
   const elementIdsToSelect = [];
-  for (const elementId in renderedMap) {
-    const eleData = renderedMap[elementId];
+  for (const [eleId, eleData] of renderedMap.entries()) {
     unselectElement(eleData, ctx);
 
     if (isRectBounding(bounds, eleData.container.bounds)) {
-      elementIdsToSelect.push(elementId);
+      elementIdsToSelect.push(eleId);
     }
   }
   return elementIdsToSelect;

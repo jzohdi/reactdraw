@@ -10,16 +10,10 @@ type OnResizeContext = {
     previousPoint: Point;
     newPoint: Point;
 };
-type DrawingDataMap = {
-    [id: string]: DrawingData;
-};
+type DrawingDataMap = Map<string, DrawingData>;
 type CapturedEvent = MouseEvent | TouchEvent | null;
-type DrawingToolCustomState = {
-    [stateKey: string]: any;
-};
-type CustomState = {
-    [toolId: string]: DrawingToolCustomState;
-};
+type DrawingToolCustomState = any;
+type CustomState = Map<string, DrawingToolCustomState>;
 type ReactDrawContext = {
     viewContainer: HTMLDivElement;
     objectsMap: DrawingDataMap;
@@ -57,6 +51,7 @@ type DrawingTools = {
     onUnMount?: (ctx: ReactDrawContext) => void;
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+    onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
     cursor?: string;
 };
 type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
@@ -91,9 +86,7 @@ type DrawingData = {
         zIndex: number;
     };
     toolId: string;
-    customData: {
-        [key: string]: any;
-    };
+    customData: Map<string, any>;
 };
 type DisplayMode = "disabled" | "hide" | "show";
 type ActionTools = {
@@ -125,5 +118,7 @@ declare const textAreaTool: DrawingTools;
 declare const eraseTool: DrawingTools;
 declare const undoTool: ActionTools;
 declare const undoTool$0: ActionTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool };
+declare const trashTool: ActionTools;
+declare const duplicateTool: ActionTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool, trashTool, duplicateTool };
 //# sourceMappingURL=index.d.ts.map

@@ -1,6 +1,6 @@
-import { unselectElement } from "../SelectTool/utils";
+import { unselectElement } from "../SelectTool/unselectElement";
 import { ActionObject, DrawingData, ReactDrawContext } from "../types";
-import { deleteObjectAndNotify } from "./utils";
+import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
 
 export function saveCreateToUndoStack(
   data: DrawingData,
@@ -23,10 +23,7 @@ export function undoCreate(
   action: ActionObject,
   ctx: ReactDrawContext
 ): ActionObject {
-  const object = ctx.objectsMap[action.objectId];
-  if (!object) {
-    throw new Error("Could not find object during square onUndo");
-  }
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   deleteObjectAndNotify(action.objectId, ctx);
   action.data = object;
   action.action = "delete";
@@ -41,7 +38,7 @@ export function redoDelete(
   if (!object) {
     throw new Error("redo delete but no data exists");
   }
-  ctx.objectsMap[object.container.id] = object;
+  ctx.objectsMap.set(object.container.id, object);
   ctx.viewContainer.appendChild(object.container.div);
   action.data = null;
   action.action = "create";
@@ -74,8 +71,9 @@ export function recreateDeletedObjects(
   const objectIds = Object.keys(data);
   for (const objectId of objectIds) {
     const object = data[objectId];
+    // console.log("recreating:", object);
     ctx.viewContainer.appendChild(object.container.div);
-    ctx.objectsMap[objectId] = object;
+    ctx.objectsMap.set(objectId, object);
   }
   action.action = "create";
   action.data = objectIds;
@@ -92,7 +90,7 @@ export function deleteCreatedObjects(
   }
   action.data = {};
   for (const objectId of data) {
-    action.data[objectId] = ctx.objectsMap[objectId];
+    action.data[objectId] = getObjectFromMap(ctx.objectsMap, objectId);
     deleteObjectAndNotify(objectId, ctx);
   }
   action.action = "delete";
