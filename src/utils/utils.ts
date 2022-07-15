@@ -1,5 +1,6 @@
 import { SELECT_TOOL_ID } from "../SelectTool/constants";
 import { SelectToolCustomState } from "../SelectTool/types";
+import { unselectElement } from "../SelectTool/utils";
 import {
   DrawingData,
   DrawingTools,
@@ -60,6 +61,10 @@ export function changeCtxForTool(
 export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
   const { objectsMap, viewContainer } = ctx;
   const object = ctx.objectsMap[objectId];
+
+  // if deleting a selected element, remove select
+  unselectElement(object, changeCtxForTool(ctx, SELECT_TOOL_ID));
+
   const { div, id } = object.container;
   viewContainer.removeChild(div);
   delete objectsMap[id];
@@ -67,16 +72,4 @@ export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
   if (tool.onDeleteObject) {
     tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
   }
-  const selectToolState = ctx.fullState[
-    SELECT_TOOL_ID
-  ] as SelectToolCustomState;
-  if (!selectToolState || !selectToolState.selectedIds) {
-    return;
-  }
-  const indexOfId = selectToolState.selectedIds.indexOf(id);
-  if (indexOfId < 0) {
-    return;
-  }
-  selectToolState.selectedIds.splice(indexOfId, 1);
-  //   console.log("removed id:", id, "from selected Ids");
 }

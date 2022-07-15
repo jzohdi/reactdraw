@@ -9,3 +9,4 @@ export { default as straightLineTool } from "./StraightLineTool";
 export { default as textAreaTool } from "./TextAreaTool";
 export { default as eraseTool } from "./EraseTool";
 export { default as undoTool } from "./UndoTool";
+export { default as redoTool } from "./RedoTool";

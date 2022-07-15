@@ -3,7 +3,7 @@ import { SQUARE_TOOL_ID } from "../constants";
 import { DrawingTools } from "../types";
 import { SquareBoldIcon } from "@jzohdi/jsx-icons";
 import { setContainerRect } from "../utils";
-import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
@@ -26,6 +26,13 @@ const squareTool: DrawingTools = {
       return undoCreate(action, ctx);
     }
     console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "delete") {
+      return redoDelete(action, ctx);
+    }
+    console.error("unsupported action:", action);
     throw new Error();
   },
   onResize(data, ctx) {},

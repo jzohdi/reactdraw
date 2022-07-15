@@ -3,7 +3,7 @@ import React from "react";
 import { CIRCLE_TOOL_ID } from "../constants";
 import { DrawingTools } from "../types";
 import { setContainerRect } from "../utils";
-import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
   icon: <CircleBoldIcon />,
@@ -24,6 +24,13 @@ const circlTool: DrawingTools = {
       return undoCreate(action, ctx);
     }
     console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "delete") {
+      return redoDelete(action, ctx);
+    }
+    console.error("unsupported action:", action);
     throw new Error();
   },
 };

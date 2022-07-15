@@ -10,7 +10,11 @@ import {
   mapPointToRect,
 } from "../utils";
 import { createPathSvg, createSvg } from "../utils/svgUtils";
-import { pushActionToStack } from "../utils/undo";
+import {
+  deleteCreatedObjects,
+  pushActionToStack,
+  recreateDeletedObjects,
+} from "../utils/undo";
 import { deleteObjectAndNotify } from "../utils/utils";
 
 const eraserIconBase64 =
@@ -71,15 +75,14 @@ const eraseTool: DrawingTools = {
   },
   onUndo(action, ctx) {
     if (action.action === "delete") {
-      const data = action.data as { [id: string]: DrawingData };
-      const objectIds = Object.keys(data);
-      for (const objectId of objectIds) {
-        const object = data[objectId];
-        ctx.viewContainer.appendChild(object.container.div);
-        ctx.objectsMap[objectId] = object;
-      }
-      action.data = objectIds;
-      return action;
+      return recreateDeletedObjects(action, ctx);
+    }
+    console.error("unrecognized action", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "create") {
+      return deleteCreatedObjects(action, ctx);
     }
     console.error("unrecognized action", action);
     throw new Error();

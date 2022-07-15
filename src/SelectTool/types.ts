@@ -28,7 +28,7 @@ export type RotateUndoData = {
   rotate: number;
 };
 
-export type UndoAction = "drag" | "rotate" | "resize";
+export type UndoAction = "drag" | "rotate" | "resize" | "delete" | "create";
 
 export type ResizeUndoData = {
   bounds: RectBounds;

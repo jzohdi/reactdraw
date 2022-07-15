@@ -4,7 +4,7 @@ import { DIAMOND_TOOL_ID } from "../constants";
 import { DrawingData, DrawingTools, RectBounds } from "../types";
 import { scaleSvg, setContainerRect } from "../utils";
 import { createPathSvg, createSvg } from "../utils/svgUtils";
-import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,
@@ -30,6 +30,13 @@ const diamondTool: DrawingTools = {
   onUndo(action, ctx) {
     if (action.action === "create") {
       return undoCreate(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "delete") {
+      return redoDelete(action, ctx);
     }
     console.error("Unsupported action: ", action);
     throw new Error();

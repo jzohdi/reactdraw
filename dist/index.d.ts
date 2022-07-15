@@ -124,5 +124,6 @@ declare const textAreaTool: DrawingTools;
 // then finally delete stuff on draw end
 declare const eraseTool: DrawingTools;
 declare const undoTool: ActionTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool };
+declare const undoTool$0: ActionTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool };
 //# sourceMappingURL=index.d.ts.map

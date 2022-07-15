@@ -51,8 +51,9 @@ function isElementSelected(div: HTMLDivElement) {
 }
 
 export function unselectEverythingAndReturnPrevious(ctx: ReactDrawContext) {
-  const selectedIds =
-    (ctx.customState as SelectToolCustomState).selectedIds || [];
+  const selectedIds = [
+    ...((ctx.customState as SelectToolCustomState).selectedIds || []),
+  ];
   const { objectsMap, prevMousePosition } = ctx;
   const objects = getSelectedDrawingObjects(selectedIds, objectsMap);
   unselectAll(objects, ctx);
@@ -189,23 +190,28 @@ export function unselectElement(
   data: DrawingData,
   ctx: ReactDrawContext
 ): void {
+  const objectId = data.container.id;
   const { div } = data.container;
-  const selectFrame = div.querySelector('[id^="select-frame"');
   const state = ctx.customState as SelectToolCustomState;
-  const handlers = state.handlers[data.container.id];
+  const handlers = state.handlers[objectId];
   if (handlers) {
     // console.log("removing ", handlers.length, "handlers");
     for (const handler of handlers) {
       handler.ele.removeEventListener(handler.eventName, handler.fn);
     }
   }
-  state.handlers[data.container.id] = [];
+  const selectFrame = div.querySelector('[id^="select-frame"');
+  state.handlers[objectId] = [];
   if (selectFrame !== null) {
     div.removeChild(selectFrame);
   }
+  const indexInSelectedIds = state.selectedIds.indexOf(objectId);
+  if (indexInSelectedIds >= 0) {
+    state.selectedIds.splice(indexInSelectedIds, 1);
+  }
 }
 
-const rotateNumRegex = /\d+\.*\d*/g;
+const rotateNumRegex = /-{0,1}\d+\.*\d*/g;
 
 export function getRotateFromDiv(div: HTMLDivElement): number {
   const rotateStyle = div.style.transform;

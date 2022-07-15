@@ -8,6 +8,7 @@ import {
 } from "../types";
 import {
   pushActionToStack,
+  redoDelete,
   saveCreateToUndoStack,
   undoCreate,
 } from "../utils/undo";
@@ -50,6 +51,15 @@ const textAreaTool: DrawingTools = {
       return undoTextAreaInput(action, ctx);
     }
     console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "delete") {
+      return redoDelete(action, ctx);
+    } else if (action.action === "input") {
+      return undoTextAreaInput(action, ctx);
+    }
+    console.error("unsupported action:", action);
     throw new Error();
   },
   onDeleteObject(data, ctx) {

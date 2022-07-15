@@ -14,6 +14,7 @@ import {
   textAreaTool,
   eraseTool,
   undoTool,
+  redoTool,
 } from "../../src";
 
 export default {
@@ -35,7 +36,7 @@ const topBarTools: DrawingTools[] = [
   eraseTool,
 ];
 
-const bottomBarTools: ActionTools[] = [undoTool];
+const bottomBarTools: ActionTools[] = [undoTool, redoTool];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});
 
@@ -44,10 +45,12 @@ DefaultLayoutWithoutChildren.args = {
   bottomBarTools,
 };
 
-export const HideTopBar = Template.bind({});
-HideTopBar.args = {
+export const HideTopAndBottomBar = Template.bind({});
+HideTopAndBottomBar.args = {
   topBarTools: [freeDrawTool],
   hideTopBar: true,
+  bottomBarTools: [],
+  hideBottomBar: true,
 };
 
 export const DefaultLayoutWithChildren = Template.bind({});

@@ -27,8 +27,12 @@ import {
 } from "./utils";
 import { SELECT_TOOL_ID } from "./constants";
 import { SelectToolCustomState, UndoAction } from "./types";
-import { deleteObjectAndNotify } from "../utils/utils";
 import { handelResizUndo, handleDragUndo, handleRotateUndo } from "./undo";
+import {
+  deleteCreatedObjects,
+  pushActionToStack,
+  recreateDeletedObjects,
+} from "../utils/undo";
 
 const selectTool: DrawingTools = {
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
@@ -82,14 +86,47 @@ const selectTool: DrawingTools = {
     if (selectedIds.length < 1) {
       return;
     }
-    const objects = getElementsByIds(ctx.objectsMap, selectedIds);
-    unselectAll(objects, ctx);
-    for (const object of objects) {
-      deleteObjectAndNotify(object.container.id, ctx);
-    }
+    // unselectAll(objects, ctx);
+    const resultAction = deleteCreatedObjects(
+      {
+        toolId: SELECT_TOOL_ID,
+        toolType: "top-bar-tool",
+        objectId: "",
+        data: selectedIds,
+        action: "delete",
+      },
+      ctx
+    );
+    pushActionToStack(resultAction, ctx);
   },
   onUndo(action, ctx) {
     const act = action.action as UndoAction;
+    if (act === "delete") {
+      return recreateDeletedObjects(action, ctx);
+    }
+    if (act === "create") {
+      return deleteCreatedObjects(action, ctx);
+    }
+    if (act === "drag") {
+      return handleDragUndo(action, ctx);
+    }
+    if (act === "rotate") {
+      return handleRotateUndo(action, ctx);
+    }
+    if (act === "resize") {
+      return handelResizUndo(action, ctx);
+    }
+    console.log("unsupported action", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    const act = action.action as UndoAction;
+    if (act === "delete") {
+      return recreateDeletedObjects(action, ctx);
+    }
+    if (act === "create") {
+      return deleteCreatedObjects(action, ctx);
+    }
     if (act === "drag") {
       return handleDragUndo(action, ctx);
     }
@@ -114,7 +151,7 @@ export default selectTool;
  */
 const tryClickObject = (drawingData: DrawingData, ctx: ReactDrawContext) => {
   // if the distance from mouse down to mouse up is small, then see if user tried to select something.
-  const didPressShift = !!ctx.lastEvent?.shiftKey;
+  const didPressShift = ctx.lastEvent?.shiftKey ?? false;
   const firstPoint = drawingData.coords[0];
   const lastPoint = drawingData.coords[drawingData.coords.length - 1];
   if (distance(lastPoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE) {
@@ -131,7 +168,7 @@ const handleTryClickObject = (
   const clickedEle = getElementsThatBoundsAreWithin(ctx.objectsMap, bounds);
   // unselect everything.
   let { ids } = unselectEverythingAndReturnPrevious(ctx);
-
+  //   console.log(ids, didPressShift);
   // if did not press shift, all prev will be not selected
   if (!didPressShift) {
     ids = [];
@@ -158,8 +195,9 @@ function handleSelectIds(ctx: ReactDrawContext, objectIds: string[]) {
 
 function handleTrySelectObjects(currData: DrawingData, ctx: ReactDrawContext) {
   const didPressShift = ctx.lastEvent?.shiftKey ?? false;
-  const selectedIds =
-    (ctx.customState as SelectToolCustomState).selectedIds || [];
+  const selectedIds = [
+    ...((ctx.customState as SelectToolCustomState).selectedIds || []),
+  ];
   let elementIdsToSelect = getElementIdsInsideOfBounds(
     ctx.objectsMap,
     currData.container.bounds,
