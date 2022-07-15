@@ -57,6 +57,12 @@ export function pushActionToStack(action: ActionObject, ctx: ReactDrawContext) {
   }
 }
 
+/**
+ * Expects action.data to be in the form of:
+ * {
+ * 	  objectId: DrawingData
+ * }
+ */
 export function recreateDeletedObjects(
   action: ActionObject,
   ctx: ReactDrawContext
