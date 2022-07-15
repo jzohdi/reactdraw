@@ -1,5 +1,3 @@
-import { HTMLEvent } from "./types";
-
 //============== TOOL IDS =========================
 export const SQUARE_TOOL_ID = "react-draw-square-tool";
 export const CIRCLE_TOOL_ID = "react-draw-circle-tool";

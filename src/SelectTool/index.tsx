@@ -25,13 +25,14 @@ import {
   unselectElement,
   unselectEverythingAndReturnPrevious,
 } from "./utils";
-import { CURSOR_ID } from "./constants";
-import { SelectToolCustomState } from "./types";
-import { changeCtxForTool, getToolById } from "../utils/utils";
+import { SELECT_TOOL_ID } from "./constants";
+import { SelectToolCustomState, UndoAction } from "./types";
+import { deleteObjectAndNotify } from "../utils/utils";
+import { handelResizUndo, handleDragUndo, handleRotateUndo } from "./undo";
 
 const selectTool: DrawingTools = {
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
-  id: CURSOR_ID,
+  id: SELECT_TOOL_ID,
   onDrawStart: (data) => {
     data.container.div.style.border = `1px solid ${COLORS.primary.main}`;
     data.container.div.style.backgroundColor = COLORS.primary.light + "4d";
@@ -48,6 +49,11 @@ const selectTool: DrawingTools = {
     tryClickObject(data, ctx);
   },
   onResize: (data) => {},
+  onUnMount(ctx) {
+    for (const object of Object.values(ctx.objectsMap)) {
+      unselectElement(object, ctx);
+    }
+  },
   setupCustomState(): SelectToolCustomState {
     return {
       selectedIds: [],
@@ -78,15 +84,23 @@ const selectTool: DrawingTools = {
     }
     const objects = getElementsByIds(ctx.objectsMap, selectedIds);
     unselectAll(objects, ctx);
-    const viewContainer = ctx.viewContainer;
     for (const object of objects) {
-      viewContainer.removeChild(object.container.div);
-      delete ctx.objectsMap[object.container.id];
-      const tool = getToolById(ctx.drawingTools, object.toolId);
-      if (tool.onDeleteObject) {
-        tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
-      }
+      deleteObjectAndNotify(object.container.id, ctx);
     }
+  },
+  onUndo(action, ctx) {
+    const act = action.action as UndoAction;
+    if (act === "drag") {
+      return handleDragUndo(action, ctx);
+    }
+    if (act === "rotate") {
+      return handleRotateUndo(action, ctx);
+    }
+    if (act === "resize") {
+      return handelResizUndo(action, ctx);
+    }
+    console.log("unsupported action", action);
+    throw new Error();
   },
 };
 

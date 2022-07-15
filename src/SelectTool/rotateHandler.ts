@@ -1,13 +1,15 @@
-import { Point, ReactDrawContext } from "../types";
-import { SelectToolCustomState } from "./types";
+import { ActionObject, Point, ReactDrawContext } from "../types";
+import { RotateUndoData, SelectToolCustomState } from "./types";
 import {
   rotateDiv,
   getRelativePoint,
   getTouchCoords,
   getCenterPoint,
 } from "../utils";
-import { getSelectedDrawingObjects } from "./utils";
+import { getRotateFromDiv, getSelectedDrawingObjects } from "./utils";
 import { alertAfterUpdate } from "../utils/utils";
+import { SELECT_TOOL_ID } from "./constants";
+import { pushActionToStack } from "../utils/undo";
 
 function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
   const state = ctx.customState as SelectToolCustomState;
@@ -32,6 +34,7 @@ function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
 
 function startRotate(ctx: ReactDrawContext, relativePoint: Point) {
   (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  pushRotateToUndoStack(ctx);
 }
 
 function stopRotate(ctx: ReactDrawContext) {
@@ -102,4 +105,25 @@ export default function addHandlersToRotateButton(
   });
   selectFrame.addEventListener("mousedown", handleStartRotateMouse);
   selectFrame.addEventListener("touchstart", handleStartRotateTouch);
+}
+
+function pushRotateToUndoStack(ctx: ReactDrawContext) {
+  const state = ctx.customState as SelectToolCustomState;
+  const selectedObjects = getSelectedDrawingObjects(
+    state.selectedIds,
+    ctx.objectsMap
+  );
+  const action: ActionObject = {
+    objectId: "",
+    toolId: SELECT_TOOL_ID, // TODO: maybe better?
+    toolType: "top-bar-tool",
+    action: "rotate",
+    data: selectedObjects.map((o) => {
+      return {
+        objectId: o.container.id,
+        rotate: getRotateFromDiv(o.container.div),
+      } as RotateUndoData;
+    }),
+  };
+  pushActionToStack(action, ctx);
 }

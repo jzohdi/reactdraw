@@ -3,6 +3,7 @@ import { SQUARE_TOOL_ID } from "../constants";
 import { DrawingTools } from "../types";
 import { SquareBoldIcon } from "@jzohdi/jsx-icons";
 import { setContainerRect } from "../utils";
+import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
@@ -17,7 +18,16 @@ const squareTool: DrawingTools = {
     setContainerRect(data);
     data.coords.splice(1);
   },
-  onDrawEnd: (data) => {},
+  onDrawEnd(data, ctx) {
+    saveCreateToUndoStack(data, ctx);
+  },
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
+  },
   onResize(data, ctx) {},
 };
 

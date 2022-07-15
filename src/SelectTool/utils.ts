@@ -2,10 +2,8 @@ import {
   DrawingData,
   DrawingDataMap,
   DrawingTools,
-  Point,
   ReactDrawContext,
 } from "../types";
-import { dragDivs, getRelativePoint, getTouchCoords } from "../utils";
 import { resizeNE, resizeNW, resizeSE, resizeSW } from "../utils/resizeObject";
 import { changeCtxForTool, getToolById, setStyles } from "../utils/utils";
 import {
@@ -205,4 +203,18 @@ export function unselectElement(
   if (selectFrame !== null) {
     div.removeChild(selectFrame);
   }
+}
+
+const rotateNumRegex = /\d+\.*\d*/g;
+
+export function getRotateFromDiv(div: HTMLDivElement): number {
+  const rotateStyle = div.style.transform;
+  if (!rotateStyle) {
+    return 0;
+  }
+  const match = rotateStyle.match(rotateNumRegex);
+  if (!match) {
+    return 0;
+  }
+  return parseFloat(match[0]);
 }

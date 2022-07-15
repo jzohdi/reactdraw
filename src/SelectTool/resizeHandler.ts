@@ -1,8 +1,15 @@
-import { OnResizeContext, Point, ReactDrawContext } from "../types";
-import { ResizeFunction, SelectToolCustomState } from "./types";
+import {
+  ActionObject,
+  OnResizeContext,
+  Point,
+  ReactDrawContext,
+} from "../types";
+import { ResizeFunction, ResizeUndoData, SelectToolCustomState } from "./types";
 import { getRelativePoint, getTouchCoords } from "../utils";
 import { getSelectedDrawingObjects } from "./utils";
 import { getToolById } from "../utils/utils";
+import { SELECT_TOOL_ID } from "./constants";
+import { pushActionToStack } from "../utils/undo";
 
 function startResizing(
   ctx: ReactDrawContext,
@@ -30,6 +37,7 @@ function startResizing(
     newPoint: relativePoint,
     previousPoint: prevPoint,
   };
+  // probably dont do this, this is an implementation detail of the select tool so other tools should not expose functionality for it specifically
   if (toolUsed.doResize) {
     toolUsed.doResize(data, newResizeCtx);
   } else {
@@ -39,11 +47,12 @@ function startResizing(
   state.prevPoint = relativePoint;
 }
 
-function startRotate(ctx: ReactDrawContext, relativePoint: Point) {
+function startResize(ctx: ReactDrawContext, relativePoint: Point) {
   (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  pushResizeToUndoStack(ctx);
 }
 
-function stopRotate(ctx: ReactDrawContext) {
+function stopResize(ctx: ReactDrawContext) {
   const state = ctx.customState as SelectToolCustomState;
   state.prevPoint = null;
 }
@@ -58,7 +67,7 @@ export default function addHandlersToCornerButton(
     e.stopPropagation();
     const point: Point = [e.clientX, e.clientY];
     const relativePoint = getRelativePoint(point, ctx.viewContainer);
-    startRotate(ctx, relativePoint);
+    startResize(ctx, relativePoint);
     window.addEventListener("mousemove", handleResizeMouse);
     window.addEventListener("mouseup", handleStopResizeMouse);
   };
@@ -70,7 +79,7 @@ export default function addHandlersToCornerButton(
   };
   const handleStopResizeMouse = function (e: MouseEvent) {
     e.stopPropagation();
-    stopRotate(ctx);
+    stopResize(ctx);
     window.removeEventListener("mousemove", handleResizeMouse);
     window.removeEventListener("mouseup", handleStopResizeMouse);
   };
@@ -78,7 +87,7 @@ export default function addHandlersToCornerButton(
     e.stopPropagation();
     const startPoint = getTouchCoords(e);
     const relativePoint = getRelativePoint(startPoint, ctx.viewContainer);
-    startRotate(ctx, relativePoint);
+    startResize(ctx, relativePoint);
     window.addEventListener("touchmove", handleResizeTouch);
     window.addEventListener("touchend", handleStopResizeTouch);
     window.addEventListener("touchcancel", handleStopResizeTouch);
@@ -91,7 +100,7 @@ export default function addHandlersToCornerButton(
   };
   const handleStopResizeTouch = function (e: TouchEvent) {
     e.stopPropagation();
-    stopRotate(ctx);
+    stopResize(ctx);
     window.removeEventListener("touchmove", handleResizeTouch);
     window.removeEventListener("touchend", handleStopResizeTouch);
     window.removeEventListener("touchcancel", handleStopResizeTouch);
@@ -115,4 +124,32 @@ export default function addHandlersToCornerButton(
 }
 function getPointDiff(pointA: Point, pointB: Point): Point {
   return [pointA[0] - pointB[0], pointA[1] - pointB[1]];
+}
+
+function pushResizeToUndoStack(ctx: ReactDrawContext) {
+  const state = ctx.customState as SelectToolCustomState;
+  const selectedObjects = getSelectedDrawingObjects(
+    state.selectedIds,
+    ctx.objectsMap
+  );
+  if (selectedObjects.length !== 1) {
+    throw new Error("resize push to stack expects 1 object selected");
+  }
+  const { id, bounds } = selectedObjects[0].container;
+
+  const action: ActionObject = {
+    objectId: id,
+    toolId: SELECT_TOOL_ID,
+    toolType: "top-bar-tool",
+    action: "resize",
+    data: {
+      bounds: {
+        top: bounds.top,
+        left: bounds.left,
+        right: bounds.right,
+        bottom: bounds.bottom,
+      },
+    } as ResizeUndoData,
+  };
+  pushActionToStack(action, ctx);
 }

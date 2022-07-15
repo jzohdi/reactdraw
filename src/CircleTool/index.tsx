@@ -3,6 +3,7 @@ import React from "react";
 import { CIRCLE_TOOL_ID } from "../constants";
 import { DrawingTools } from "../types";
 import { setContainerRect } from "../utils";
+import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
   icon: <CircleBoldIcon />,
@@ -16,8 +17,15 @@ const circlTool: DrawingTools = {
     setContainerRect(data);
     data.coords.splice(1);
   },
-  onDrawEnd: (data) => {},
+  onDrawEnd: saveCreateToUndoStack,
   onResize(data, ctx) {},
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
+  },
 };
 
 export default circlTool;

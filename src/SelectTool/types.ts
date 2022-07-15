@@ -1,4 +1,4 @@
-import { DrawingData, Point } from "../types";
+import { DrawingData, Point, RectBounds } from "../types";
 
 // store event listeners in custom state so that can be refered to later
 export type EventHandler = {
@@ -16,3 +16,20 @@ export type SelectToolCustomState = {
 };
 
 export type ResizeFunction = (data: DrawingData, pointDiff: Point) => void;
+
+export type DragUndoData = {
+  objectId: string;
+  top: number;
+  left: number;
+};
+
+export type RotateUndoData = {
+  objectId: string;
+  rotate: number;
+};
+
+export type UndoAction = "drag" | "rotate" | "resize";
+
+export type ResizeUndoData = {
+  bounds: RectBounds;
+};

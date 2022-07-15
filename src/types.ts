@@ -34,6 +34,9 @@ export type ReactDrawContext = {
   drawingTools: DrawingTools[];
   customState: DrawingToolCustomState;
   fullState: CustomState;
+  undoStack: ActionObject[];
+  redoStack: ActionObject[];
+  shouldKeepHistory: boolean;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -47,7 +50,7 @@ export type DrawingTools = {
   setupCustomState?: (state: CustomState) => any;
   onPickTool?: (ctx: ReactDrawContext) => void;
   onUnPickTool?: (ctx: ReactDrawContext) => void;
-  onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  onDrawStart: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
   doResize?: (data: DrawingData, ctx: OnResizeContext) => void;
@@ -57,7 +60,20 @@ export type DrawingTools = {
   onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onKeyPress?: (event: KeyboardEvent, ctx: ReactDrawContext) => void;
+  onUnMount?: (ctx: ReactDrawContext) => void;
+  onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
   cursor?: string;
+};
+
+export type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
+
+export type ActionObject = {
+  toolType: ActionType;
+  toolId: string;
+  objectId: string;
+  action: string;
+  data: any;
 };
 
 export type Point = [number, number];
@@ -86,11 +102,27 @@ export type DrawingData = {
   };
 };
 
+export type DisplayMode = "disabled" | "hide" | "show";
+
+export type ActionTools = {
+  icon: JSX.Element;
+  id: string;
+  getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
+  handleContext: (ctx: ReactDrawContext) => void;
+};
+
+export type BottomToolDisplayMap = {
+  [id: string]: DisplayMode;
+};
+
 export type ReactDrawProps = {
   children?: ReactChild;
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
   hideTopBar?: boolean;
+  bottomBarTools: ActionTools[];
+  hideBottomBar?: boolean;
+  shouldKeepHistory?: boolean;
   id: string;
 };
 

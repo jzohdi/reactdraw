@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Container from "./Container";
 import { TopToolBar } from "./TopToolBar";
 import {
+  ActionObject,
+  BottomToolDisplayMap,
   CapturedEvent,
   CustomState,
   DrawingData,
@@ -16,12 +18,16 @@ import {
 import { Children } from "react";
 import { getRelativePoint, getTouchCoords, makeNewBoundingDiv } from "../utils";
 import { changeCtxForTool } from "../utils/utils";
+import { BottomToolBar } from "./BottomToolBar";
 
 export default function ReactDraw({
   children,
+  id = "main",
   topBarTools,
   hideTopBar,
-  id,
+  bottomBarTools,
+  hideBottomBar,
+  shouldKeepHistory = true,
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -34,9 +40,35 @@ export default function ReactDraw({
   const previousMousePos = useRef<Point | null>(null);
   const latestEvent = useRef<CapturedEvent>(null);
   const customState = useRef<CustomState>(setupCustomStateSpace(topBarTools));
+  const undoStack = useRef<ActionObject[]>([]);
+  const redoStack = useRef<ActionObject[]>([]);
+  const showMenu = useState(false);
+  const [bottomToolsDisplayMap, setBottomToolsDisplayMap] =
+    useState<BottomToolDisplayMap>({});
 
-  const getReactDrawContext = (): ReactDrawContext => {
-    const viewContainer = getViewContainer();
+  const makeBottomBarDisplayMap = () => {
+    const bottomDisplayMap: BottomToolDisplayMap = {};
+    return bottomBarTools.reduce((prev, curr) => {
+      prev[curr.id] = curr.getDisplayMode(getReactDrawContext());
+      return prev;
+    }, bottomDisplayMap);
+  };
+
+  const updateBottomToolDisplayMap = () => {
+    const newMap = makeBottomBarDisplayMap();
+    for (const key in newMap) {
+      if (newMap[key] !== bottomToolsDisplayMap[key]) {
+        return setBottomToolsDisplayMap(newMap);
+      }
+    }
+  };
+
+  useEffect(() => {
+    updateBottomToolDisplayMap();
+  }, []);
+
+  const getReactDrawContext = (viewC?: HTMLDivElement): ReactDrawContext => {
+    const viewContainer = viewC || getViewContainer();
     const fullState = customState.current;
     return {
       viewContainer,
@@ -46,12 +78,16 @@ export default function ReactDraw({
       drawingTools: topBarTools,
       customState: fullState[currentDrawingTool.id],
       fullState,
+      undoStack: undoStack.current,
+      redoStack: redoStack.current,
+      shouldKeepHistory,
     };
   };
 
   function alertToolOfKeydown(e: KeyboardEvent) {
     if (currentDrawingTool.onKeyPress) {
       currentDrawingTool.onKeyPress(e, getReactDrawContext());
+      updateBottomToolDisplayMap();
     }
   }
 
@@ -69,15 +105,15 @@ export default function ReactDraw({
    * @returns
    */
   function starDraw(relativePoint: Point) {
-    const container = getViewContainer();
+    const ctx = getReactDrawContext();
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
       currentLineWidth,
       currentDrawingTool.id
     );
     currDrawObj.current = newDrawingData;
-    container.append(newDrawingData.container.div);
-    currentDrawingTool.onDrawStart(newDrawingData, container);
+    ctx.viewContainer.append(newDrawingData.container.div);
+    currentDrawingTool.onDrawStart(newDrawingData, ctx);
   }
 
   function drawing(relativePoint: Point) {
@@ -104,6 +140,7 @@ export default function ReactDraw({
     renderedElementsMap.current[currentDrawingData.container.id] =
       currentDrawingData;
     currentDrawingTool.onDrawEnd(currentDrawingData, getReactDrawContext());
+    updateBottomToolDisplayMap();
   }
 
   useEffect(() => {
@@ -176,7 +213,14 @@ export default function ReactDraw({
       container.removeEventListener("touchend", endDrawTouch);
       container.removeEventListener("mouseleave", endDrawMouse);
       window.removeEventListener("keydown", alertToolOfKeydown);
-      //TODO: call on delete for each object
+      // avoid leaks. ex: if unmount while select tool, there would be leaked dom event handlers
+      // container b/c ref will be gone
+      const ctx = getReactDrawContext(container);
+      for (const tool of topBarTools) {
+        if (tool.onUnMount) {
+          tool.onUnMount(changeCtxForTool(ctx, tool.id));
+        }
+      }
     };
   }, [currentDrawingTool]);
 
@@ -195,8 +239,15 @@ export default function ReactDraw({
           );
         }
         setCurrentDrawingTool(selectedTool);
+        updateBottomToolDisplayMap();
       }
     }
+  };
+
+  const dispatchBottomToolCtx = (cb: (data: ReactDrawContext) => void) => {
+    const ctx = getReactDrawContext();
+    cb(ctx);
+    updateBottomToolDisplayMap();
   };
 
   return (
@@ -220,10 +271,18 @@ export default function ReactDraw({
       >
         {children}
       </div>
-      <div></div>
+      {!hideBottomBar && (
+        <BottomToolBar
+          displayMap={bottomToolsDisplayMap}
+          tools={bottomBarTools}
+          dispatch={dispatchBottomToolCtx}
+        >
+          <div>hello world</div>
+        </BottomToolBar>
+      )}
       <style>{`
 		#${drawingAreaId.current} {
-			cursor: ${currentDrawingTool.cursor || "defautl"};
+			cursor: ${currentDrawingTool.cursor || "default"};
 		}
 	  `}</style>
     </Container>

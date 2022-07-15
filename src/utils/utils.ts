@@ -1,3 +1,5 @@
+import { SELECT_TOOL_ID } from "../SelectTool/constants";
+import { SelectToolCustomState } from "../SelectTool/types";
 import {
   DrawingData,
   DrawingTools,
@@ -53,4 +55,28 @@ export function changeCtxForTool(
   toolId: string
 ): ReactDrawContext {
   return { ...ctx, customState: ctx.fullState[toolId] };
+}
+
+export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
+  const { objectsMap, viewContainer } = ctx;
+  const object = ctx.objectsMap[objectId];
+  const { div, id } = object.container;
+  viewContainer.removeChild(div);
+  delete objectsMap[id];
+  const tool = getToolById(ctx.drawingTools, object.toolId);
+  if (tool.onDeleteObject) {
+    tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
+  }
+  const selectToolState = ctx.fullState[
+    SELECT_TOOL_ID
+  ] as SelectToolCustomState;
+  if (!selectToolState || !selectToolState.selectedIds) {
+    return;
+  }
+  const indexOfId = selectToolState.selectedIds.indexOf(id);
+  if (indexOfId < 0) {
+    return;
+  }
+  selectToolState.selectedIds.splice(indexOfId, 1);
+  //   console.log("removed id:", id, "from selected Ids");
 }

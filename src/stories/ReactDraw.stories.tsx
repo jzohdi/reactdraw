@@ -1,7 +1,7 @@
 import React from "react";
 import { Story } from "@storybook/react";
 import ReactDraw from "../ReactDraw";
-import { DrawingTools, ReactDrawProps } from "../types";
+import { ActionTools, DrawingTools, ReactDrawProps } from "../types";
 
 import {
   circleTool,
@@ -13,6 +13,7 @@ import {
   //   arrowTool,
   textAreaTool,
   eraseTool,
+  undoTool,
 } from "../../src";
 
 export default {
@@ -34,10 +35,13 @@ const topBarTools: DrawingTools[] = [
   eraseTool,
 ];
 
+const bottomBarTools: ActionTools[] = [undoTool];
+
 export const DefaultLayoutWithoutChildren = Template.bind({});
 
 DefaultLayoutWithoutChildren.args = {
   topBarTools,
+  bottomBarTools,
 };
 
 export const HideTopBar = Template.bind({});
@@ -50,6 +54,7 @@ export const DefaultLayoutWithChildren = Template.bind({});
 
 DefaultLayoutWithChildren.args = {
   topBarTools,
+  bottomBarTools,
   children: (
     <div>
       <p> hello world</p>
@@ -61,6 +66,7 @@ export const FitLayoutWithChildren = Template.bind({});
 
 FitLayoutWithChildren.args = {
   topBarTools,
+  bottomBarTools,
   children: (
     <div>
       <p> hello world</p>

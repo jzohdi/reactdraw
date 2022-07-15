@@ -1,8 +1,10 @@
-import { Point, ReactDrawContext } from "../types";
-import { SelectToolCustomState } from "./types";
+import { ActionObject, DrawingData, Point, ReactDrawContext } from "../types";
+import { DragUndoData, SelectToolCustomState } from "./types";
 import { dragDivs, getRelativePoint, getTouchCoords } from "../utils";
 import { getSelectedDrawingObjects } from "./utils";
-import { alertAfterUpdate, changeCtxForTool } from "../utils/utils";
+import { alertAfterUpdate } from "../utils/utils";
+import { SELECT_TOOL_ID } from "./constants";
+import { pushActionToStack } from "../utils/undo";
 
 function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
   const state = ctx.customState as SelectToolCustomState;
@@ -24,6 +26,7 @@ function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
 
 function startDrag(ctx: ReactDrawContext, relativePoint: Point) {
   (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  pushDragToUndoStack(ctx);
 }
 
 function stopDrag(ctx: ReactDrawContext) {
@@ -94,4 +97,26 @@ export default function addHandlersToSelectFrame(
   });
   selectFrame.addEventListener("mousedown", handleStartDrag);
   selectFrame.addEventListener("touchstart", handleStartDragTouch);
+}
+
+function pushDragToUndoStack(ctx: ReactDrawContext) {
+  const state = ctx.customState as SelectToolCustomState;
+  const selectedObjects = getSelectedDrawingObjects(
+    state.selectedIds,
+    ctx.objectsMap
+  );
+  const action: ActionObject = {
+    objectId: "",
+    toolId: SELECT_TOOL_ID,
+    toolType: "top-bar-tool",
+    action: "drag",
+    data: selectedObjects.map((o) => {
+      return {
+        objectId: o.container.id,
+        top: o.container.bounds.top,
+        left: o.container.bounds.left,
+      } as DragUndoData;
+    }),
+  };
+  pushActionToStack(action, ctx);
 }

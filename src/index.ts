@@ -8,3 +8,4 @@ export { default as straightLineTool } from "./StraightLineTool";
 // export { default as arrowTool } from "./ArrowTool";
 export { default as textAreaTool } from "./TextAreaTool";
 export { default as eraseTool } from "./EraseTool";
+export { default as undoTool } from "./UndoTool";

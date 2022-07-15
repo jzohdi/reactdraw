@@ -5,6 +5,7 @@ import { scaleSvg, setContainerRect } from "../utils";
 import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
 import { createCircle, createLineSvg, createSvg } from "../utils/svgUtils";
 import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
+import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
 type StraightLineCustomData = {
@@ -37,7 +38,7 @@ const straightLineTool: DrawingTools = {
     data.element = newSvg;
     data.coords.splice(1);
   },
-  onDrawEnd: (data) => {},
+  onDrawEnd: saveCreateToUndoStack,
   onResize(data, ctx) {
     const orientation = (data.customData as StraightLineCustomData).orientation;
     const newSvg = makeLineInOrientation(data, orientation);
@@ -48,6 +49,13 @@ const straightLineTool: DrawingTools = {
     data.element = newSvg;
     data.coords.splice(1);
     // scaleSvg(data.element as SVGSVGElement, data.container.bounds);
+  },
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
   },
 };
 

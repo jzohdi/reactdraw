@@ -9,6 +9,7 @@ import {
   //   makeRelativeDiv,
 } from "../utils";
 import { createCircle, createPathSvg, createSvg } from "../utils/svgUtils";
+import { saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
@@ -44,14 +45,22 @@ const freeDrawTool: DrawingTools = {
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
-  onDrawEnd: (data) => {
+  onDrawEnd: (data, ctx) => {
     // console.log("free draw end");
+    saveCreateToUndoStack(data, ctx);
   },
   onResize: (data, ctx) => {
     if (!data.element) {
       return;
     }
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
+  },
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
   },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };

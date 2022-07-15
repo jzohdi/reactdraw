@@ -1,5 +1,16 @@
 import React from "react";
-import { DrawingData, DrawingTools, RectBounds } from "../types";
+import {
+  ActionObject,
+  DrawingData,
+  DrawingTools,
+  ReactDrawContext,
+  RectBounds,
+} from "../types";
+import {
+  pushActionToStack,
+  saveCreateToUndoStack,
+  undoCreate,
+} from "../utils/undo";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -10,50 +21,74 @@ const textAreaTool: DrawingTools = {
     </span>
   ),
   id: "react-draw-textarea-tool",
-  onDrawStart: (data) => {
-    setupContainer(data);
+  cursor: "text",
+  onDrawStart: (data, ctx) => {
+    setupContainer(data, ctx);
   },
   onDrawing(data, viewContainer) {},
-  onDrawEnd(data, viewContainer) {},
+  onDrawEnd: saveCreateToUndoStack,
   onResize(data, ctx) {
-    const textArea = data.element;
-    if (!textArea) {
-      return;
-    }
-    placeCaretAtEnd(textArea as HTMLDivElement);
+    cleanHandlers(data, false);
+    placeCaretAtEnd(data.element as HTMLDivElement);
   },
   onSelect(data, ctx) {
-    const textArea = data.element;
-    if (!textArea) {
-      return;
-    }
-    if (data.customData.handler) {
-      textArea.removeEventListener("keypress", data.customData.handler);
-      data.customData.handler = null;
-    }
-    placeCaretAtEnd(textArea as HTMLDivElement);
+    cleanHandlers(data, false);
+    placeCaretAtEnd(data.element as HTMLDivElement);
   },
   onUnSelect(data) {
-    const textArea = data.element;
-    if (!textArea) {
-      return;
-    }
-    if (data.customData.handler) {
-      textArea.removeEventListener("keypress", data.customData.handler);
-      data.customData.handler = null;
-    }
+    cleanHandlers(data, false);
     setBoundsFromDiv(data.container.div, data.container.bounds);
   },
-  onAfterUpdate(data) {
-    const textArea = data.element;
-    if (!textArea) {
-      return;
+  onAfterUpdate(data, ctx) {
+    cleanHandlers(data, false);
+    placeCaretAtEnd(data.element as HTMLDivElement);
+  },
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    } else if (action.action === "input") {
+      return undoTextAreaInput(action, ctx);
     }
-    placeCaretAtEnd(textArea as HTMLDivElement);
+    console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onDeleteObject(data, ctx) {
+    cleanHandlers(data, true);
   },
 };
 
 export default textAreaTool;
+
+function undoTextAreaInput(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  const drawingObj = ctx.objectsMap[action.objectId];
+  const ele = drawingObj.element as HTMLDivElement;
+  if (!ele) {
+    throw new Error("tried to undo text but no ele found");
+  }
+  const currentInput = ele.innerHTML;
+  const undoInput = action.data as string;
+  ele.innerHTML = undoInput;
+  action.data = currentInput;
+  return action;
+}
+
+function cleanHandlers(data: DrawingData, deleteCapture: boolean) {
+  const textArea = data.element;
+  if (!textArea) {
+    return;
+  }
+  if (data.customData.handler) {
+    textArea.removeEventListener("keypress", data.customData.handler);
+    data.customData.handler = null;
+  }
+  if (deleteCapture && data.customData.capture) {
+    textArea.removeEventListener("input", data.customData.capture);
+    data.customData.capture = null;
+  }
+}
 
 function setBoundsFromDiv(div: HTMLDivElement, bounds: RectBounds) {
   const trueBounds = div.getBoundingClientRect();
@@ -82,7 +117,7 @@ function placeCaretAtEnd(el: HTMLDivElement) {
   return false;
 }
 
-function setupContainer(data: DrawingData) {
+function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   const fontSize = 12;
   const padding = 5;
   const { div, bounds } = data.container;
@@ -100,8 +135,12 @@ function setupContainer(data: DrawingData) {
 		outline: none;		
 		height: 100%;
 	}`;
+
   div.appendChild(styleTag);
+
   const cursorDiv = makeCursorDiv();
+  data.element = cursorDiv;
+
   function setBoundsOnTyping() {
     const trueBounds = div.getBoundingClientRect();
     const { width, height } = trueBounds;
@@ -109,18 +148,60 @@ function setupContainer(data: DrawingData) {
     bounds.right = bounds.left + width;
     // console.log("setting bounds on typing");
   }
-  data.customData = {
+  const customData: TextAreaCustomData = {
     handler: setBoundsOnTyping,
+    capture: null,
+    lastCapture: null,
   };
+  data.customData = customData;
   // TODO: verify this is not leaked
   cursorDiv.addEventListener("keypress", setBoundsOnTyping);
   div.appendChild(cursorDiv);
   setBoundsFromDiv(div, bounds);
+
   cursorDiv.setAttribute("tabindex", "1");
+  addCaptureHandler(data, ctx);
+
   setTimeout(function () {
     cursorDiv.focus();
   }, 0);
-  data.element = cursorDiv;
+}
+
+type TextAreaCustomData = {
+  handler: (() => void) | null;
+  capture: ((...args: any) => void) | null;
+  lastCapture: number | null;
+};
+function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
+  const div = data.element as HTMLDivElement;
+  const customData = data.customData as TextAreaCustomData;
+  function captureDidType(e: Event) {
+    const currentMS = new Date().getTime();
+    const lastCaptureMS = customData.lastCapture;
+    if (lastCaptureMS === null) {
+      const action: ActionObject = {
+        toolId: data.toolId,
+        action: "input",
+        data: "",
+        toolType: "top-bar-tool",
+        objectId: data.container.id,
+      };
+      pushActionToStack(action, ctx);
+    } else if (currentMS - lastCaptureMS > 1000 * 5) {
+      const target = e.target as HTMLInputElement;
+      const action: ActionObject = {
+        toolId: data.toolId,
+        action: "input",
+        data: target.innerHTML,
+        toolType: "top-bar-tool",
+        objectId: data.container.id,
+      };
+      pushActionToStack(action, ctx);
+    }
+    customData.lastCapture = currentMS;
+  }
+  div.addEventListener("input", captureDidType);
+  customData.capture = captureDidType;
 }
 
 function makeCursorDiv() {

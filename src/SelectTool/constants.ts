@@ -7,7 +7,7 @@ export const SELECT_FRAME_PRE = "select-frame";
 export const CORNER_BUTTON_PRE = "corner-button";
 
 //============== TOOL IDS =========================
-export const CURSOR_ID = "react-draw-cursor";
+export const SELECT_TOOL_ID = "react-draw-cursor";
 
 export const ROTATE_BUTTON_STYLES: PartialCSS = {
   top: "-45px",
