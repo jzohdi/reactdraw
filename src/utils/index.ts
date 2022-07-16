@@ -5,7 +5,6 @@ import {
   RectBounds,
   DrawingDataMap,
 } from "../types";
-import { getObjectFromMap } from "./utils";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 export function makeid(length: number) {
@@ -17,28 +16,6 @@ export function makeid(length: number) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-}
-
-export function getTouchCoords(e: TouchEvent): Point {
-  let touch = e.touches[0];
-  if (!touch) {
-    touch = e.targetTouches[0];
-  }
-  if (!touch) {
-    touch = e.changedTouches[0];
-  }
-  return [touch.clientX, touch.clientY];
-}
-
-export function getRelativePoint(
-  point: Point,
-  container: HTMLDivElement | null
-): Point {
-  if (!container) {
-    throw new Error("Container not set.");
-  }
-  const rect = container.getBoundingClientRect();
-  return [point[0] - rect.left, point[1] - rect.top];
 }
 
 export function isBrowser() {
@@ -261,39 +238,6 @@ export function isRectBounding(
   );
 }
 
-export function dragDivs(
-  objects: DrawingData[],
-  prevPoint: Point,
-  newPoint: Point
-): void {
-  const [currentMouseX, currentMouseY] = newPoint;
-  const [prevMouseX, prevMouseY] = prevPoint;
-  const newLeft = currentMouseX - prevMouseX;
-  const newTop = currentMouseY - prevMouseY;
-  for (const obj of objects) {
-    const { bounds, div } = obj.container;
-    const { left, top, right, bottom } = bounds;
-    bounds.left = left + newLeft;
-    bounds.top = top + newTop;
-    bounds.right = bounds.left + (right - left);
-    bounds.bottom = bounds.top + (bottom - top);
-    div.style.top = bounds.top + "px";
-    div.style.left = bounds.left + "px";
-  }
-}
-
-export function rotateDiv(
-  object: DrawingData,
-  newPoint: Point,
-  referenceCenter: Point
-) {
-  const div = object.container.div;
-  const x = newPoint[0] - referenceCenter[0];
-  const y = newPoint[1] - referenceCenter[1];
-  const angleDeg = (Math.atan2(y, x) * 180) / Math.PI + 90;
-  div.style.transform = `rotate(${angleDeg}deg)`;
-}
-
 export function distance(pointA: Point, pointB: Point): number {
   return Math.sqrt(
     Math.pow(Math.abs(pointA[0] - pointB[0]), 2) +
@@ -326,14 +270,6 @@ export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
     right = x;
   }
   return { top, right, bottom, left };
-}
-
-export function getCenterPoint(bounds: RectBounds): Point {
-  const height = bounds.bottom - bounds.top;
-  const y = bounds.top + height / 2;
-  const width = bounds.right - bounds.left;
-  const x = bounds.left + width / 2;
-  return [x, y];
 }
 
 export function getBoxSize(data: DrawingData) {

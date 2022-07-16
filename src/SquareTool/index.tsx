@@ -20,6 +20,10 @@ const squareTool: DrawingTools = {
   },
   onDrawEnd(data, ctx) {
     saveCreateToUndoStack(data, ctx);
+
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
   },
   onUndo(action, ctx) {
     if (action.action === "create") {

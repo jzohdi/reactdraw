@@ -17,7 +17,12 @@ const circlTool: DrawingTools = {
     setContainerRect(data);
     data.coords.splice(1);
   },
-  onDrawEnd: saveCreateToUndoStack,
+  onDrawEnd(data, ctx) {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
+  },
   onResize(data, ctx) {},
   onUndo(action, ctx) {
     if (action.action === "create") {

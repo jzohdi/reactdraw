@@ -1,7 +1,7 @@
 import React from "react";
 import { STRAIGHT_LINE_TOOL_ID } from "../constants";
 import { DrawingData, DrawingTools, Point } from "../types";
-import { scaleSvg, setContainerRect } from "../utils";
+import { setContainerRect } from "../utils";
 import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
 import { createCircle, createLineSvg, createSvg } from "../utils/svgUtils";
 import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
@@ -39,7 +39,12 @@ const straightLineTool: DrawingTools = {
     data.element = newSvg;
     data.coords.splice(1);
   },
-  onDrawEnd: saveCreateToUndoStack,
+  onDrawEnd(data, ctx) {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
+  },
   onResize(data, ctx) {
     const orientation = data.customData.get(ORIENT_KEY);
     if (!orientation) {

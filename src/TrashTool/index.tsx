@@ -1,9 +1,9 @@
-import { TrashCanBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { SELECT_TOOL_ID } from "../SelectTool/constants";
-import { getSelectedIdsFromFullState } from "../SelectTool/utils";
+import { TrashCanBoldIcon } from "@jzohdi/jsx-icons";
+import { getSelectedIdsFromFullState } from "../utils/select/utils";
 import { ActionTools } from "../types";
 import { deleteCreatedObjects, pushActionToStack } from "../utils/undo";
+import { SELECT_TOOL_ID } from "../constants";
 
 const trashTool: ActionTools = {
   id: "react-draw-trash-tool",

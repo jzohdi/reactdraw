@@ -1,13 +1,10 @@
-import { COLORS } from "../constants";
-import { PartialCSS } from "../types";
+import { COLORS } from "../../constants";
+import { PartialCSS } from "../../types";
 
 //============== BUTTON ID PREFIX ================
 export const ROTATE_BUTTON_PRE = "button-rotate";
 export const SELECT_FRAME_PRE = "select-frame";
 export const CORNER_BUTTON_PRE = "corner-button";
-
-//============== TOOL IDS =========================
-export const SELECT_TOOL_ID = "react-draw-cursor";
 
 export const ROTATE_BUTTON_STYLES: PartialCSS = {
   top: "-45px",

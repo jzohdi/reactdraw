@@ -1,19 +1,15 @@
-import { ActionObject, Point, ReactDrawContext } from "../types";
-import { RotateUndoData, SelectToolCustomState } from "./types";
-import {
-  rotateDiv,
-  getRelativePoint,
-  getTouchCoords,
-  getCenterPoint,
-} from "../utils";
+import { ActionObject, Point, ReactDrawContext } from "../../types";
+import { RotateUndoData } from "./types";
+import { getCenterPoint, getRelativePoint, getTouchCoords } from "../utils";
 import { getRotateFromDiv } from "./getRotateFromDiv";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
-import { alertAfterUpdate } from "../utils/alertAfterUpdate";
-import { SELECT_TOOL_ID } from "./constants";
-import { pushActionToStack } from "../utils/undo";
+import { alertAfterUpdate } from "../alertAfterUpdate";
+import { pushActionToStack } from "../undo";
+import { SELECT_TOOL_ID } from "../../constants";
+import { rotateDiv } from "./rotateDiv";
 
 function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const prevPoint = state.prevPoint;
   if (!prevPoint) {
     // throw new Error("handleDrag prev point not set");
@@ -34,12 +30,12 @@ function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
 }
 
 function startRotate(ctx: ReactDrawContext, relativePoint: Point) {
-  (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  ctx.fullState[SELECT_TOOL_ID].prevPoint = relativePoint;
   pushRotateToUndoStack(ctx);
 }
 
 function stopRotate(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   state.prevPoint = null;
 }
 
@@ -91,7 +87,7 @@ export default function addHandlersToRotateButton(
     window.removeEventListener("touchcancel", handleStopRotateTouch);
   };
   //   const;
-  const customState = ctx.customState as SelectToolCustomState;
+  const customState = ctx.fullState[SELECT_TOOL_ID];
   const handlers = customState.handlers[objectId] || [];
   customState.handlers[objectId] = handlers;
   handlers.push({
@@ -109,7 +105,7 @@ export default function addHandlersToRotateButton(
 }
 
 function pushRotateToUndoStack(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const selectedObjects = getSelectedDrawingObjects(
     state.selectedIds,
     ctx.objectsMap

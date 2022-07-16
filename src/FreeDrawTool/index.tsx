@@ -20,6 +20,7 @@ const freeDrawTool: DrawingTools = {
     const lineWidth = data.style.lineWidth;
     // const relativeDiv = makeRelativeDiv();
     const newSvg = createSvg(lineWidth, lineWidth);
+    newSvg.style.overflow = "visible";
     // const newPath = createPath();
     // newSvg.style.transform = "scale(1.0, 1.0)";
     const newPath = createCircle(lineWidth / 2);
@@ -33,7 +34,7 @@ const freeDrawTool: DrawingTools = {
     expandContainer(data);
     const boxSize = getBoxSize(data);
     const newSvg = createSvg(boxSize.width, boxSize.height);
-
+    newSvg.style.overflow = "visible";
     // const relativeDiv = makeRelativeDiv();
     const path = svgPathFromData(data, viewContainer);
     // path.style.width = boxSize.width + "px";
@@ -48,6 +49,9 @@ const freeDrawTool: DrawingTools = {
   onDrawEnd: (data, ctx) => {
     // console.log("free draw end");
     saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
   },
   onResize: (data, ctx) => {
     if (!data.element) {

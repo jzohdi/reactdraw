@@ -1,7 +1,7 @@
 import React from "react";
 import { ActionTools } from "../types";
 import { RedoIcon } from "@jzohdi/jsx-icons";
-import { changeCtxForTool, getToolById } from "../utils/utils";
+import { getToolById } from "../utils/utils";
 
 const undoTool: ActionTools = {
   id: "react-draw-redo-tool",
@@ -23,7 +23,7 @@ const undoTool: ActionTools = {
     if (lastAction.toolType === "top-bar-tool") {
       const tool = getToolById(ctx.drawingTools, lastAction.toolId);
       if (tool.onRedo) {
-        const result = tool.onRedo(lastAction, changeCtxForTool(ctx, tool.id));
+        const result = tool.onRedo(lastAction, ctx);
         if (ctx.shouldKeepHistory) {
           ctx.undoStack.push(result);
         }

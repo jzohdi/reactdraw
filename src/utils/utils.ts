@@ -1,11 +1,12 @@
-import { SELECT_TOOL_ID } from "../SelectTool/constants";
-import { unselectElement } from "../SelectTool/unselectElement";
+import { unselectElement } from "./select/unselectElement";
 import {
   DrawingData,
   DrawingDataMap,
   DrawingTools,
   PartialCSS,
+  Point,
   ReactDrawContext,
+  RectBounds,
   SelectMode,
 } from "../types";
 
@@ -41,27 +42,19 @@ export function getToolById(tools: DrawingTools[], toolId: string) {
   return tool;
 }
 
-// TODO: verify this isn't a problem
-export function changeCtxForTool(
-  ctx: ReactDrawContext,
-  toolId: string
-): ReactDrawContext {
-  return { ...ctx, customState: ctx.fullState.get(toolId) };
-}
-
 export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
   const { objectsMap, viewContainer } = ctx;
   const object = getObjectFromMap(ctx.objectsMap, objectId);
 
   // if deleting a selected element, remove select
-  unselectElement(object, changeCtxForTool(ctx, SELECT_TOOL_ID));
+  unselectElement(object, ctx);
 
   const { div, id } = object.container;
   viewContainer.removeChild(div);
   objectsMap.delete(id);
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDeleteObject) {
-    tool.onDeleteObject(object, changeCtxForTool(ctx, tool.id));
+    tool.onDeleteObject(object, ctx);
   }
 }
 
@@ -74,4 +67,34 @@ export function getObjectFromMap(
     throw new Error("could not get object from map");
   }
   return object;
+}
+
+export function getRelativePoint(
+  point: Point,
+  container: HTMLDivElement | null
+): Point {
+  if (!container) {
+    throw new Error("Container not set.");
+  }
+  const rect = container.getBoundingClientRect();
+  return [point[0] - rect.left, point[1] - rect.top];
+}
+
+export function getTouchCoords(e: TouchEvent): Point {
+  let touch = e.touches[0];
+  if (!touch) {
+    touch = e.targetTouches[0];
+  }
+  if (!touch) {
+    touch = e.changedTouches[0];
+  }
+  return [touch.clientX, touch.clientY];
+}
+
+export function getCenterPoint(bounds: RectBounds): Point {
+  const height = bounds.bottom - bounds.top;
+  const y = bounds.top + height / 2;
+  const width = bounds.right - bounds.left;
+  const x = bounds.left + width / 2;
+  return [x, y];
 }

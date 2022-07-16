@@ -1,4 +1,3 @@
-import { unselectElement } from "../SelectTool/unselectElement";
 import { ActionObject, DrawingData, ReactDrawContext } from "../types";
 import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
 

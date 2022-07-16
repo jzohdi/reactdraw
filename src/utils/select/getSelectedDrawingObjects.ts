@@ -1,4 +1,4 @@
-import { DrawingDataMap } from "../types";
+import { DrawingDataMap } from "../../types";
 
 export function getSelectedDrawingObjects(
   selectedIds: string[],

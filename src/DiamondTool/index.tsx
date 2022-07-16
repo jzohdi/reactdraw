@@ -23,7 +23,12 @@ const diamondTool: DrawingTools = {
     data.element = newSvg;
     data.coords.splice(1);
   },
-  onDrawEnd: saveCreateToUndoStack,
+  onDrawEnd(data, ctx) {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
+  },
   onResize(data, ctx) {
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },

@@ -1,13 +1,15 @@
-import { ActionObject, Point, ReactDrawContext } from "../types";
-import { DragUndoData, SelectToolCustomState } from "./types";
-import { dragDivs, getRelativePoint, getTouchCoords } from "../utils";
+import { ActionObject, Point, ReactDrawContext } from "../../types";
+import { DragUndoData } from "./types";
+// import { dragDivs, getRelativePoint, getTouchCoords } from "./utils";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
-import { alertAfterUpdate } from "../utils/alertAfterUpdate";
-import { SELECT_TOOL_ID } from "./constants";
-import { pushActionToStack } from "../utils/undo";
+import { alertAfterUpdate } from "../alertAfterUpdate";
+import { pushActionToStack } from "../undo";
+import { SELECT_TOOL_ID } from "../../constants";
+import { dragDivs } from "./dragDivs";
+import { getRelativePoint, getTouchCoords } from "../utils";
 
 function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const prevPoint = state.prevPoint;
   if (!prevPoint) {
     // throw new Error("handleDrag prev point not set");
@@ -25,12 +27,13 @@ function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
 }
 
 function startDrag(ctx: ReactDrawContext, relativePoint: Point) {
-  (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  const state = ctx.fullState[SELECT_TOOL_ID];
+  state.prevPoint = relativePoint;
   pushDragToUndoStack(ctx);
 }
 
 function stopDrag(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   state.prevPoint = null;
 }
 
@@ -82,7 +85,7 @@ export default function addHandlersToSelectFrame(
     window.removeEventListener("touchcancel", handleStopDragTouch);
   };
   //   const;
-  const customState = ctx.customState as SelectToolCustomState;
+  const customState = ctx.fullState[SELECT_TOOL_ID];
   const handlers = customState.handlers[objectId] || [];
   customState.handlers[objectId] = handlers;
   handlers.push({
@@ -100,7 +103,7 @@ export default function addHandlersToSelectFrame(
 }
 
 function pushDragToUndoStack(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const selectedObjects = getSelectedDrawingObjects(
     state.selectedIds,
     ctx.objectsMap

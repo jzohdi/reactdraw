@@ -28,7 +28,12 @@ const textAreaTool: DrawingTools = {
     setupContainer(data, ctx);
   },
   onDrawing(data, viewContainer) {},
-  onDrawEnd: saveCreateToUndoStack,
+  onDrawEnd(data, ctx) {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
+  },
   onResize(data, ctx) {
     cleanHandlers(data, false);
     placeCaretAtEnd(data.element as HTMLDivElement);

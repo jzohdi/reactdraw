@@ -7,7 +7,11 @@ import {
   ReactDrawContext,
   RectBounds,
 } from "../types";
-import { COLORS, SELECT_TOOL_DRAG_MIN_DISTANCE } from "../constants";
+import {
+  COLORS,
+  SELECT_TOOL_DRAG_MIN_DISTANCE,
+  SELECT_TOOL_ID,
+} from "../constants";
 import {
   addPointToBounds,
   distance,
@@ -22,11 +26,10 @@ import {
   selectManyElements,
   unselectAll,
   unselectEverythingAndReturnPrevious,
-} from "./utils";
-import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
-import { unselectElement } from "./unselectElement";
-import { SELECT_TOOL_ID } from "./constants";
-import { SelectToolCustomState, UndoAction } from "./types";
+} from "../utils/select/utils";
+import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
+import { unselectElement } from "../utils/select/unselectElement";
+import { UndoAction } from "../utils/select/types";
 import { handelResizUndo, handleDragUndo, handleRotateUndo } from "./undo";
 import {
   deleteCreatedObjects,
@@ -58,15 +61,8 @@ const selectTool: DrawingTools = {
       unselectElement(object, ctx);
     }
   },
-  setupCustomState(): SelectToolCustomState {
-    return {
-      selectedIds: [],
-      handlers: {},
-      prevPoint: null,
-    };
-  },
   onUnPickTool(ctx) {
-    const state = ctx.customState as SelectToolCustomState;
+    const state = ctx.fullState[SELECT_TOOL_ID];
     const selectedIds = state.selectedIds;
     if (selectedIds.length === 0) {
       return;
@@ -81,7 +77,7 @@ const selectTool: DrawingTools = {
     if (!shouldDeleteSelected) {
       return;
     }
-    const state = ctx.customState as SelectToolCustomState;
+    const state = ctx.fullState[SELECT_TOOL_ID];
     const selectedIds = state.selectedIds;
     if (selectedIds.length < 1) {
       return;
@@ -182,7 +178,7 @@ const handleTryClickObject = (
 };
 
 function handleSelectIds(ctx: ReactDrawContext, objectIds: string[]) {
-  (ctx.customState as SelectToolCustomState).selectedIds = objectIds;
+  ctx.fullState[SELECT_TOOL_ID].selectedIds = objectIds;
   const objects = getSelectedDrawingObjects(objectIds, ctx.objectsMap);
   if (objects.length === 1) {
     notifyTool(ctx.drawingTools, objects[0], ctx);
@@ -195,9 +191,8 @@ function handleSelectIds(ctx: ReactDrawContext, objectIds: string[]) {
 
 function handleTrySelectObjects(currData: DrawingData, ctx: ReactDrawContext) {
   const didPressShift = ctx.lastEvent?.shiftKey ?? false;
-  const selectedIds = [
-    ...((ctx.customState as SelectToolCustomState).selectedIds || []),
-  ];
+  const selected = ctx.fullState[SELECT_TOOL_ID].selectedIds;
+  const selectedIds = [...selected];
   let elementIdsToSelect = getElementIdsInsideOfBounds(
     ctx.objectsMap,
     currData.container.bounds,

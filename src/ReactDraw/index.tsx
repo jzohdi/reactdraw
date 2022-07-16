@@ -16,9 +16,12 @@ import {
   ReactDrawProps,
 } from "../types";
 import { Children } from "react";
-import { getRelativePoint, getTouchCoords, makeNewBoundingDiv } from "../utils";
-import { changeCtxForTool } from "../utils/utils";
+import { makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
+import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
+import { getRelativePoint, getTouchCoords } from "../utils/utils";
+import { selectElement, unselectAll } from "../utils/select/utils";
+import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
 
 export default function ReactDraw({
   children,
@@ -28,6 +31,7 @@ export default function ReactDraw({
   bottomBarTools,
   hideBottomBar,
   shouldKeepHistory = true,
+  shouldSelectAfterCreate = true,
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -42,7 +46,8 @@ export default function ReactDraw({
   const customState = useRef<CustomState>(setupCustomStateSpace(topBarTools));
   const undoStack = useRef<ActionObject[]>([]);
   const redoStack = useRef<ActionObject[]>([]);
-  const showMenu = useState(false);
+  const objectToSelect = useRef<DrawingData | null>(null);
+  //   const showMenu = useState(false);
   const [bottomToolsDisplayMap, setBottomToolsDisplayMap] =
     useState<BottomToolDisplayMap>(new Map());
 
@@ -71,6 +76,34 @@ export default function ReactDraw({
     updateBottomToolDisplayMap();
   }, []);
 
+  useEffect(() => {
+    if (currentDrawingTool.id === SELECT_TOOL_ID) {
+      const obj = objectToSelect.current;
+      if (obj) {
+        const ctx = getReactDrawContext();
+        unselectEverything(ctx);
+        ctx.fullState[SELECT_TOOL_ID].selectedIds = [obj.container.id];
+        selectElement(obj, ctx);
+      }
+    }
+  }, [currentDrawingTool]);
+
+  /**
+   * Assumes that the object is on the view and in the renderedMap
+   * Changes the tool to the select tool if not already.
+   * then selects the object
+   * @param data
+   */
+  const selectObject = (data: DrawingData) => {
+    if (currentDrawingTool.id !== SELECT_TOOL_ID) {
+      objectToSelect.current = data;
+      return setCurrentDrawingTool(getToolById(topBarTools, SELECT_TOOL_ID));
+    }
+    const ctx = getReactDrawContext();
+    unselectEverything(ctx);
+    selectElement(data, ctx);
+  };
+
   const getReactDrawContext = (viewC?: HTMLDivElement): ReactDrawContext => {
     const viewContainer = viewC || getViewContainer();
     const fullState = customState.current;
@@ -80,11 +113,13 @@ export default function ReactDraw({
       lastEvent: latestEvent.current,
       prevMousePosition: previousMousePos,
       drawingTools: topBarTools,
-      customState: fullState.get(currentDrawingTool.id),
       fullState,
       undoStack: undoStack.current,
       redoStack: redoStack.current,
       shouldKeepHistory,
+      selectDrawingTool: handleSelectTopTool,
+      selectObject,
+      shouldSelectAfterCreate,
     };
   };
 
@@ -224,7 +259,7 @@ export default function ReactDraw({
       const ctx = getReactDrawContext(container);
       for (const tool of topBarTools) {
         if (tool.onUnMount) {
-          tool.onUnMount(changeCtxForTool(ctx, tool.id));
+          tool.onUnMount(ctx);
         }
       }
     };
@@ -240,9 +275,7 @@ export default function ReactDraw({
           currentTool.onUnPickTool(currentCtx);
         }
         if (selectedTool.onPickTool) {
-          selectedTool.onPickTool(
-            changeCtxForTool(currentCtx, selectedTool.id)
-          );
+          selectedTool.onPickTool(currentCtx);
         }
         setCurrentDrawingTool(selectedTool);
         updateBottomToolDisplayMap();
@@ -314,13 +347,35 @@ function getToolById(tools: DrawingTools[], id: string): DrawingTools {
   return tool;
 }
 function setupCustomStateSpace(tools: DrawingTools[]): CustomState {
-  const state: CustomState = new Map();
+  const state: CustomState = {
+    [SELECT_TOOL_ID]: {
+      selectedIds: [],
+      handlers: {},
+      prevPoint: null,
+    },
+    [ERASE_TOOL_ID]: {
+      deletedObjects: new Map(),
+    },
+  };
   return tools.reduce((prev, curr) => {
+    if (prev[curr.id] === undefined) {
+      prev[curr.id] = {};
+    }
     if (curr.setupCustomState) {
-      prev.set(curr.id, curr.setupCustomState(state));
-    } else {
-      prev.set(curr.id, {});
+      prev[curr.id] = Object.assign(
+        prev[curr.id],
+        curr.setupCustomState(state)
+      );
     }
     return prev;
   }, state);
+}
+
+function unselectEverything(ctx: ReactDrawContext): void {
+  const currSelected = ctx.fullState[SELECT_TOOL_ID].selectedIds;
+  if (currSelected.length > 0) {
+    const objects = getSelectedDrawingObjects(currSelected, ctx.objectsMap);
+    unselectAll(objects, ctx);
+  }
+  return;
 }

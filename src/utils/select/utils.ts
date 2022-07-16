@@ -1,6 +1,7 @@
-import { DrawingData, DrawingTools, ReactDrawContext } from "../types";
-import { resizeNE, resizeNW, resizeSE, resizeSW } from "../utils/resizeObject";
-import { changeCtxForTool, getToolById, setStyles } from "../utils/utils";
+import { SELECT_TOOL_ID } from "../../constants";
+import { DrawingData, DrawingTools, ReactDrawContext } from "../../types";
+import { resizeNE, resizeNW, resizeSE, resizeSW } from "../resizeObject";
+import { getToolById, setStyles } from "../utils";
 import {
   CORNER_BUTTON_PRE,
   ROTATE_BUTTON_PRE,
@@ -9,13 +10,11 @@ import {
   SELECTED_CORNER_BUTTON,
   SELECT_FRAME_DIV_STYLES,
   SELECT_FRAME_PRE,
-  SELECT_TOOL_ID,
 } from "./constants";
 import addHandlersToSelectFrame from "./dragHandler";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import addHandlersToCornerButton from "./resizeHandler";
 import addHandlersToRotateButton from "./rotateHandler";
-import { SelectToolCustomState } from "./types";
 import { unselectElement } from "./unselectElement";
 
 export function selectManyElements(
@@ -49,16 +48,14 @@ function isElementSelected(div: HTMLDivElement) {
 }
 
 export function unselectEverythingAndReturnPrevious(ctx: ReactDrawContext) {
-  const selectedIds = [
-    ...((ctx.customState as SelectToolCustomState).selectedIds || []),
-  ];
+  const selectedIds = [...ctx.fullState[SELECT_TOOL_ID].selectedIds];
   const { objectsMap, prevMousePosition } = ctx;
   const objects = getSelectedDrawingObjects(selectedIds, objectsMap);
   unselectAll(objects, ctx);
   if (objects.length === 1) {
     const tool = getToolById(ctx.drawingTools, objects[0].toolId);
     if (tool && ctx && tool.onUnSelect) {
-      tool.onUnSelect(objects[0], changeCtxForTool(ctx, tool.id));
+      tool.onUnSelect(objects[0], ctx);
     }
   }
   prevMousePosition.current = null;
@@ -75,7 +72,7 @@ export function notifyTool(
   if (!tool || !ctx || !tool.onSelect) {
     return;
   }
-  tool.onSelect(data, changeCtxForTool(ctx, tool.id));
+  tool.onSelect(data, ctx);
 }
 
 export function unselectAll(
@@ -165,9 +162,7 @@ function cornerButton(
 }
 
 export function getSelectedIdsFromFullState(ctx: ReactDrawContext): string[] {
-  const selectState = ctx.fullState.get(
-    SELECT_TOOL_ID
-  ) as SelectToolCustomState;
+  const selectState = ctx.fullState[SELECT_TOOL_ID];
   if (!selectState) {
     throw new Error("no select state present");
   }

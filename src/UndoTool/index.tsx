@@ -1,7 +1,7 @@
 import React from "react";
 import { ActionTools } from "../types";
 import { UndoIcon } from "@jzohdi/jsx-icons";
-import { changeCtxForTool, getToolById } from "../utils/utils";
+import { getToolById } from "../utils/utils";
 
 const undoTool: ActionTools = {
   id: "react-draw-undo-tool",
@@ -22,7 +22,7 @@ const undoTool: ActionTools = {
     if (lastAction.toolType === "top-bar-tool") {
       const tool = getToolById(ctx.drawingTools, lastAction.toolId);
       if (tool.onUndo) {
-        const result = tool.onUndo(lastAction, changeCtxForTool(ctx, tool.id));
+        const result = tool.onUndo(lastAction, ctx);
         if (ctx.shouldKeepHistory) {
           ctx.redoStack.push(result);
         }

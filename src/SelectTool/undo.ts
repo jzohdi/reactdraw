@@ -1,8 +1,12 @@
 import { ActionObject, ReactDrawContext, RectBounds } from "../types";
 import { getObjectFromMap, getToolById } from "../utils/utils";
 import { alertAfterUpdate } from "../utils/alertAfterUpdate";
-import { DragUndoData, ResizeUndoData, RotateUndoData } from "./types";
-import { getRotateFromDiv } from "./getRotateFromDiv";
+import {
+  DragUndoData,
+  ResizeUndoData,
+  RotateUndoData,
+} from "../utils/select/types";
+import { getRotateFromDiv } from "../utils/select/getRotateFromDiv";
 
 export function handleDragUndo(
   action: ActionObject,

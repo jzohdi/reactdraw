@@ -1,5 +1,5 @@
-import { DrawingData, ReactDrawContext } from "../types";
-import { SelectToolCustomState } from "./types";
+import { SELECT_TOOL_ID } from "../../constants";
+import { DrawingData, ReactDrawContext } from "../../types";
 
 /**
  * Unselecting an element requires also cleaning up the event listeners
@@ -14,7 +14,7 @@ export function unselectElement(
 ): void {
   const objectId = data.container.id;
   const { div } = data.container;
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const handlers = state.handlers[objectId];
   if (handlers) {
     // console.log("removing ", handlers.length, "handlers");

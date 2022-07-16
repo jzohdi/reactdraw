@@ -3,20 +3,21 @@ import {
   OnResizeContext,
   Point,
   ReactDrawContext,
-} from "../types";
-import { ResizeFunction, ResizeUndoData, SelectToolCustomState } from "./types";
+} from "../../types";
+import { ResizeFunction, ResizeUndoData } from "./types";
 import { getRelativePoint, getTouchCoords } from "../utils";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
-import { getToolById } from "../utils/utils";
-import { SELECT_TOOL_ID } from "./constants";
-import { pushActionToStack } from "../utils/undo";
+import { getToolById } from "../utils";
+
+import { pushActionToStack } from "../undo";
+import { SELECT_TOOL_ID } from "../../constants";
 
 function startResizing(
   ctx: ReactDrawContext,
   relativePoint: Point,
   resizeFn: ResizeFunction
 ) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const prevPoint = state.prevPoint;
   if (!prevPoint) {
     // throw new Error("handleDrag prev point not set");
@@ -48,12 +49,12 @@ function startResizing(
 }
 
 function startResize(ctx: ReactDrawContext, relativePoint: Point) {
-  (ctx.customState as SelectToolCustomState).prevPoint = relativePoint;
+  ctx.fullState[SELECT_TOOL_ID].prevPoint = relativePoint;
   pushResizeToUndoStack(ctx);
 }
 
 function stopResize(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   state.prevPoint = null;
 }
 
@@ -106,7 +107,7 @@ export default function addHandlersToCornerButton(
     window.removeEventListener("touchcancel", handleStopResizeTouch);
   };
   //   const;
-  const customState = ctx.customState as SelectToolCustomState;
+  const customState = ctx.fullState[SELECT_TOOL_ID];
   const handlers = customState.handlers[objectId] || [];
   customState.handlers[objectId] = handlers;
   handlers.push({
@@ -127,7 +128,7 @@ function getPointDiff(pointA: Point, pointB: Point): Point {
 }
 
 function pushResizeToUndoStack(ctx: ReactDrawContext) {
-  const state = ctx.customState as SelectToolCustomState;
+  const state = ctx.fullState[SELECT_TOOL_ID];
   const selectedObjects = getSelectedDrawingObjects(
     state.selectedIds,
     ctx.objectsMap

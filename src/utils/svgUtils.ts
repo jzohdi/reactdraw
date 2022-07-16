@@ -1,5 +1,5 @@
-import { DrawingData, Point } from "../types";
-import { isBrowser, mapPointToRect } from "./index";
+import { Point } from "../types";
+import { isBrowser } from "./index";
 
 export function createPathSvg(lineWidth: number): SVGPathElement {
   const newPath = document.createElementNS(

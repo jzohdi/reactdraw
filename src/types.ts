@@ -1,4 +1,5 @@
 import { MutableRefObject } from "react";
+import { ERASE_TOOL_ID, FREE_DRAW_TOOL_ID, SELECT_TOOL_ID } from "./constants";
 
 export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 export type LayoutAbsolute = {
@@ -17,9 +18,35 @@ export type DrawingDataMap = Map<string, DrawingData>;
 
 export type CapturedEvent = MouseEvent | TouchEvent | null;
 
-export type DrawingToolCustomState = any;
+// store event listeners in custom state so that can be refered to later
+export type EventHandler = {
+  ele: HTMLElement;
+  eventName: keyof HTMLElementEventMap;
+  fn: (...args: any) => void;
+};
 
-export type CustomState = Map<string, DrawingToolCustomState>;
+export type SelectToolCustomState = {
+  selectedIds: string[];
+  handlers: {
+    [objectId: string]: EventHandler[];
+  };
+  prevPoint: Point | null;
+};
+
+export type EraseToolCustomState = {
+  deletedObjects: Map<string, DrawingData>;
+};
+
+export type OtherToolState = {
+  [key: string]: any;
+};
+
+export interface CustomState {
+  [SELECT_TOOL_ID]: SelectToolCustomState;
+  // [FREE_DRAW_TOOL_ID]?: FRE
+  [ERASE_TOOL_ID]: EraseToolCustomState;
+  [tool_id: string]: OtherToolState;
+}
 
 export type ReactDrawContext = {
   viewContainer: HTMLDivElement;
@@ -27,11 +54,13 @@ export type ReactDrawContext = {
   lastEvent: CapturedEvent;
   prevMousePosition: MutableRefObject<Point | null>;
   drawingTools: DrawingTools[];
-  customState: DrawingToolCustomState;
   fullState: CustomState;
   undoStack: ActionObject[];
   redoStack: ActionObject[];
   shouldKeepHistory: boolean;
+  shouldSelectAfterCreate: boolean;
+  selectDrawingTool: (toolId: string) => void;
+  selectObject: (object: DrawingData) => void;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -115,6 +144,7 @@ export type ReactDrawProps = {
   bottomBarTools: ActionTools[];
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
+  shouldSelectAfterCreate?: boolean;
   id: string;
 };
 

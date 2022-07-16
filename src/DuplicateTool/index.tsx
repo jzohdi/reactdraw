@@ -1,21 +1,16 @@
 import React from "react";
 import { ActionTools, DrawingData, ReactDrawContext } from "../types";
 import { DuplicateIcon } from "@jzohdi/jsx-icons";
-import {
-  changeCtxForTool,
-  getObjectFromMap,
-  getToolById,
-} from "../utils/utils";
+import { getObjectFromMap, getToolById } from "../utils/utils";
 import {
   getSelectedIdsFromFullState,
   selectElement,
   selectManyElements,
   unselectAll,
-} from "../SelectTool/utils";
+} from "../utils/select/utils";
 import { makeid } from "../utils";
 import { pushActionToStack, recreateDeletedObjects } from "../utils/undo";
-import { SELECT_TOOL_ID } from "../SelectTool/constants";
-import { SelectToolCustomState } from "../SelectTool/types";
+import { SELECT_TOOL_ID } from "../constants";
 
 const duplicateTool: ActionTools = {
   id: "react-draw-duplicate-tool",
@@ -58,9 +53,7 @@ const duplicateTool: ActionTools = {
     } else {
       selectManyElements(newObjects, ctx);
     }
-    const selectState = ctx.fullState.get(
-      SELECT_TOOL_ID
-    ) as SelectToolCustomState;
+    const selectState = ctx.fullState[SELECT_TOOL_ID];
     selectState.selectedIds = newObjects.map((o) => o.container.id);
   },
 };
@@ -99,7 +92,7 @@ function duplicateObject(
 
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDuplicate) {
-    return tool.onDuplicate(data, changeCtxForTool(ctx, object.toolId));
+    return tool.onDuplicate(data, ctx);
   }
   return data;
 }

@@ -1,4 +1,6 @@
 import { MutableRefObject } from "react";
+declare const ERASE_TOOL_ID = "react-draw-erase-tool";
+declare const SELECT_TOOL_ID = "react-draw-cursor";
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
@@ -12,19 +14,44 @@ type OnResizeContext = {
 };
 type DrawingDataMap = Map<string, DrawingData>;
 type CapturedEvent = MouseEvent | TouchEvent | null;
-type DrawingToolCustomState = any;
-type CustomState = Map<string, DrawingToolCustomState>;
+// store event listeners in custom state so that can be refered to later
+type EventHandler = {
+    ele: HTMLElement;
+    eventName: keyof HTMLElementEventMap;
+    fn: (...args: any) => void;
+};
+type SelectToolCustomState = {
+    selectedIds: string[];
+    handlers: {
+        [objectId: string]: EventHandler[];
+    };
+    prevPoint: Point | null;
+};
+type EraseToolCustomState = {
+    deletedObjects: Map<string, DrawingData>;
+};
+type OtherToolState = {
+    [key: string]: any;
+};
+interface CustomState {
+    [SELECT_TOOL_ID]: SelectToolCustomState;
+    // [FREE_DRAW_TOOL_ID]?: FRE
+    [ERASE_TOOL_ID]: EraseToolCustomState;
+    [tool_id: string]: OtherToolState;
+}
 type ReactDrawContext = {
     viewContainer: HTMLDivElement;
     objectsMap: DrawingDataMap;
     lastEvent: CapturedEvent;
     prevMousePosition: MutableRefObject<Point | null>;
     drawingTools: DrawingTools[];
-    customState: DrawingToolCustomState;
     fullState: CustomState;
     undoStack: ActionObject[];
     redoStack: ActionObject[];
     shouldKeepHistory: boolean;
+    shouldSelectAfterCreate: boolean;
+    selectDrawingTool: (toolId: string) => void;
+    selectObject: (object: DrawingData) => void;
 };
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -103,9 +130,10 @@ type ReactDrawProps = {
     bottomBarTools: ActionTools[];
     hideBottomBar?: boolean;
     shouldKeepHistory?: boolean;
+    shouldSelectAfterCreate?: boolean;
     id: string;
 };
-declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, ...props }: ReactDrawProps): JSX.Element;
+declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;

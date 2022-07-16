@@ -50,6 +50,7 @@ export const DefaultLayoutWithoutChildren = Template.bind({});
 DefaultLayoutWithoutChildren.args = {
   topBarTools,
   bottomBarTools,
+  shouldSelectAfterCreate: true,
 };
 
 export const HideTopAndBottomBar = Template.bind({});
@@ -58,6 +59,8 @@ HideTopAndBottomBar.args = {
   hideTopBar: true,
   bottomBarTools: [],
   hideBottomBar: true,
+  shouldSelectAfterCreate: false,
+  shouldKeepHistory: false,
 };
 
 export const DefaultLayoutWithChildren = Template.bind({});
@@ -65,6 +68,7 @@ export const DefaultLayoutWithChildren = Template.bind({});
 DefaultLayoutWithChildren.args = {
   topBarTools,
   bottomBarTools,
+  shouldSelectAfterCreate: true,
   children: (
     <div>
       <p> hello world</p>
@@ -77,6 +81,7 @@ export const FitLayoutWithChildren = Template.bind({});
 FitLayoutWithChildren.args = {
   topBarTools,
   bottomBarTools,
+  shouldSelectAfterCreate: true,
   children: (
     <div>
       <p> hello world</p>

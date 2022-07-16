@@ -5,7 +5,8 @@ export const DIAMOND_TOOL_ID = "react-draw-diamond-tool";
 export const STRAIGHT_LINE_TOOL_ID = "react-draw-line-tool";
 export const ARROW_TOOL_ID = "react-draw-arrow-tool";
 export const ERASE_TOOL_ID = "react-draw-erase-tool";
-
+export const FREE_DRAW_TOOL_ID = "react-draw-free-tool";
+export const SELECT_TOOL_ID = "react-draw-cursor";
 //============== STYLES =========================
 // break point medium
 export const BPmd = 450;
