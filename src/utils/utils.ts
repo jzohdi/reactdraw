@@ -98,3 +98,15 @@ export function getCenterPoint(bounds: RectBounds): Point {
   const x = bounds.left + width / 2;
   return [x, y];
 }
+
+export function makeSureArtifactsGone(
+  query: string,
+  container: HTMLDivElement
+): void {
+  const objects = container.querySelectorAll(query);
+  if (objects.length > 0) {
+    objects.forEach((obj) => {
+      container.removeChild(obj);
+    });
+  }
+}

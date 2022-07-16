@@ -21,6 +21,7 @@ export const SELECT_FRAME_DIV_STYLES: PartialCSS = {
   left: "-6px",
   cursor: "all-scroll",
   pointerEvents: "all",
+  boxSizing: "border-box",
 };
 
 export const ROTATE_DOTTED_LINE_STYLES: PartialCSS = {

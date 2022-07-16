@@ -50,5 +50,6 @@ function makeSquareDiv(lineWidth: number): HTMLDivElement {
   div.style.height = "100%";
   div.style.border = `${lineWidth}px solid black`;
   div.style.borderRadius = "2px";
+  div.style.boxSizing = "border-box";
   return div;
 }

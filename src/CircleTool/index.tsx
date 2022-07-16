@@ -48,5 +48,6 @@ function makeCircleDiv(lineWidth: number): HTMLDivElement {
   newDiv.style.height = "100%";
   newDiv.style.border = `${lineWidth}px solid black`;
   newDiv.style.borderRadius = "50%";
+  newDiv.style.boxSizing = "border-box";
   return newDiv;
 }

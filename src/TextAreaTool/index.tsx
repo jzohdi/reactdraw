@@ -147,6 +147,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   div.style.border = "1px solid black";
   div.style.padding = padding + "px";
   div.style.borderRadius = "2px";
+  div.style.boxSizing = "border-box";
   const styleTag = document.createElement("style");
   styleTag.innerHTML = `
 	.react-draw-cursor {

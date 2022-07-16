@@ -86,6 +86,7 @@ export default function ReactDraw({
         selectElement(obj, ctx);
       }
     }
+    updateBottomToolDisplayMap();
   }, [currentDrawingTool]);
 
   /**
@@ -102,6 +103,7 @@ export default function ReactDraw({
     const ctx = getReactDrawContext();
     unselectEverything(ctx);
     selectElement(data, ctx);
+    updateBottomToolDisplayMap();
   };
 
   const getReactDrawContext = (viewC?: HTMLDivElement): ReactDrawContext => {

@@ -36,6 +36,7 @@ import {
   pushActionToStack,
   recreateDeletedObjects,
 } from "../utils/undo";
+import { makeSureArtifactsGone } from "../utils/utils";
 
 const selectTool: DrawingTools = {
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
@@ -53,6 +54,7 @@ const selectTool: DrawingTools = {
     const { objectsMap, viewContainer } = ctx;
     viewContainer.removeChild(data.container.div);
     objectsMap.delete(data.container.id);
+    makeSureArtifactsGone('[id^="react-draw-cursor"', ctx.viewContainer);
     tryClickObject(data, ctx);
   },
   onResize: (data) => {},

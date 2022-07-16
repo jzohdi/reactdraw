@@ -17,6 +17,8 @@ import {
   redoTool,
   trashTool,
   duplicateTool,
+  bringBackTool,
+  bringForwardTool,
 } from "../../src";
 
 export default {
@@ -43,6 +45,8 @@ const bottomBarTools: ActionTools[] = [
   redoTool,
   trashTool,
   duplicateTool,
+  bringBackTool,
+  bringForwardTool,
 ];
 
 export const DefaultLayoutWithoutChildren = Template.bind({});

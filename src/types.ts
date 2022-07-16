@@ -132,6 +132,8 @@ export type ActionTools = {
   id: string;
   getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
   handleContext: (ctx: ReactDrawContext) => void;
+  onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
 
 export type BottomToolDisplayMap = Map<string, DisplayMode>;

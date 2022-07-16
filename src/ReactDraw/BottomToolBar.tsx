@@ -55,6 +55,7 @@ const BottomToolButton = styled.button<BottomToolButtonProps>`
         background-color: white;
         > svg path {
           fill: lightgrey;
+          stroke: lightgrey;
         }
       `;
     }

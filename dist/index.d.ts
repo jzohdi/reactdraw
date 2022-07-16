@@ -121,6 +121,8 @@ type ActionTools = {
     id: string;
     getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
     handleContext: (ctx: ReactDrawContext) => void;
+    onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+    onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
 type ReactDrawProps = {
     children?: ReactChild;
@@ -148,5 +150,7 @@ declare const undoTool: ActionTools;
 declare const undoTool$0: ActionTools;
 declare const trashTool: ActionTools;
 declare const duplicateTool: ActionTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool, trashTool, duplicateTool };
+declare const bringBackTool: ActionTools;
+declare const bringBackTool$0: ActionTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool, trashTool, duplicateTool, bringBackTool, bringBackTool$0 as bringForwardTool };
 //# sourceMappingURL=index.d.ts.map

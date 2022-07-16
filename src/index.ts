@@ -12,3 +12,5 @@ export { default as undoTool } from "./UndoTool";
 export { default as redoTool } from "./RedoTool";
 export { default as trashTool } from "./TrashTool";
 export { default as duplicateTool } from "./DuplicateTool";
+export { default as bringBackTool } from "./BringBackTool";
+export { default as bringForwardTool } from "./BringForwardTool";

@@ -20,7 +20,7 @@ const trashTool: ActionTools = {
     if (selectedIds.length < 1) {
       return;
     }
-
+    /// TODO: should be for self?
     const resultAction = deleteCreatedObjects(
       {
         toolId: SELECT_TOOL_ID,

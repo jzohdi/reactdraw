@@ -87,6 +87,7 @@ function makeNewDiv(
   div.style.top = top + "px";
   div.style.pointerEvents = "none";
   div.style.zIndex = "1";
+  div.style.boxSizing = "border-box";
   return {
     div,
     id,
