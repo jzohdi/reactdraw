@@ -67,6 +67,7 @@ export function recreateDeletedObjects(
   if (!data || typeof data !== "object") {
     throw new Error("malformed data");
   }
+  //   console.log(data);
   for (const [objectId, object] of data.entries()) {
     ctx.viewContainer.appendChild(object.container.div);
     ctx.objectsMap.set(objectId, object);
@@ -85,9 +86,9 @@ export function deleteCreatedObjects(
     console.error(action);
     throw new Error("malformed data");
   }
-  action.data = {};
+  action.data = new Map<string, DrawingData>();
   for (const objectId of data) {
-    action.data[objectId] = getObjectFromMap(ctx.objectsMap, objectId);
+    action.data.set(objectId, getObjectFromMap(ctx.objectsMap, objectId));
     deleteObjectAndNotify(objectId, ctx);
   }
   action.action = "delete";
