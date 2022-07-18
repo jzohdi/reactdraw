@@ -27,7 +27,6 @@ const ToolTipText = styled.span<ToolTipStyledProps>`
   position: absolute;
   z-index: 1000;
   ${(props) => {
-    console.log(props.open && !props.disabled);
     if (props.open && !props.disabled) {
       return css`
         visibility: visible;

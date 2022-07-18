@@ -72,7 +72,7 @@ export function recreateDeletedObjects(
     ctx.objectsMap.set(objectId, object);
   }
   action.action = "create";
-  action.data = data.keys();
+  action.data = Array.from(data.keys());
   return action;
 }
 
@@ -82,6 +82,7 @@ export function deleteCreatedObjects(
 ): ActionObject {
   const data: string[] = action.data;
   if (!data || !Array.isArray(data)) {
+    console.error(action);
     throw new Error("malformed data");
   }
   action.data = {};

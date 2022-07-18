@@ -41,9 +41,8 @@ export function TopToolBar({
       {tools.map((tool, i) => {
         const tooltip = tool.tooltip;
         return (
-          <ToolTip text={tooltip} {...getPosition(tool, i)}>
+          <ToolTip text={tooltip} {...getPosition(tool, i)} key={tool.id}>
             <ToolIconWrapper
-              key={tool.id}
               selected={tool.id === currentTool}
               onSelect={() => onSelectTool(tool.id)}
             >

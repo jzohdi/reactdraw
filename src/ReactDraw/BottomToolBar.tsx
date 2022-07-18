@@ -72,6 +72,7 @@ const BottomToolButton = styled.button<BottomToolButtonProps>`
 type MenuButtonProps = { open: boolean };
 
 const MenuButton = styled.button<MenuButtonProps>`
+  position: relative;
   display: flex;
   cursor: pointer;
   justify-content: center;
@@ -105,6 +106,27 @@ const MenuButton = styled.button<MenuButtonProps>`
   }}
 `;
 
+type MenuProps = {
+  open: boolean;
+};
+const Menu = styled.div<MenuProps>`
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  padding: 15px;
+  border: 1px solid black;
+  ${(props) => {
+    if (props.open) {
+      return css`
+        display: inline-block;
+      `;
+    }
+    return css`
+      display: none;
+    `;
+  }}
+`;
+
 export function BottomToolBar({
   tools,
   displayMap,
@@ -124,21 +146,24 @@ export function BottomToolBar({
   };
   return (
     <BottomBarContainer>
-      <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
-        <MenuIcon size={30} />
-      </MenuButton>
+      <ToolTip text="Menu" top="-40px" left="10px">
+        <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
+          <Menu open={showMenu}>hello world</Menu>
+          <MenuIcon size={30} />
+        </MenuButton>
+      </ToolTip>
       {tools.map((tool, i) => {
         const toolId = tool.id;
         const toolDisplayMode = displayMap.get(toolId) || "hide";
         return (
           <ToolTip
+            key={tool.id}
             text={tool.tooltip}
             {...getPosition(tool, i)}
             disabled={toolDisplayMode === "disabled"}
           >
             <BottomToolButton
               disabled={toolDisplayMode === "disabled"}
-              key={tool.id}
               mode={toolDisplayMode}
               onClick={() => dispatch(tool.handleContext)}
             >

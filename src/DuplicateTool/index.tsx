@@ -33,7 +33,7 @@ const duplicateTool: ActionTools = {
     );
     unselectAll(objects, ctx);
     const newObjects = objects.map((o) => duplicateObject(o, ctx));
-    const data: { [id: string]: DrawingData } = {};
+    const data: Map<string, DrawingData> = new Map();
     // console.log("duplicated objects:", newObjects);
     const resultAction = recreateDeletedObjects(
       {
@@ -42,7 +42,7 @@ const duplicateTool: ActionTools = {
         toolType: "top-bar-tool",
         action: "delete",
         data: newObjects.reduce((prev, cur) => {
-          prev[cur.container.id] = cur;
+          prev.set(cur.container.id, cur);
           return prev;
         }, data),
       },
