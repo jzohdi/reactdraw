@@ -92,12 +92,13 @@ function getPathDString(
   viewContainer: HTMLDivElement
 ): string {
   let pathString = "";
-  let lastPoint = data.coords[0];
+  //   let lastPoint = data.coords[0];
   for (let i = 0; i < data.coords.length; i++) {
     const point = data.coords[i];
     const mappedPoint = mapPointToRect(point, data.container, viewContainer);
-    pathString += getPathPoint(mappedPoint, lastPoint, i);
-    lastPoint = mappedPoint;
+    pathString += getPathPoint(mappedPoint, i);
+    // pathString += getPathPoint(mappedPoint, lastPoint, i);
+    // lastPoint = mappedPoint;
     if (i !== data.coords.length - 1) {
       pathString += " ";
     }
@@ -105,11 +106,11 @@ function getPathDString(
   return pathString;
 }
 
-function getPathPoint(curr: Point, prev: Point, index: number): string {
+function getPathPoint(curr: Point, index: number): string {
   if (index === 0) {
     return `M ${curr[0]} ${curr[1]}`;
   }
-  return `l ${curr[0] - prev[0]} ${curr[1] - prev[1]}`;
+  return `L ${curr[0]} ${curr[1]}`;
 }
 
 /**
