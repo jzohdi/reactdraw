@@ -61,6 +61,7 @@ type ReactDrawContext = {
  */
 type DrawingTools = {
     icon: JSX.Element;
+    tooltip?: string;
     id: string;
     setupCustomState?: (state: CustomState) => any;
     onPickTool?: (ctx: ReactDrawContext) => void;
@@ -119,6 +120,7 @@ type DisplayMode = "disabled" | "hide" | "show";
 type ActionTools = {
     icon: JSX.Element;
     id: string;
+    tooltip?: string;
     getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
     handleContext: (ctx: ReactDrawContext) => void;
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
@@ -147,10 +149,10 @@ declare const textAreaTool: DrawingTools;
 // then finally delete stuff on draw end
 declare const eraseTool: DrawingTools;
 declare const undoTool: ActionTools;
-declare const undoTool$0: ActionTools;
+declare const redoTool: ActionTools;
 declare const trashTool: ActionTools;
 declare const duplicateTool: ActionTools;
 declare const bringBackTool: ActionTools;
-declare const bringBackTool$0: ActionTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, undoTool$0 as redoTool, trashTool, duplicateTool, bringBackTool, bringBackTool$0 as bringForwardTool };
+declare const bringForwardTool: ActionTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool };
 //# sourceMappingURL=index.esm.d.ts.map

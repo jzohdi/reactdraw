@@ -8,6 +8,7 @@ import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,
+  tooltip: "Diamond tool",
   icon: <DiamondBoldIcon />,
   onDrawStart: (data) => {
     const div = data.container.div;

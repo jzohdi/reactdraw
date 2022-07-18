@@ -8,6 +8,7 @@ import { SELECT_TOOL_ID } from "../constants";
 const trashTool: ActionTools = {
   id: "react-draw-trash-tool",
   icon: <TrashCanBoldIcon />,
+  tooltip: "Delete selected objects",
   getDisplayMode(ctx) {
     const selectedIds = getSelectedIdsFromFullState(ctx);
     if (selectedIds.length > 0) {

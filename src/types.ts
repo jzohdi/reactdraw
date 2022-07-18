@@ -70,6 +70,7 @@ export type ReactDrawContext = {
  */
 export type DrawingTools = {
   icon: JSX.Element;
+  tooltip?: string;
   id: string;
   setupCustomState?: (state: CustomState) => any;
   onPickTool?: (ctx: ReactDrawContext) => void;
@@ -130,6 +131,7 @@ export type DisplayMode = "disabled" | "hide" | "show";
 export type ActionTools = {
   icon: JSX.Element;
   id: string;
+  tooltip?: string;
   getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
   handleContext: (ctx: ReactDrawContext) => void;
   onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;

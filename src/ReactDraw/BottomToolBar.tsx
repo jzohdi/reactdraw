@@ -1,6 +1,7 @@
 import { MenuIcon } from "@jzohdi/jsx-icons";
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
+import ToolTip from "../components/ToolTip";
 import { BPmd, COLORS } from "../constants";
 import {
   ActionTools,
@@ -96,6 +97,7 @@ const MenuButton = styled.button<MenuButtonProps>`
         background-color: ${COLORS.primary.main} !important;
         > svg path {
           fill: white;
+          stroke: white;
         }
       `;
     }
@@ -109,24 +111,40 @@ export function BottomToolBar({
   dispatch,
   children,
 }: BottomToolBarProps) {
+  //   console.log(displayMap);
   const [showMenu, setShowMenu] = useState(false);
+  const getPosition = (tool: ActionTools, index: number) => {
+    if (!tool.tooltip) {
+      return { top: "", left: "" };
+    }
+    if (index <= tools.length / 2) {
+      return { top: "-35px", left: "0" };
+    }
+    return { top: "-35px", left: `-${tool.tooltip.length * 3}px` };
+  };
   return (
     <BottomBarContainer>
       <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
         <MenuIcon size={30} />
       </MenuButton>
-      {tools.map((tool) => {
+      {tools.map((tool, i) => {
         const toolId = tool.id;
         const toolDisplayMode = displayMap.get(toolId) || "hide";
         return (
-          <BottomToolButton
+          <ToolTip
+            text={tool.tooltip}
+            {...getPosition(tool, i)}
             disabled={toolDisplayMode === "disabled"}
-            key={tool.id}
-            mode={toolDisplayMode}
-            onClick={() => dispatch(tool.handleContext)}
           >
-            {tool.icon}
-          </BottomToolButton>
+            <BottomToolButton
+              disabled={toolDisplayMode === "disabled"}
+              key={tool.id}
+              mode={toolDisplayMode}
+              onClick={() => dispatch(tool.handleContext)}
+            >
+              {tool.icon}
+            </BottomToolButton>
+          </ToolTip>
         );
       })}
     </BottomBarContainer>

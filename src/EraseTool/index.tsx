@@ -30,6 +30,7 @@ const eraserIconBase64 =
 // then finally delete stuff on draw end
 const eraseTool: DrawingTools = {
   icon: <EraserIcon />,
+  tooltip: "Eraser tool",
   id: ERASE_TOOL_ID,
   cursor: `url('data:image/svg+xml;base64,${eraserIconBase64}') 0 16, pointer`,
   onDrawStart(data, viewContainer) {},

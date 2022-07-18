@@ -3,8 +3,9 @@ import { ActionTools } from "../types";
 import { RedoIcon } from "@jzohdi/jsx-icons";
 import { getToolById } from "../utils/utils";
 
-const undoTool: ActionTools = {
+const redoTool: ActionTools = {
   id: "react-draw-redo-tool",
+  tooltip: "Redo",
   icon: <RedoIcon />,
   getDisplayMode(ctx) {
     // console.log(ctx);
@@ -32,4 +33,4 @@ const undoTool: ActionTools = {
   },
 };
 
-export default undoTool;
+export default redoTool;

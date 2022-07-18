@@ -14,6 +14,7 @@ import { SELECT_TOOL_ID } from "../constants";
 
 const duplicateTool: ActionTools = {
   id: "react-draw-duplicate-tool",
+  tooltip: "Duplicate objects",
   icon: <DuplicateIcon />,
   getDisplayMode(ctx) {
     const selectedIds = getSelectedIdsFromFullState(ctx);

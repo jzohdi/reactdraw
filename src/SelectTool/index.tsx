@@ -39,6 +39,7 @@ import {
 import { makeSureArtifactsGone } from "../utils/utils";
 
 const selectTool: DrawingTools = {
+  tooltip: "Select tool",
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
   id: SELECT_TOOL_ID,
   onDrawStart: (data) => {

@@ -6,6 +6,7 @@ import { setContainerRect } from "../utils";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
+  tooltip: "Circle tool",
   icon: <CircleBoldIcon />,
   onDrawStart: (data) => {
     const lineWidth = data.style.lineWidth;

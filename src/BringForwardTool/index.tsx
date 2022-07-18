@@ -4,8 +4,9 @@ import { ActionTools, DrawingData } from "../types";
 import { getSelectedIdsFromFullState } from "../utils/select/utils";
 import { getObjectFromMap } from "../utils/utils";
 
-const bringBackTool: ActionTools = {
+const bringForwardTool: ActionTools = {
   id: "react-draw-forward-tool",
+  tooltip: "Move object forward",
   icon: <ForwardIcon />,
   getDisplayMode(ctx) {
     const selectedIds = getSelectedIdsFromFullState(ctx);
@@ -36,7 +37,7 @@ const bringBackTool: ActionTools = {
   },
 };
 
-export default bringBackTool;
+export default bringForwardTool;
 
 function pushObjectDown(data: DrawingData): number {
   const currZ = data.style.zIndex;

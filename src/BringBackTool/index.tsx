@@ -7,6 +7,7 @@ import { getObjectFromMap } from "../utils/utils";
 const bringBackTool: ActionTools = {
   id: "react-draw-back-tool",
   icon: <BackIcon />,
+  tooltip: "Move object back",
   getDisplayMode(ctx) {
     const selectedIds = getSelectedIdsFromFullState(ctx);
     if (selectedIds.length > 0) {

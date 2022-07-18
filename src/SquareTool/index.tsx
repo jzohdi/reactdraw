@@ -7,6 +7,7 @@ import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
+  tooltip: "Square Tool",
   icon: <SquareBoldIcon />,
   onDrawStart: (data) => {
     const lineWidth = data.style.lineWidth;

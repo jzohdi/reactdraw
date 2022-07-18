@@ -23,6 +23,7 @@ const textAreaTool: DrawingTools = {
     </span>
   ),
   id: "react-draw-textarea-tool",
+  tooltip: "Textarea Tool",
   cursor: "text",
   onDrawStart: (data, ctx) => {
     setupContainer(data, ctx);

@@ -15,6 +15,7 @@ const ORIENT_KEY = "orientation";
 
 const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
+  tooltip: "Straight Line Tool",
   icon: <HorizontalLineIcon />,
   onDrawStart: (data) => {
     const div = data.container.div;

@@ -63,19 +63,16 @@ export function recreateDeletedObjects(
   action: ActionObject,
   ctx: ReactDrawContext
 ): ActionObject {
-  const data = action.data as { [id: string]: DrawingData };
+  const data = action.data as Map<string, DrawingData>;
   if (!data || typeof data !== "object") {
     throw new Error("malformed data");
   }
-  const objectIds = Object.keys(data);
-  for (const objectId of objectIds) {
-    const object = data[objectId];
-    // console.log("recreating:", object);
+  for (const [objectId, object] of data.entries()) {
     ctx.viewContainer.appendChild(object.container.div);
     ctx.objectsMap.set(objectId, object);
   }
   action.action = "create";
-  action.data = objectIds;
+  action.data = data.keys();
   return action;
 }
 

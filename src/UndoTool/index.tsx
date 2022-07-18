@@ -5,6 +5,7 @@ import { getToolById } from "../utils/utils";
 
 const undoTool: ActionTools = {
   id: "react-draw-undo-tool",
+  tooltip: "Undo",
   icon: <UndoIcon />,
   getDisplayMode(ctx) {
     if (ctx.undoStack.length > 0) {
