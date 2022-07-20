@@ -93,7 +93,7 @@ const freeDrawTool: DrawingTools = {
   id: "free-draw-tool",
   icon: <PencilBoldIcon />,
   onDrawStart: (data) => {
-    const lineWidth = data.style.lineWidth;
+    const lineWidth = parseInt(data.style.lineWidth);
     const newSvg = createSvg(lineWidth, lineWidth);
     const newPath = createCircle(lineWidth / 2);
     newSvg.appendChild(newPath);

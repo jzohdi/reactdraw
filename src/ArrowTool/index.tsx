@@ -16,9 +16,9 @@ const arrowTool: DrawingTools = {
   id: ARROW_TOOL_ID,
   onDrawStart: (data) => {
     const div = data.container.div;
-    const lineWidth = data.style.lineWidth;
+    const lineWidth = parseInt(data.style.lineWidth);
     const newSvg = createSvg(lineWidth, lineWidth);
-    const newPath = createCircle(lineWidth / 2);
+    const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     div.append(newSvg);
     data.element = newSvg;
@@ -52,7 +52,7 @@ function makeArrowSvg(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGSVGElement {
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
   const { bounds } = data.container;
   // const width = bounds
   const width = bounds.right - bounds.left;
@@ -72,7 +72,7 @@ function makeArrowLines(
 ): SVGLineElement[] {
   const lines: SVGLineElement[] = [];
   const coords = data.coords;
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
   if (coords.length < 2) {
     throw new Error("draw line from start to end must have at least 2 coords");
   }
@@ -82,10 +82,10 @@ function makeArrowLines(
   const { lineEle, x1, x2, y1, y2 } = makeLineSvgEle(
     pointA,
     pointB,
-    lineWidth,
+    data.style,
     mapFn
   );
-  const head1 = createLineSvg(lineWidth);
+  const head1 = createLineSvg(data.style);
   head1.setAttribute("x1", x2.toString());
   head1.setAttribute("y1", y2.toString());
 

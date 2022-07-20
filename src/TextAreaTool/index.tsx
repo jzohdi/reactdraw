@@ -5,6 +5,7 @@ import {
   DrawingTools,
   ReactDrawContext,
   RectBounds,
+  ToolPropertiesMap,
 } from "../types";
 import {
   pushActionToStack,
@@ -25,6 +26,9 @@ const textAreaTool: DrawingTools = {
   id: "react-draw-textarea-tool",
   tooltip: "Textarea Tool",
   cursor: "text",
+  getEditableStyles() {
+    return ["color", "background", "fontSize", "lineWidth"];
+  },
   onDrawStart: (data, ctx) => {
     setupContainer(data, ctx);
   },
@@ -72,9 +76,33 @@ const textAreaTool: DrawingTools = {
   onDeleteObject(data, ctx) {
     cleanHandlers(data, true);
   },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateTextColor(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
 };
 
 export default textAreaTool;
+
+function updateTextColor(data: DrawingData, value: string): ActionObject {
+  const ele = data.element;
+  if (!ele) {
+    throw new Error();
+  }
+  const currColor = data.style.color;
+  data.style.color = value;
+  ele.style.color = value;
+  return {
+    objectId: data.container.id,
+    toolId: data.toolId,
+    toolType: "top-bar-tool",
+    action: "color",
+    data: currColor,
+  };
+}
 
 function undoTextAreaInput(
   action: ActionObject,
@@ -146,6 +174,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   div.style.minWidth = div.style.width;
   div.style.width = "";
   div.style.border = "1px solid black";
+  div.style.backgroundColor = data.style.background;
   div.style.padding = padding + "px";
   div.style.borderRadius = "2px";
   div.style.boxSizing = "border-box";
@@ -158,7 +187,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
 
   div.appendChild(styleTag);
 
-  const cursorDiv = makeCursorDiv();
+  const cursorDiv = makeCursorDiv(data.style);
   data.element = cursorDiv;
 
   function setBoundsOnTyping() {
@@ -219,9 +248,10 @@ function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
   customData.set("capture", captureDidType);
 }
 
-function makeCursorDiv() {
+function makeCursorDiv(style: ToolPropertiesMap) {
   const div = document.createElement("div");
-  div.style.fontSize = "14px";
+  div.style.fontSize = `${style.fontSize}px`;
+  div.style.color = style.color;
   div.setAttribute("contenteditable", "true");
   div.style.minWidth = "1px";
   div.style.height = "100%";

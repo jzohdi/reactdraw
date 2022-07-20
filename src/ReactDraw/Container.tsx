@@ -24,6 +24,8 @@ const defaultStyles: CSSProperties = {
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
+  position: "relative",
+  fontFamily: "sans-serif",
 };
 
 export default function Container({

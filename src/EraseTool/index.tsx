@@ -107,7 +107,8 @@ function getEraserPath(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGPathElement {
-  const newPath = createPathSvg(10);
+  const newPath = createPathSvg(data.style);
+  newPath.style.strokeWidth = "10px";
   newPath.setAttribute("d", getEraserPathDString(data, viewContainer));
   newPath.setAttribute("stroke", "rgba(232, 16, 84, 0.142)");
   return newPath;

@@ -19,6 +19,8 @@ import {
   duplicateTool,
   bringBackTool,
   bringForwardTool,
+  ColorStyle,
+  BackgroundStyle,
 } from "../../src";
 
 export default {
@@ -55,6 +57,10 @@ DefaultLayoutWithoutChildren.args = {
   topBarTools,
   bottomBarTools,
   shouldSelectAfterCreate: true,
+  styleComponents: {
+    color: ColorStyle,
+    background: BackgroundStyle,
+  },
 };
 
 export const HideTopAndBottomBar = Template.bind({});

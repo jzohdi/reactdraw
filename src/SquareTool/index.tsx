@@ -1,17 +1,20 @@
 import React from "react";
 import { SQUARE_TOOL_ID } from "../constants";
-import { DrawingTools } from "../types";
+import { DrawingTools, ToolPropertiesMap } from "../types";
 import { SquareBoldIcon } from "@jzohdi/jsx-icons";
 import { setContainerRect } from "../utils";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { updateEleBorderColor } from "../utils/updateStyles/color";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
   tooltip: "Square Tool",
   icon: <SquareBoldIcon />,
+  getEditableStyles() {
+    return ["color", "background", "lineWidth"];
+  },
   onDrawStart: (data) => {
-    const lineWidth = data.style.lineWidth;
-    const newSquare = makeSquareDiv(lineWidth);
+    const newSquare = makeSquareDiv(data.style);
     data.container.div.appendChild(newSquare);
     data.element = newSquare;
   },
@@ -41,15 +44,22 @@ const squareTool: DrawingTools = {
     throw new Error();
   },
   onResize(data, ctx) {},
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateEleBorderColor(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
 };
 
 export default squareTool;
 
-function makeSquareDiv(lineWidth: number): HTMLDivElement {
+function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement {
   const div = document.createElement("div");
   div.style.width = "100%";
   div.style.height = "100%";
-  div.style.border = `${lineWidth}px solid black`;
+  div.style.border = `${style.lineWidth}px solid ${style.color}`;
   div.style.borderRadius = "2px";
   div.style.boxSizing = "border-box";
   return div;

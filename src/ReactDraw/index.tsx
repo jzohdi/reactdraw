@@ -14,14 +14,26 @@ import {
   ReactChild,
   ReactDrawContext,
   ReactDrawProps,
+  StringObject,
+  ToolPropertiesMap,
+  ToolStylesMap,
 } from "../types";
 import { Children } from "react";
 import { makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
 import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
-import { getRelativePoint, getTouchCoords } from "../utils/utils";
-import { selectElement, unselectAll } from "../utils/select/utils";
+import {
+  getObjectFromMap,
+  getRelativePoint,
+  getTouchCoords,
+} from "../utils/utils";
+import {
+  getSelectedIdsFromFullState,
+  selectElement,
+  unselectAll,
+} from "../utils/select/utils";
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
+import EditMenu from "./EditMenu";
 
 export default function ReactDraw({
   children,
@@ -32,6 +44,7 @@ export default function ReactDraw({
   hideBottomBar,
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
+  styleComponents,
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -39,7 +52,6 @@ export default function ReactDraw({
   const { layout } = validateProps(children, props.layout);
   const renderedElementsMap = useRef<DrawingDataMap>(new Map());
   const currDrawObj = useRef<DrawingData | null>(null);
-  const [currentLineWidth, setCurrentLineWidth] = useState(4);
   const drawingAreaId = useRef<string>(`drawing-area-container-${id}`);
   const previousMousePos = useRef<Point | null>(null);
   const latestEvent = useRef<CapturedEvent>(null);
@@ -47,7 +59,10 @@ export default function ReactDraw({
   const undoStack = useRef<ActionObject[]>([]);
   const redoStack = useRef<ActionObject[]>([]);
   const objectToSelect = useRef<DrawingData | null>(null);
-  //   const showMenu = useState(false);
+  const globalStyles = useRef<ToolPropertiesMap>(
+    setupGlobalStyles(topBarTools)
+  );
+  // bottomToolsDisplayMap is used to set whether the bottom tool should be display | hidden | show
   const [bottomToolsDisplayMap, setBottomToolsDisplayMap] =
     useState<BottomToolDisplayMap>(new Map());
 
@@ -147,9 +162,10 @@ export default function ReactDraw({
    */
   function starDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
+    const styles = { ...globalStyles.current };
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
-      currentLineWidth,
+      styles,
       currentDrawingTool.id
     );
     currDrawObj.current = newDrawingData;
@@ -291,6 +307,46 @@ export default function ReactDraw({
     updateBottomToolDisplayMap();
   };
 
+  /**
+   	if single selected object return those
+	if multiple return union
+	if none return default */
+  const handleGetEditProps = (): StringObject => {
+    const ctx = getReactDrawContext();
+    const selectedIds = getSelectedIdsFromFullState(ctx);
+    if (selectedIds.length === 0) {
+      const styles = globalStyles.current;
+      return styles;
+    }
+    const styles = getEditStylesFromSelected(selectedIds, ctx);
+    return styles;
+  };
+
+  const handleUpdateStyles = (key: keyof ToolPropertiesMap, value: string) => {
+    const ctx = getReactDrawContext();
+    const selectedIds = getSelectedIdsFromFullState(ctx);
+    if (selectedIds.length === 0) {
+      globalStyles.current[key] = value;
+      //   console.log(globalStyles.current);
+      return;
+    }
+    const selectObjects = selectedIds.map((id) =>
+      getObjectFromMap(ctx.objectsMap, id)
+    );
+    const allActions = selectObjects.map((obj) => {
+      const tool = getToolById(ctx.drawingTools, obj.toolId);
+      if (tool.onUpdateStyle) {
+        return tool.onUpdateStyle(obj, ctx, key, value);
+      }
+      return undefined;
+    });
+    // TODO: notify
+    return allActions;
+  };
+
+  // TODO: handle non-style menu components
+  const hasMenuItems = !!styleComponents && !isObjEmpty(styleComponents);
+
   return (
     <Container layout={layout}>
       {!hideTopBar && (
@@ -318,7 +374,13 @@ export default function ReactDraw({
           tools={bottomBarTools}
           dispatch={dispatchBottomToolCtx}
         >
-          <div>hello world</div>
+          {hasMenuItems && (
+            <EditMenu
+              getEditProps={handleGetEditProps}
+              styleComponents={styleComponents}
+              onUpdateStyle={handleUpdateStyles}
+            />
+          )}
         </BottomToolBar>
       )}
       <style>{`
@@ -380,4 +442,73 @@ function unselectEverything(ctx: ReactDrawContext): void {
     unselectAll(objects, ctx);
   }
   return;
+}
+const defaultEditableProps: ToolPropertiesMap = {
+  lineWidth: "4",
+  zIndex: "1",
+  color: "#000000",
+  fontSize: "14",
+  background: "transparent",
+};
+
+// TODO improve this
+
+function getStylesUnion(
+  objects: DrawingData[],
+  styles: ToolStylesMap
+): ToolPropertiesMap {
+  const properties: ToolPropertiesMap = defaultEditableProps;
+  if (!properties) {
+    throw new Error();
+  }
+  return properties;
+}
+
+function isObjEmpty(obj: { [key: string]: any }): boolean {
+  for (var x in obj) {
+    return false;
+  }
+  return true;
+}
+
+// TODO: accept default styles as a react-draw prop
+function setupGlobalStyles(topBarTools: DrawingTools[]) {
+  const styles: ToolPropertiesMap = {
+    ...defaultEditableProps,
+  };
+
+  return styles;
+}
+
+function getEditStylesFromSelected(
+  selectedIds: string[],
+  ctx: ReactDrawContext
+): StringObject {
+  const styles: StringObject = {};
+  const selectedObjects = selectedIds.map((i) =>
+    getObjectFromMap(ctx.objectsMap, i)
+  );
+
+  for (const object of selectedObjects) {
+    const tool = getToolById(ctx.drawingTools, object.toolId);
+    if (tool.getEditableStyles) {
+      const toolsAllowedStyles = tool.getEditableStyles();
+      for (const key of toolsAllowedStyles) {
+        // TODO
+        const currentObjectValue = object.style[key];
+        if (currentObjectValue) {
+          styles[key] = currentObjectValue;
+        } else {
+          console.error(
+            "could not get style value for key:",
+            key,
+            "from object",
+            object
+          );
+        }
+      }
+    }
+  }
+  //   console.log("getEditStylesFromSelected:", styles);
+  return styles;
 }

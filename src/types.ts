@@ -1,4 +1,4 @@
-import { MutableRefObject } from "react";
+import { MutableRefObject, CSSProperties } from "react";
 import { ERASE_TOOL_ID, FREE_DRAW_TOOL_ID, SELECT_TOOL_ID } from "./constants";
 
 export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
@@ -48,6 +48,15 @@ export interface CustomState {
   [tool_id: string]: OtherToolState;
 }
 
+export interface ToolPropertiesMap {
+  lineWidth: string;
+  zIndex: string;
+  color: string;
+  fontSize: string;
+  background: string;
+  [id: string]: string;
+}
+
 export type ReactDrawContext = {
   viewContainer: HTMLDivElement;
   objectsMap: DrawingDataMap;
@@ -62,6 +71,9 @@ export type ReactDrawContext = {
   selectDrawingTool: (toolId: string) => void;
   selectObject: (object: DrawingData) => void;
 };
+
+export type ToolStylesMap = Map<string, ToolPropertiesMap>;
+export type StringObject = { [key: string]: string };
 /**
  * icon: the icon to be displayed in the top bar tools
  * id: required so that react draw can identify objects created by this id.
@@ -72,6 +84,7 @@ export type DrawingTools = {
   icon: JSX.Element;
   tooltip?: string;
   id: string;
+  getEditableStyles?: () => (keyof ToolPropertiesMap)[];
   setupCustomState?: (state: CustomState) => any;
   onPickTool?: (ctx: ReactDrawContext) => void;
   onUnPickTool?: (ctx: ReactDrawContext) => void;
@@ -89,16 +102,30 @@ export type DrawingTools = {
   onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
   onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
   onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
+  onUpdateStyle?: (
+    data: DrawingData,
+    ctx: ReactDrawContext,
+    key: keyof ToolPropertiesMap,
+    value: string
+  ) => ActionObject;
   cursor?: string;
 };
 
 export type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
-
+export type ActionKey =
+  | "color"
+  | "delete"
+  | "create"
+  | string
+  | "drag"
+  | "resize"
+  | "rotate"
+  | "input";
 export type ActionObject = {
   toolType: ActionType;
   toolId: string;
   objectId: string;
-  action: string;
+  action: ActionKey;
   data: any;
 };
 
@@ -118,10 +145,7 @@ export type DrawingData = {
   coords: Point[];
   container: DrawingContainer;
   element: HTMLElement | SVGSVGElement | null;
-  style: {
-    lineWidth: number;
-    zIndex: number;
-  };
+  style: ToolPropertiesMap;
   toolId: string;
   customData: Map<string, any>;
 };
@@ -138,7 +162,31 @@ export type ActionTools = {
   onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
 
+type StyleToolComponentProps = {
+  handleContext: (ctx: ReactDrawContext) => void;
+};
+
+export type MenuStyleTools = {
+  [key: string]: (props: StyleToolComponentProps) => JSX.Element;
+};
+
+// export type
+
 export type BottomToolDisplayMap = Map<string, DisplayMode>;
+export type UpdateStyleFn = (
+  key: keyof ToolPropertiesMap,
+  value: string
+) => (ActionObject | undefined)[] | undefined;
+
+export type StyleComponentProps = {
+  onUpdate: (key: keyof ToolPropertiesMap, value: string) => void;
+  styleKey: string;
+  styleValue: string;
+};
+export type StyleComponent = (props: StyleComponentProps) => JSX.Element;
+export type StyleComponents = {
+  [key: string]: StyleComponent;
+};
 
 export type ReactDrawProps = {
   children?: ReactChild;
@@ -150,6 +198,7 @@ export type ReactDrawProps = {
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;
   id: string;
+  styleComponents?: StyleComponents;
 };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;

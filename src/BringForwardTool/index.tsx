@@ -32,7 +32,7 @@ const bringForwardTool: ActionTools = {
     }
     selectObjects.forEach((obj) => {
       obj.container.div.style.zIndex = lowestZIndex.toString();
-      obj.style.zIndex = lowestZIndex;
+      obj.style.zIndex = lowestZIndex.toString();
     });
   },
 };
@@ -40,8 +40,8 @@ const bringForwardTool: ActionTools = {
 export default bringForwardTool;
 
 function pushObjectDown(data: DrawingData): number {
-  const currZ = data.style.zIndex;
+  const currZ = parseInt(data.style.zIndex);
   data.container.div.style.zIndex = (currZ - 1).toString();
-  data.style.zIndex = currZ - 1;
+  data.style.zIndex = (currZ - 1).toString();
   return currZ;
 }

@@ -10,6 +10,7 @@ import {
 } from "../utils";
 import { createCircle, createPathSvg, createSvg } from "../utils/svgUtils";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { updateSvgPathStroke } from "../utils/updateStyles/color";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
@@ -17,14 +18,17 @@ const freeDrawTool: DrawingTools = {
   id: "free-draw-tool",
   tooltip: "Free draw tool",
   icon: <PencilBoldIcon />,
+  getEditableStyles() {
+    return ["color", "lineWidth"];
+  },
   onDrawStart: (data) => {
-    const lineWidth = data.style.lineWidth;
+    const lineWidth = parseInt(data.style.lineWidth);
     // const relativeDiv = makeRelativeDiv();
     const newSvg = createSvg(lineWidth, lineWidth);
     newSvg.style.overflow = "visible";
     // const newPath = createPath();
     // newSvg.style.transform = "scale(1.0, 1.0)";
-    const newPath = createCircle(lineWidth / 2);
+    const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     // relativeDiv.appendChild(newSvg);
     // data.container.div.appendChild(relativeDiv);
@@ -35,6 +39,7 @@ const freeDrawTool: DrawingTools = {
     expandContainer(data);
     const boxSize = getBoxSize(data);
     const newSvg = createSvg(boxSize.width, boxSize.height);
+    // console.log(newSvg);
     newSvg.style.overflow = "visible";
     // const relativeDiv = makeRelativeDiv();
     const path = svgPathFromData(data, viewContainer);
@@ -74,6 +79,13 @@ const freeDrawTool: DrawingTools = {
     console.error("unsupported action:", action);
     throw new Error();
   },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateSvgPathStroke(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };
 
@@ -83,7 +95,7 @@ function svgPathFromData(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGPathElement {
-  const newPath = createPathSvg(data.style.lineWidth);
+  const newPath = createPathSvg(data.style);
   newPath.setAttribute("d", getPathDString(data, viewContainer));
   return newPath;
 }

@@ -39,6 +39,14 @@ interface CustomState {
     [ERASE_TOOL_ID]: EraseToolCustomState;
     [tool_id: string]: OtherToolState;
 }
+interface ToolPropertiesMap {
+    lineWidth: string;
+    zIndex: string;
+    color: string;
+    fontSize: string;
+    background: string;
+    [id: string]: string;
+}
 type ReactDrawContext = {
     viewContainer: HTMLDivElement;
     objectsMap: DrawingDataMap;
@@ -63,6 +71,7 @@ type DrawingTools = {
     icon: JSX.Element;
     tooltip?: string;
     id: string;
+    getEditableStyles?: () => (keyof ToolPropertiesMap)[];
     setupCustomState?: (state: CustomState) => any;
     onPickTool?: (ctx: ReactDrawContext) => void;
     onUnPickTool?: (ctx: ReactDrawContext) => void;
@@ -80,14 +89,16 @@ type DrawingTools = {
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
+    onUpdateStyle?: (data: DrawingData, ctx: ReactDrawContext, key: keyof ToolPropertiesMap, value: string) => ActionObject;
     cursor?: string;
 };
 type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
+type ActionKey = "color" | "delete" | "create" | string | "drag" | "resize" | "rotate" | "input";
 type ActionObject = {
     toolType: ActionType;
     toolId: string;
     objectId: string;
-    action: string;
+    action: ActionKey;
     data: any;
 };
 type Point = [
@@ -109,10 +120,7 @@ type DrawingData = {
     coords: Point[];
     container: DrawingContainer;
     element: HTMLElement | SVGSVGElement | null;
-    style: {
-        lineWidth: number;
-        zIndex: number;
-    };
+    style: ToolPropertiesMap;
     toolId: string;
     customData: Map<string, any>;
 };
@@ -126,6 +134,15 @@ type ActionTools = {
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
+type StyleComponentProps = {
+    onUpdate: (key: keyof ToolPropertiesMap, value: string) => void;
+    styleKey: string;
+    styleValue: string;
+};
+type StyleComponent = (props: StyleComponentProps) => JSX.Element;
+type StyleComponents = {
+    [key: string]: StyleComponent;
+};
 type ReactDrawProps = {
     children?: ReactChild;
     layout?: LayoutOption;
@@ -136,8 +153,9 @@ type ReactDrawProps = {
     shouldKeepHistory?: boolean;
     shouldSelectAfterCreate?: boolean;
     id: string;
+    styleComponents?: StyleComponents;
 };
-declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, ...props }: ReactDrawProps): JSX.Element;
+declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, styleComponents, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
@@ -154,5 +172,7 @@ declare const trashTool: ActionTools;
 declare const duplicateTool: ActionTools;
 declare const bringBackTool: ActionTools;
 declare const bringForwardTool: ActionTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool };
+declare const ColorStyle: StyleComponent;
+declare const BackgroundStyle: StyleComponent;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle };
 //# sourceMappingURL=index.d.ts.map

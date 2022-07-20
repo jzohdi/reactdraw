@@ -1,15 +1,24 @@
 import { DiamondBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { DIAMOND_TOOL_ID } from "../constants";
-import { DrawingData, DrawingTools, RectBounds } from "../types";
+import {
+  DrawingData,
+  DrawingTools,
+  RectBounds,
+  ToolPropertiesMap,
+} from "../types";
 import { scaleSvg, setContainerRect } from "../utils";
 import { createPathSvg, createSvg } from "../utils/svgUtils";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { updateSvgPathStroke } from "../utils/updateStyles/color";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,
   tooltip: "Diamond tool",
   icon: <DiamondBoldIcon />,
+  getEditableStyles() {
+    return ["color", "background", "lineWidth"];
+  },
   onDrawStart: (data) => {
     const div = data.container.div;
     const newSvg = makeDiamondSvg(data);
@@ -47,27 +56,35 @@ const diamondTool: DrawingTools = {
     console.error("Unsupported action: ", action);
     throw new Error();
   },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateSvgPathStroke(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
 };
 
 export default diamondTool;
 
 function makeDiamondSvg(data: DrawingData): SVGSVGElement {
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
   const { bounds } = data.container;
   // const width = bounds
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const newSvg = createSvg(width + lineWidth, height + lineWidth);
-  const path = drawDiamondInBounds(bounds, data.style.lineWidth);
+  const path = drawDiamondInBounds(bounds, data.style);
   newSvg.appendChild(path);
   return newSvg;
 }
 
 function drawDiamondInBounds(
   bounds: RectBounds,
-  lineWidth: number
+  style: ToolPropertiesMap
 ): SVGPathElement {
-  const newPath = createPathSvg(lineWidth);
+  const newPath = createPathSvg(style);
+  const lineWidth = parseInt(style.lineWidth);
   newPath.setAttribute("d", getPathDiamondString(bounds, lineWidth));
   return newPath;
 }

@@ -106,25 +106,20 @@ const MenuButton = styled.button<MenuButtonProps>`
   }}
 `;
 
-type MenuProps = {
-  open: boolean;
-};
-const Menu = styled.div<MenuProps>`
+const Menu = styled.div`
   position: absolute;
-  bottom: 40px;
   left: 0;
   padding: 15px;
-  border: 1px solid black;
-  ${(props) => {
-    if (props.open) {
-      return css`
-        display: inline-block;
-      `;
-    }
-    return css`
-      display: none;
-    `;
-  }}
+  border: 1px solid ${COLORS.primary.main};
+  z-index: 1000;
+  background-color: white;
+  border-radius: 0px 5px 0px 0px;
+  @media only screen and (min-width: ${BPmd}px) {
+    bottom: 40px;
+  }
+  @media only screen and (max-width: ${BPmd}px) {
+    bottom: 30px;
+  }
 `;
 
 export function BottomToolBar({
@@ -145,33 +140,37 @@ export function BottomToolBar({
     return { top: "-35px", left: `-${tool.tooltip.length * 3}px` };
   };
   return (
-    <BottomBarContainer>
-      <ToolTip text="Menu" top="-40px" left="10px">
-        <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
-          <Menu open={showMenu}>hello world</Menu>
-          <MenuIcon size={30} />
-        </MenuButton>
-      </ToolTip>
-      {tools.map((tool, i) => {
-        const toolId = tool.id;
-        const toolDisplayMode = displayMap.get(toolId) || "hide";
-        return (
-          <ToolTip
-            key={tool.id}
-            text={tool.tooltip}
-            {...getPosition(tool, i)}
-            disabled={toolDisplayMode === "disabled"}
-          >
-            <BottomToolButton
-              disabled={toolDisplayMode === "disabled"}
-              mode={toolDisplayMode}
-              onClick={() => dispatch(tool.handleContext)}
-            >
-              {tool.icon}
-            </BottomToolButton>
+    <>
+      {showMenu && <Menu>{children}</Menu>}
+      <BottomBarContainer>
+        {children && (
+          <ToolTip text="Menu" top="-40px" left="10px">
+            <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
+              <MenuIcon size={30} />
+            </MenuButton>
           </ToolTip>
-        );
-      })}
-    </BottomBarContainer>
+        )}
+        {tools.map((tool, i) => {
+          const toolId = tool.id;
+          const toolDisplayMode = displayMap.get(toolId) || "hide";
+          return (
+            <ToolTip
+              key={tool.id}
+              text={tool.tooltip}
+              {...getPosition(tool, i)}
+              disabled={toolDisplayMode === "disabled"}
+            >
+              <BottomToolButton
+                disabled={toolDisplayMode === "disabled"}
+                mode={toolDisplayMode}
+                onClick={() => dispatch(tool.handleContext)}
+              >
+                {tool.icon}
+              </BottomToolButton>
+            </ToolTip>
+          );
+        })}
+      </BottomBarContainer>
+    </>
   );
 }

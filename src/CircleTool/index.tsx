@@ -1,16 +1,22 @@
 import { CircleBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { CIRCLE_TOOL_ID } from "../constants";
-import { DrawingTools } from "../types";
+import { DrawingTools, ToolPropertiesMap } from "../types";
 import { setContainerRect } from "../utils";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import {
+  borderFromStyles,
+  updateEleBorderColor,
+} from "../utils/updateStyles/color";
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
   tooltip: "Circle tool",
   icon: <CircleBoldIcon />,
+  getEditableStyles() {
+    return ["color", "background", "lineWidth"];
+  },
   onDrawStart: (data) => {
-    const lineWidth = data.style.lineWidth;
-    const newSquare = makeCircleDiv(lineWidth);
+    const newSquare = makeCircleDiv(data.style);
     data.container.div.appendChild(newSquare);
     data.element = newSquare;
   },
@@ -39,15 +45,23 @@ const circlTool: DrawingTools = {
     console.error("unsupported action:", action);
     throw new Error();
   },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateEleBorderColor(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
 };
 
 export default circlTool;
 
-function makeCircleDiv(lineWidth: number): HTMLDivElement {
+function makeCircleDiv(styles: ToolPropertiesMap): HTMLDivElement {
   const newDiv = document.createElement("div");
   newDiv.style.width = "100%";
   newDiv.style.height = "100%";
-  newDiv.style.border = `${lineWidth}px solid black`;
+  newDiv.style.border = borderFromStyles(styles);
+  newDiv.style.backgroundColor = styles.background;
   newDiv.style.borderRadius = "50%";
   newDiv.style.boxSizing = "border-box";
   return newDiv;

@@ -6,6 +6,7 @@ import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
 import { createCircle, createLineSvg, createSvg } from "../utils/svgUtils";
 import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
 import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import { updateSvgPathStroke } from "../utils/updateStyles/color";
 
 type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
 type StraightLineCustomData = {
@@ -17,11 +18,14 @@ const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
   tooltip: "Straight Line Tool",
   icon: <HorizontalLineIcon />,
+  getEditableStyles() {
+    return ["color", "lineWidth"];
+  },
   onDrawStart: (data) => {
     const div = data.container.div;
-    const lineWidth = data.style.lineWidth;
+    const lineWidth = parseInt(data.style.lineWidth);
     const newSvg = createSvg(lineWidth, lineWidth);
-    const newPath = createCircle(lineWidth / 2);
+    const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     div.append(newSvg);
     data.element = newSvg;
@@ -74,6 +78,13 @@ const straightLineTool: DrawingTools = {
     console.error("unsupported action:", action);
     throw new Error();
   },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateSvgPathStroke(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
+  },
 };
 
 export default straightLineTool;
@@ -115,7 +126,7 @@ function makeLineInOrientation(
   const newSvg = createSvg(width, height);
   newSvg.style.overflow = "visible";
   const [start, end] = getStartEnd(width, height, orientation);
-  const lineSvg = createLineSvg(data.style.lineWidth);
+  const lineSvg = createLineSvg(data.style);
   lineSvg.setAttribute("x1", start[0].toString());
   lineSvg.setAttribute("y1", start[1].toString());
   lineSvg.setAttribute("x2", end[0].toString());
@@ -181,7 +192,7 @@ function makeLineSvg(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGSVGElement {
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
   const { bounds } = data.container;
   // const width = bounds
   const width = bounds.right - bounds.left;

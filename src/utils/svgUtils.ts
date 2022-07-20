@@ -1,27 +1,27 @@
-import { Point } from "../types";
+import { Point, ToolPropertiesMap } from "../types";
 import { isBrowser } from "./index";
 
-export function createPathSvg(lineWidth: number): SVGPathElement {
+export function createPathSvg(style: ToolPropertiesMap): SVGPathElement {
   const newPath = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "path"
   );
   newPath.setAttribute("fill", "transparent");
-  newPath.setAttribute("stroke", "black");
-  newPath.style.strokeWidth = `${lineWidth}px`;
+  newPath.setAttribute("stroke", style.color);
+  newPath.style.strokeWidth = `${style.lineWidth}px`;
   newPath.setAttribute("stroke-linejoin", "round");
   newPath.setAttribute("stroke-linecap", "round");
   return newPath;
 }
 
-export function createLineSvg(lineWidth: number): SVGLineElement {
+export function createLineSvg(style: ToolPropertiesMap): SVGLineElement {
   const newPath = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "line"
   );
   newPath.setAttribute("fill", "transparent");
-  newPath.setAttribute("stroke", "black");
-  newPath.style.strokeWidth = `${lineWidth}px`;
+  newPath.setAttribute("stroke", style.color);
+  newPath.style.strokeWidth = `${style.lineWidth}px`;
   newPath.setAttribute("stroke-linejoin", "round");
   newPath.setAttribute("stroke-linecap", "round");
   return newPath;
@@ -51,7 +51,7 @@ export function createSvg(w: number, h: number): SVGSVGElement {
   return newSVG;
 }
 
-export function createPath(lineWidth: number): SVGPathElement {
+export function createPath(style: ToolPropertiesMap): SVGPathElement {
   if (!isBrowser()) {
     throw new Error("createPath called on server");
   }
@@ -59,8 +59,8 @@ export function createPath(lineWidth: number): SVGPathElement {
     "http://www.w3.org/2000/svg",
     "path"
   );
-  newPath.setAttribute("fill", "black");
-  newPath.style.strokeWidth = `${lineWidth}px`;
+  newPath.setAttribute("fill", style.color);
+  newPath.style.strokeWidth = `${style.lineWidth}px`;
   //   newPath.setAttribute("stroke-width", `${lineWidth}px`);
   newPath.setAttribute("stroke-linejoin", "round");
   newPath.setAttribute("stroke-linecap", "round");
@@ -68,7 +68,7 @@ export function createPath(lineWidth: number): SVGPathElement {
   return newPath;
 }
 
-export function createCircle(radius: number) {
+export function createCircle(radius: number, color: string) {
   if (!isBrowser()) {
     throw new Error("createPath called on server");
   }
@@ -84,10 +84,11 @@ export function createCircle(radius: number) {
 export function makeLineSvgEle(
   pointA: Point,
   pointB: Point,
-  lineWidth: number,
+  style: ToolPropertiesMap,
   mapFn: (point: Point) => Point
 ) {
-  const lineEle = createLineSvg(lineWidth);
+  const lineEle = createLineSvg(style);
+  const lineWidth = parseInt(style.lineWidth);
   const offset = lineWidth / 2;
   // if you're not first you're last
   let [x1, y1] = mapFn(pointA);

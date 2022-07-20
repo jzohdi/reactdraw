@@ -4,6 +4,7 @@ import {
   Point,
   RectBounds,
   DrawingDataMap,
+  ToolPropertiesMap,
 } from "../types";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -24,12 +25,13 @@ export function isBrowser() {
 
 export function makeNewBoundingDiv(
   relativePoint: Point,
-  lineWidth: number,
+  globalStyles: ToolPropertiesMap,
   toolId: string
 ): DrawingData {
   if (!isBrowser()) {
     throw new Error("new bounding div called on the server.");
   }
+  const lineWidth = parseInt(globalStyles.lineWidth);
   const [pointX, pointY] = relativePoint;
   const { id, div, top, left, right, bottom } = makeNewDiv(
     pointX,
@@ -51,10 +53,7 @@ export function makeNewBoundingDiv(
         bottom,
       },
     },
-    style: {
-      zIndex: 1,
-      lineWidth,
-    },
+    style: globalStyles,
     customData: new Map(),
   };
   return data;
@@ -155,11 +154,13 @@ export function expandContainer(data: DrawingData): boolean {
   const [newX, newY] = data.coords[data.coords.length - 1];
   const container = data.container;
   const bounds = container.bounds;
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
+  //   console.log(lineWidth);
   if (newX - lineWidth <= bounds.left) {
     bounds.left = newX - lineWidth;
     container.div.style.left = newX - lineWidth + "px";
     container.div.style.width = bounds.right + lineWidth * 2 - newX + "px";
+    // console.log(bounds);
     didExapnd = true;
   } else if (newX + lineWidth >= bounds.right) {
     bounds.right = newX + lineWidth;
@@ -190,7 +191,7 @@ export function setContainerRect(data: DrawingData): Point[] {
   }
   const [firstX, firstY] = data.coords[0];
   const [lastX, lastY] = data.coords[data.coords.length - 1];
-  const lineWidth = data.style.lineWidth;
+  const lineWidth = parseInt(data.style.lineWidth);
   const minX = Math.min(firstX, lastX);
   const minY = Math.min(firstY, lastY);
   const maxX = Math.max(firstX, lastX);
@@ -217,8 +218,9 @@ export function getElementsThatBoundsAreWithin(
 ) {
   let itemToSelect = null;
   for (const [eleId, eleData] of renderedMap.entries()) {
+    const zIndex = parseInt(eleData.style.zIndex);
     if (isRectBounding(eleData.container.bounds, bounds)) {
-      const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < eleData.style.zIndex;
+      const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < zIndex;
       if (eleIsOnTop) {
         itemToSelect = eleData;
       }
@@ -275,6 +277,7 @@ export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
 
 export function getBoxSize(data: DrawingData) {
   const bounds = data.container.bounds;
+  //   console.log(bounds);
   return {
     width: bounds.right - bounds.left,
     height: bounds.bottom - bounds.top,

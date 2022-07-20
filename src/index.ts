@@ -14,3 +14,5 @@ export { default as trashTool } from "./TrashTool";
 export { default as duplicateTool } from "./DuplicateTool";
 export { default as bringBackTool } from "./BringBackTool";
 export { default as bringForwardTool } from "./BringForwardTool";
+export { default as ColorStyle } from "./StyleComponents/Color";
+export { default as BackgroundStyle } from "./StyleComponents/Background";
