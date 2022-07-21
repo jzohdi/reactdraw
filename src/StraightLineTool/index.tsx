@@ -16,8 +16,11 @@ import {
 import { updateSvgPathStroke } from "../utils/updateStyles/color";
 import { updateSvgPathWidth } from "../utils/updateStyles/linewidth";
 import { updateEleOpacity } from "../utils/updateStyles/opacity";
-
-type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
+import {
+  calcOrientation,
+  getStartAndEndPoint,
+  Orientation,
+} from "../utils/lines";
 
 const ORIENT_KEY = "orientation";
 
@@ -45,7 +48,6 @@ const straightLineTool: DrawingTools = {
     data.customData.set(ORIENT_KEY, orientation);
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.container.div;
-    // const newSvg = makeLineSvg(data, viewContainer);
     div.innerHTML = "";
     div.appendChild(newSvg);
     data.element = newSvg;
@@ -65,11 +67,9 @@ const straightLineTool: DrawingTools = {
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.container.div;
     div.removeChild(data.element as SVGSVGElement);
-    // const newSvg = makeLineSvg(data, viewContainer);
     div.appendChild(newSvg);
     data.element = newSvg;
     data.coords.splice(1);
-    // scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
   onUndo(action, ctx) {
     if (action.action === "create") {
@@ -120,33 +120,6 @@ const straightLineTool: DrawingTools = {
 
 export default straightLineTool;
 
-function calcOrientation(pointA: Point, pointB: Point): Orientation {
-  const [x1, y1] = pointA;
-  const [x2, y2] = pointB;
-  if (x2 === x1) {
-    if (y2 > y1) {
-      return "down";
-    }
-    return "up";
-  }
-  if (y2 === y1) {
-    if (x2 > x1) {
-      return "right";
-    }
-    return "left";
-  }
-  if (x2 < x1 && y2 < y1) {
-    return "nw";
-  }
-  if (x2 > x1 && y2 < y1) {
-    return "ne";
-  }
-  if (x2 > x1 && y2 > y1) {
-    return "se";
-  }
-  return "sw";
-}
-
 function makeLineInOrientation(
   data: DrawingData,
   orientation: Orientation
@@ -156,7 +129,7 @@ function makeLineInOrientation(
   const height = bounds.bottom - bounds.top;
   const newSvg = createSvg(width, height, data.style.opacity);
   newSvg.style.overflow = "visible";
-  const [start, end] = getStartEnd(width, height, orientation);
+  const [start, end] = getStartAndEndPoint(width, height, orientation);
   const lineSvg = createLineSvg(data.style);
   lineSvg.setAttribute("x1", start[0].toString());
   lineSvg.setAttribute("y1", start[1].toString());
@@ -164,57 +137,4 @@ function makeLineInOrientation(
   lineSvg.setAttribute("y2", end[1].toString());
   newSvg.appendChild(lineSvg);
   return newSvg;
-}
-
-function getStartEnd(
-  width: number,
-  height: number,
-  orientation: Orientation
-): [Point, Point] {
-  if (orientation === "right") {
-    return [
-      [0, 0],
-      [width, 0],
-    ];
-  }
-  if (orientation === "left") {
-    return [
-      [width, 0],
-      [0, 0],
-    ];
-  }
-  if (orientation === "down") {
-    return [
-      [0, 0],
-      [0, height],
-    ];
-  }
-  if (orientation === "up") {
-    return [
-      [0, height],
-      [0, 0],
-    ];
-  }
-  if (orientation === "nw") {
-    return [
-      [width, height],
-      [0, 0],
-    ];
-  }
-  if (orientation === "ne") {
-    return [
-      [0, height],
-      [width, 0],
-    ];
-  }
-  if (orientation === "se") {
-    return [
-      [0, 0],
-      [width, height],
-    ];
-  }
-  return [
-    [width, 0],
-    [0, height],
-  ];
 }

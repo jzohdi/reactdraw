@@ -10,7 +10,6 @@ import {
   freeDrawTool,
   diamondTool,
   straightLineTool,
-  //   arrowTool,
   textAreaTool,
   eraseTool,
   undoTool,
@@ -23,6 +22,7 @@ import {
   BackgroundStyle,
   LineWidthStyle,
   OpacityStyle,
+  arrowTool,
 } from "../../src";
 
 export default {
@@ -39,8 +39,8 @@ const topBarTools: DrawingTools[] = [
   circleTool,
   diamondTool,
   straightLineTool,
-  //   arrowTool,
   textAreaTool,
+  arrowTool,
   eraseTool,
 ];
 

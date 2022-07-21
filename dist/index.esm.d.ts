@@ -182,5 +182,6 @@ type LineWidthPickerProps = StyleComponentProps;
 declare function LineWidthPicker({ onUpdate, styleKey, styleValue }: LineWidthPickerProps): JSX.Element;
 type OpacityPickerProps = StyleComponentProps;
 declare function LineWidthPicker$0({ onUpdate, styleKey, styleValue }: OpacityPickerProps): JSX.Element;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle };
+declare const arrowTool: DrawingTools;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, arrowTool };
 //# sourceMappingURL=index.esm.d.ts.map

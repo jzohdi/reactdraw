@@ -2,22 +2,37 @@ import React from "react";
 import { ArrowRightBoldIcon } from "@jzohdi/jsx-icons";
 import { DrawingData, DrawingTools, Point } from "../types";
 import { ARROW_TOOL_ID } from "../constants";
-import {
-  createCircle,
-  createLineSvg,
-  createSvg,
-  makeLineSvgEle,
-} from "../utils/svgUtils";
+import { createCircle, createPathSvg, createSvg } from "../utils/svgUtils";
 import { mapPointToRect, scaleSvg, setContainerRect } from "../utils";
-import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoEleOpacity,
+  undoSvgPathColor,
+  undoSvgPathWidth,
+} from "../utils/undo";
+import {
+  calcOrientation,
+  getStartAndEndPoint,
+  Orientation,
+} from "../utils/lines";
+import { updateSvgPathStroke } from "../utils/updateStyles/color";
+import { updateSvgPathWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
+
+const ORIENT_KEY = "orientation";
 
 const arrowTool: DrawingTools = {
   icon: <ArrowRightBoldIcon />,
   id: ARROW_TOOL_ID,
+  getEditableStyles() {
+    return ["color", "lineWidth", "opacity"];
+  },
   onDrawStart: (data) => {
     const div = data.container.div;
     const lineWidth = parseInt(data.style.lineWidth);
-    const newSvg = createSvg(lineWidth, lineWidth);
+    const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
     const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     div.append(newSvg);
@@ -25,16 +40,79 @@ const arrowTool: DrawingTools = {
   },
   onDrawing: (data, { viewContainer }) => {
     setContainerRect(data);
+    const firstPoint = data.coords[0];
+    const lastPoint = data.coords[data.coords.length - 1];
+    const orientation = calcOrientation(firstPoint, lastPoint);
+    data.customData.set(ORIENT_KEY, orientation);
+    const newSvg = makeArrowSvg(data, orientation);
     const div = data.container.div;
-    const newSvg = makeArrowSvg(data, viewContainer);
     div.innerHTML = "";
     div.appendChild(newSvg);
     data.element = newSvg;
     data.coords.splice(1);
   },
-  onDrawEnd: (data) => {},
+  onDrawEnd: (data, ctx) => {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
+  },
   onResize(data, ctx) {
-    scaleSvg(data.element as SVGSVGElement, data.container.bounds);
+    const orientation = data.customData.get(ORIENT_KEY);
+    if (!orientation) {
+      throw new Error("orientation not set");
+    }
+    const newSvg = makeArrowSvg(data, orientation);
+    const div = data.container.div;
+    div.removeChild(data.element as SVGSVGElement);
+    div.appendChild(newSvg);
+    data.element = newSvg;
+    data.coords.splice(1);
+  },
+  onUndo(action, ctx) {
+    if (action.action === "create") {
+      return undoCreate(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
+    console.error("Unsupported action: ", action);
+    throw new Error();
+  },
+  onRedo(action, ctx) {
+    if (action.action === "delete") {
+      return redoDelete(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
+    console.error("unsupported action:", action);
+    throw new Error();
+  },
+  onUpdateStyle(data, ctx, key, value) {
+    if (key === "color") {
+      return updateSvgPathStroke(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateSvgPathWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
+    }
+    console.log(key, value, data);
+    throw new Error("unknown update style action");
   },
 };
 
@@ -50,84 +128,53 @@ export default arrowTool;
 
 function makeArrowSvg(
   data: DrawingData,
-  viewContainer: HTMLDivElement
+  orientation: Orientation
 ): SVGSVGElement {
   const lineWidth = parseInt(data.style.lineWidth);
   const { bounds } = data.container;
   // const width = bounds
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
-  const newSvg = createSvg(width + lineWidth, height + lineWidth);
+  const [start, end] = getStartAndEndPoint(width, height, orientation);
+  // const containerSvg = createSvg(width, )
+  const newSvg = createSvg(
+    width + lineWidth,
+    height + lineWidth,
+    data.style.opacity
+  );
   newSvg.style.overflow = "visible";
-  makeArrowLines(data, viewContainer).forEach((line) => {
-    newSvg.appendChild(line);
-  });
+  const arrowLine = makeArrowPath(data, start, end);
+  newSvg.appendChild(arrowLine);
   return newSvg;
 }
 
-//https://math.stackexchange.com/questions/1314006/drawing-an-arrow
-function makeArrowLines(
-  data: DrawingData,
-  viewContainer: HTMLDivElement
-): SVGLineElement[] {
-  const lines: SVGLineElement[] = [];
-  const coords = data.coords;
-  const lineWidth = parseInt(data.style.lineWidth);
-  if (coords.length < 2) {
-    throw new Error("draw line from start to end must have at least 2 coords");
-  }
-  const mapFn = (p: Point) => mapPointToRect(p, data.container, viewContainer);
-  const pointA = coords[0];
-  const pointB = coords[coords.length - 1];
-  const { lineEle, x1, x2, y1, y2 } = makeLineSvgEle(
-    pointA,
-    pointB,
-    data.style,
-    mapFn
+function makeArrowPath(data: DrawingData, pointA: Point, pointB: Point) {
+  const [x1, y1] = pointA;
+  const [x2, y2] = pointB;
+  const arrow = createPathSvg(data.style);
+  // do wing 1
+  const D = [x1 - x2, y1 - y2];
+  const [dx, dy] = D;
+  const mag = Math.sqrt(dx * dx + dy * dy);
+  const uD = [dx / mag, dy / mag];
+  const [uDx, uDy] = uD;
+  //   const [ax, ay, bx, by] = [0, 0, 0, 0];
+  const axNormed = uDx * (Math.sqrt(3) / 2) - uDy * (1 / 2);
+  const ayNormed = (uDx * 1) / 2 + uDy * (Math.sqrt(3) / 2);
+  const bxNormed = uDx * (Math.sqrt(3) / 2) + uDy * (1 / 2);
+  const byNormed = -uDx * (1 / 2) + uDy * (Math.sqrt(3) / 2);
+  const lineLength = 20;
+  const [ax, ay, bx, by] = [
+    -axNormed * lineLength,
+    -ayNormed * lineLength,
+    -bxNormed * lineLength,
+    -byNormed * lineLength,
+  ];
+  arrow.setAttribute(
+    "d",
+    `M ${x1} ${y1} L ${x2} ${y2} L ${x2 - ax} ${y2 - ay} L ${x2} ${y2} L ${
+      x2 - bx
+    } ${y2 - by}`
   );
-  const head1 = createLineSvg(data.style);
-  head1.setAttribute("x1", x2.toString());
-  head1.setAttribute("y1", y2.toString());
-
-  // y = rise/run * x + b
-  //   const v = [x2 - x1, y2 - y1];
-  //   const mag = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-  //   const u = [v[0] / mag, v[1] / mag];
-  //   const arrowDistance = 30;
-  //   const du = [u[0] * arrowDistance, u[1] * arrowDistance];
-  //   const p2 = [x2 + du[0], y2 + du[1]];
-  const rads = Math.atan2(y2, x2) - Math.atan2(y1, x1);
-  const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-  const l2 = 20;
-  const lenRatio = l2 / length;
-  //   console.log(rads);
-  let theta = (30 * Math.PI) / 180;
-  const offset = (10 * Math.PI) / 180;
-  //   const theta = rads;
-  const diff = 0.1;
-  if (isCloseTo(rads, -1.5, diff)) {
-    theta += offset;
-  }
-  const cosTheta = Math.cos(theta);
-  const sinTheta = Math.sign(theta);
-
-  const x3 = x2 + lenRatio * ((x1 - x2) * cosTheta + (y1 - y2) * sinTheta);
-  const y3 = y2 + lenRatio * ((y1 - y2) * cosTheta + (x1 - x2) * sinTheta);
-  head1.setAttribute("x2", x3.toString());
-  head1.setAttribute("y2", y3.toString());
-  //   const m = (y2 - y1)/(x2 - x1);
-  //   const b = y1 - (m * x1);
-  lines.push(head1);
-  lines.push(lineEle);
-  return lines;
-}
-
-function isCloseTo(num1: number, num2: number, diff: number) {
-  if (num1 > num2) {
-    return num1 - diff <= num2;
-  }
-  if (num2 > num1) {
-    return num2 - diff <= num1;
-  }
-  return true;
+  return arrow;
 }

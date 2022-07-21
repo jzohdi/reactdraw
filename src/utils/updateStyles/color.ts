@@ -15,7 +15,7 @@ function updateSvgStyle(
   const path = getInnerEleFromSvg(data);
   const currColor = data.style[dataKey];
   (<any>path.style)[svgKey] = value;
-  console.log(path, svgKey, value);
+  //   console.log(path, svgKey, value);
   data.style[dataKey] = value;
   return actionObjToSave(data, dataKey as string, currColor);
 }

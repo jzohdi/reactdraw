@@ -66,23 +66,21 @@ export default function ToolTip({
     }
     function showToolTip() {
       setOpen(true);
+      if (isTouchDevice()) {
+        setTimeout(() => {
+          setOpen(false);
+        }, 1000);
+      }
     }
     function hideToolTip() {
       setOpen(false);
     }
-    // function showTouchTip() {
-    //   setOpen(true);
-    //   setTimeout(() => {
-    //     setOpen(false);
-    //   }, 1000);
-    // }
+
     container.addEventListener("mouseover", showToolTip);
     container.addEventListener("mouseleave", hideToolTip);
-    // container.addEventListener("touchstart", showTouchTip);
     return () => {
       container.removeEventListener("mouseover", showToolTip);
       container.removeEventListener("mouseleave", hideToolTip);
-      //   container.removeEventListener("touchstart", showTouchTip);
     };
   }, []);
 
@@ -97,4 +95,8 @@ export default function ToolTip({
       {children}
     </ToolTipContainer>
   );
+}
+
+function isTouchDevice() {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
 }
