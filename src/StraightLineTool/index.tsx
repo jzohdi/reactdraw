@@ -9,14 +9,16 @@ import {
   redoDelete,
   saveCreateToUndoStack,
   undoCreate,
+  undoEleOpacity,
   undoSvgPathColor,
+  undoSvgPathWidth,
 } from "../utils/undo";
 import { updateSvgPathStroke } from "../utils/updateStyles/color";
+import { updateSvgPathWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 
 type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
-type StraightLineCustomData = {
-  orientation: Orientation;
-};
+
 const ORIENT_KEY = "orientation";
 
 const straightLineTool: DrawingTools = {
@@ -24,12 +26,12 @@ const straightLineTool: DrawingTools = {
   tooltip: "Straight Line Tool",
   icon: <HorizontalLineIcon />,
   getEditableStyles() {
-    return ["color", "lineWidth"];
+    return ["color", "lineWidth", "opacity"];
   },
   onDrawStart: (data) => {
     const div = data.container.div;
     const lineWidth = parseInt(data.style.lineWidth);
-    const newSvg = createSvg(lineWidth, lineWidth);
+    const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
     const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     div.append(newSvg);
@@ -76,6 +78,12 @@ const straightLineTool: DrawingTools = {
     if (action.action === "color") {
       return undoSvgPathColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -86,12 +94,24 @@ const straightLineTool: DrawingTools = {
     if (action.action === "color") {
       return undoSvgPathColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
   onUpdateStyle(data, ctx, key, value) {
     if (key === "color") {
       return updateSvgPathStroke(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateSvgPathWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");
@@ -134,7 +154,7 @@ function makeLineInOrientation(
   const { bounds } = data.container;
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
-  const newSvg = createSvg(width, height);
+  const newSvg = createSvg(width, height, data.style.opacity);
   newSvg.style.overflow = "visible";
   const [start, end] = getStartEnd(width, height, orientation);
   const lineSvg = createLineSvg(data.style);
@@ -197,19 +217,4 @@ function getStartEnd(
     [width, 0],
     [0, height],
   ];
-}
-
-function makeLineSvg(
-  data: DrawingData,
-  viewContainer: HTMLDivElement
-): SVGSVGElement {
-  const lineWidth = parseInt(data.style.lineWidth);
-  const { bounds } = data.container;
-  // const width = bounds
-  const width = bounds.right - bounds.left;
-  const height = bounds.bottom - bounds.top;
-  const newSvg = createSvg(width + lineWidth, height + lineWidth);
-  const lineEle = drawLineFromStartToEnd(data, viewContainer);
-  newSvg.appendChild(lineEle);
-  return newSvg;
 }

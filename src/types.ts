@@ -54,6 +54,7 @@ export interface ToolPropertiesMap {
   color: string;
   fontSize: string;
   background: string;
+  opacity: string;
   [id: string]: string;
 }
 
@@ -189,7 +190,10 @@ export type StyleComponentProps = {
 };
 export type StyleComponent = (props: StyleComponentProps) => JSX.Element;
 export type StyleComponents = {
-  [key: string]: StyleComponent;
+  [key: keyof ToolPropertiesMap]: {
+    order: number;
+    component: StyleComponent;
+  };
 };
 
 export type ReactDrawProps = {

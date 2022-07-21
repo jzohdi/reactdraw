@@ -465,23 +465,11 @@ const defaultEditableProps: ToolPropertiesMap = {
   color: "#000000",
   fontSize: "14",
   background: "transparent",
+  opacity: "1",
 };
 
-// TODO improve this
-
-function getStylesUnion(
-  objects: DrawingData[],
-  styles: ToolStylesMap
-): ToolPropertiesMap {
-  const properties: ToolPropertiesMap = defaultEditableProps;
-  if (!properties) {
-    throw new Error();
-  }
-  return properties;
-}
-
 function isObjEmpty(obj: { [key: string]: any }): boolean {
-  for (var x in obj) {
+  for (var _x in obj) {
     return false;
   }
   return true;
@@ -505,6 +493,9 @@ function getEditStylesFromSelected(
     getObjectFromMap(ctx.objectsMap, i)
   );
 
+  // count so that only shared keys are allowed
+ const counter: {[id: string]: number} = {}
+
   for (const object of selectedObjects) {
     const tool = getToolById(ctx.drawingTools, object.toolId);
     if (tool.getEditableStyles) {
@@ -514,6 +505,7 @@ function getEditStylesFromSelected(
         const currentObjectValue = object.style[key];
         if (currentObjectValue) {
           styles[key] = currentObjectValue;
+		  counter[key] = (counter[key] || 0) + 1
         } else {
           console.error(
             "could not get style value for key:",
@@ -524,6 +516,11 @@ function getEditStylesFromSelected(
         }
       }
     }
+  }
+  for (const key in counter) {
+	if (counter[key] !== selectedObjects.length) {
+		delete styles[key]
+	}
   }
   //   console.log("getEditStylesFromSelected:", styles);
   return styles;

@@ -16,3 +16,5 @@ export { default as bringBackTool } from "./BringBackTool";
 export { default as bringForwardTool } from "./BringForwardTool";
 export { default as ColorStyle } from "./StyleComponents/Color";
 export { default as BackgroundStyle } from "./StyleComponents/Background";
+export { default as LineWidthStyle } from "./StyleComponents/LineWidth";
+export { default as OpacityStyle } from "./StyleComponents/OpacityPicker";

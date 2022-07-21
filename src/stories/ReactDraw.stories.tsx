@@ -21,6 +21,8 @@ import {
   bringForwardTool,
   ColorStyle,
   BackgroundStyle,
+  LineWidthStyle,
+  OpacityStyle,
 } from "../../src";
 
 export default {
@@ -58,8 +60,10 @@ DefaultLayoutWithoutChildren.args = {
   bottomBarTools,
   shouldSelectAfterCreate: true,
   styleComponents: {
-    color: ColorStyle,
-    background: BackgroundStyle,
+    color: { order: 2, component: ColorStyle },
+    background: { order: 3, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
   },
 };
 

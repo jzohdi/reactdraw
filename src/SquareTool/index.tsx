@@ -9,18 +9,22 @@ import {
   undoCreate,
   undoEleBackgroundColor,
   undoEleBorderColor,
+  undoEleLineWidth,
+  undoEleOpacity,
 } from "../utils/undo";
 import {
   updateEleBackgroundColor,
   updateEleBorderColor,
 } from "../utils/updateStyles/color";
+import { updateEleLineWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
   tooltip: "Square Tool",
   icon: <SquareBoldIcon />,
   getEditableStyles() {
-    return ["color", "background", "lineWidth"];
+    return ["color", "background", "lineWidth", "opacity"];
   },
   onDrawStart: (data) => {
     const newSquare = makeSquareDiv(data.style);
@@ -48,6 +52,12 @@ const squareTool: DrawingTools = {
     if (action.action === "background") {
       return undoEleBackgroundColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoEleLineWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -61,6 +71,12 @@ const squareTool: DrawingTools = {
     if (action.action === "background") {
       return undoEleBackgroundColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoEleLineWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
@@ -71,6 +87,12 @@ const squareTool: DrawingTools = {
     }
     if (key === "background") {
       return updateEleBackgroundColor(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateEleLineWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");
@@ -86,5 +108,7 @@ function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement {
   div.style.border = `${style.lineWidth}px solid ${style.color}`;
   div.style.borderRadius = "2px";
   div.style.boxSizing = "border-box";
+  div.style.backgroundColor = style.background;
+  div.style.opacity = style.opacity;
   return div;
 }

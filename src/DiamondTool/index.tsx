@@ -13,20 +13,24 @@ import {
   redoDelete,
   saveCreateToUndoStack,
   undoCreate,
+  undoEleOpacity,
   undoSvgPathColor,
   undoSvgPathFill,
+  undoSvgPathWidth,
 } from "../utils/undo";
 import {
   updateSvgPathFill,
   updateSvgPathStroke,
 } from "../utils/updateStyles/color";
+import { updateSvgPathWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,
   tooltip: "Diamond tool",
   icon: <DiamondBoldIcon />,
   getEditableStyles() {
-    return ["color", "background", "lineWidth"];
+    return ["color", "background", "lineWidth", "opacity"];
   },
   onDrawStart: (data) => {
     const div = data.container.div;
@@ -61,6 +65,12 @@ const diamondTool: DrawingTools = {
     if (action.action === "background") {
       return undoSvgPathFill(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -74,6 +84,12 @@ const diamondTool: DrawingTools = {
     if (action.action === "background") {
       return undoSvgPathFill(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -83,6 +99,12 @@ const diamondTool: DrawingTools = {
     }
     if (key === "background") {
       return updateSvgPathFill(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateSvgPathWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");
@@ -97,7 +119,11 @@ function makeDiamondSvg(data: DrawingData): SVGSVGElement {
   // const width = bounds
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
-  const newSvg = createSvg(width + lineWidth, height + lineWidth);
+  const newSvg = createSvg(
+    width + lineWidth,
+    height + lineWidth,
+    data.style.opacity
+  );
   const path = drawDiamondInBounds(bounds, data.style);
   newSvg.appendChild(path);
   return newSvg;

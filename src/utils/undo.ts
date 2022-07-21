@@ -5,6 +5,7 @@ import {
   ToolPropertiesMap,
 } from "../types";
 import { borderFromStyles } from "./updateStyles/color";
+import { getInnerEleFromSvg } from "./updateStyles/utils";
 import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
 
 export function saveCreateToUndoStack(
@@ -101,6 +102,34 @@ export function deleteCreatedObjects(
   return action;
 }
 
+export function undoEleOpacity(action: ActionObject, ctx: ReactDrawContext) {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const curr = object.style.opacity;
+  const styleToSave = action.data;
+  const ele = object.element;
+  if (!styleToSave || !ele) {
+    throw new Error();
+  }
+  object.style.opacity = styleToSave;
+  ele.style.opacity = object.style.opacity;
+  action.data = curr;
+  return action;
+}
+
+export function undoEleLineWidth(action: ActionObject, ctx: ReactDrawContext) {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const curr = object.style.lineWidth;
+  const styleToSave = action.data;
+  const ele = object.element;
+  if (!styleToSave || !ele) {
+    throw new Error();
+  }
+  object.style.lineWidth = styleToSave;
+  ele.style.border = borderFromStyles(object.style);
+  action.data = curr;
+  return action;
+}
+
 // TODO: Generalize?
 export function undoEleBackgroundColor(
   action: ActionObject,
@@ -173,5 +202,16 @@ function undoSvgStyle(
   object.style[dataKey] = colorTo;
   (<any>path.style)[svgKey] = colorTo;
   action.data = currColor;
+  return action;
+}
+
+export function undoSvgPathWidth(action: ActionObject, ctx: ReactDrawContext) {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const currStyle = object.style.lineWidth;
+  const styleTo = action.data;
+  const path = getInnerEleFromSvg(object);
+  object.style.lineWidth = styleTo;
+  path.style.strokeWidth = styleTo + "px";
+  action.data = currStyle;
   return action;
 }

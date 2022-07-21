@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  ActionObject,
   StringObject,
   StyleComponents,
   ToolPropertiesMap,
   UpdateStyleFn,
 } from "../types";
-import { isNotUndefined } from "../utils/utils";
 
 type EditMenuProps = {
   getEditProps: () => StringObject;
@@ -48,12 +46,17 @@ export default function EditMenu({
   if (keysToRender.length === 0) {
     return <></>;
   }
+  keysToRender.sort((a, b) => {
+    const orderA = styleComponents[a].order;
+    const orderB = styleComponents[b].order;
+    return orderB - orderA;
+  });
   //   console.log(keysToRender);
   //   console.log(state);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {keysToRender.map((key) => {
-        const Component = styleComponents[key];
+        const Component = styleComponents[key].component;
         return (
           <Component
             key={key}

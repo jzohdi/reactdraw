@@ -13,9 +13,13 @@ import {
   redoDelete,
   saveCreateToUndoStack,
   undoCreate,
+  undoEleOpacity,
   undoSvgPathColor,
+  undoSvgPathWidth,
 } from "../utils/undo";
 import { updateSvgPathStroke } from "../utils/updateStyles/color";
+import { updateSvgPathWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
 
@@ -24,12 +28,12 @@ const freeDrawTool: DrawingTools = {
   tooltip: "Free draw tool",
   icon: <PencilBoldIcon />,
   getEditableStyles() {
-    return ["color", "lineWidth"];
+    return ["color", "lineWidth", "opacity"];
   },
   onDrawStart: (data) => {
     const lineWidth = parseInt(data.style.lineWidth);
     // const relativeDiv = makeRelativeDiv();
-    const newSvg = createSvg(lineWidth, lineWidth);
+    const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
     newSvg.style.overflow = "visible";
     // const newPath = createPath();
     // newSvg.style.transform = "scale(1.0, 1.0)";
@@ -43,7 +47,7 @@ const freeDrawTool: DrawingTools = {
   onDrawing: (data, { viewContainer }) => {
     expandContainer(data);
     const boxSize = getBoxSize(data);
-    const newSvg = createSvg(boxSize.width, boxSize.height);
+    const newSvg = createSvg(boxSize.width, boxSize.height, data.style.opacity);
     // console.log(newSvg);
     newSvg.style.overflow = "visible";
     // const relativeDiv = makeRelativeDiv();
@@ -77,6 +81,12 @@ const freeDrawTool: DrawingTools = {
     if (action.action === "color") {
       return undoSvgPathColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -87,12 +97,24 @@ const freeDrawTool: DrawingTools = {
     if (action.action === "color") {
       return undoSvgPathColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoSvgPathWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
   onUpdateStyle(data, ctx, key, value) {
     if (key === "color") {
       return updateSvgPathStroke(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateSvgPathWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");

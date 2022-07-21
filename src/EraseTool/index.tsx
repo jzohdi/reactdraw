@@ -38,7 +38,7 @@ const eraseTool: DrawingTools = {
     const viewContainer = ctx.viewContainer;
     expandContainer(data);
     const boxSize = getBoxSize(data);
-    const newSvg = createSvg(boxSize.width, boxSize.height);
+    const newSvg = createSvg(boxSize.width, boxSize.height, "1");
     const eraserPath = getEraserPath(data, viewContainer);
     newSvg.appendChild(eraserPath);
     data.container.div.innerHTML = "";

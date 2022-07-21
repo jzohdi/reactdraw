@@ -9,18 +9,22 @@ import {
   undoCreate,
   undoEleBackgroundColor,
   undoEleBorderColor,
+  undoEleLineWidth,
+  undoEleOpacity,
 } from "../utils/undo";
 import {
   borderFromStyles,
   updateEleBackgroundColor,
   updateEleBorderColor,
 } from "../utils/updateStyles/color";
+import { updateEleLineWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
   tooltip: "Circle tool",
   icon: <CircleBoldIcon />,
   getEditableStyles() {
-    return ["color", "background", "lineWidth"];
+    return ["color", "background", "lineWidth", "opacity"];
   },
   onDrawStart: (data) => {
     const newSquare = makeCircleDiv(data.style);
@@ -48,6 +52,12 @@ const circlTool: DrawingTools = {
     if (action.action === "background") {
       return undoEleBackgroundColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoEleLineWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -61,6 +71,12 @@ const circlTool: DrawingTools = {
     if (action.action === "background") {
       return undoEleBackgroundColor(action, ctx);
     }
+    if (action.action === "lineWidth") {
+      return undoEleLineWidth(action, ctx);
+    }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
@@ -70,6 +86,12 @@ const circlTool: DrawingTools = {
     }
     if (key === "background") {
       return updateEleBackgroundColor(data, value);
+    }
+    if (key === "lineWidth") {
+      return updateEleLineWidth(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");
@@ -86,5 +108,6 @@ function makeCircleDiv(styles: ToolPropertiesMap): HTMLDivElement {
   newDiv.style.backgroundColor = styles.background;
   newDiv.style.borderRadius = "50%";
   newDiv.style.boxSizing = "border-box";
+  newDiv.style.opacity = styles.opacity;
   return newDiv;
 }

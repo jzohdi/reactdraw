@@ -1,4 +1,5 @@
 import { ActionObject, DrawingData, ToolPropertiesMap } from "../../types";
+import { actionObjToSave, getInnerEleFromSvg } from "./utils";
 
 const colorRegex = /^(#([0-9A-F]{3}){1,2}|transparent)$/i;
 
@@ -11,28 +12,12 @@ function updateSvgStyle(
   if (!value.match(colorRegex)) {
     return undefined;
   }
-  const svg = data.element;
-  if (!svg) {
-    throw new Error();
-  }
-  let path = svg.querySelector("path");
-  if (!path) {
-    path = svg.querySelector("line");
-  }
-  if (!path) {
-    throw new Error();
-  }
+  const path = getInnerEleFromSvg(data);
   const currColor = data.style[dataKey];
   (<any>path.style)[svgKey] = value;
+  console.log(path, svgKey, value);
   data.style[dataKey] = value;
-  const action: ActionObject = {
-    objectId: data.container.id,
-    action: dataKey as string,
-    toolId: data.toolId,
-    toolType: "top-bar-tool",
-    data: currColor,
-  };
-  return action;
+  return actionObjToSave(data, dataKey as string, currColor);
 }
 
 export function updateSvgPathStroke(
@@ -70,13 +55,7 @@ function updateEleStyle(data: DrawingData, value: string, key: string) {
   }
   const currColor = data.style[key];
   data.style[key] = value;
-  const action: ActionObject = {
-    objectId: data.container.id,
-    action: key,
-    toolId: data.toolId,
-    toolType: "top-bar-tool",
-    data: currColor,
-  };
+  const action = actionObjToSave(data, key, currColor);
   return {
     ele,
     action,
@@ -122,12 +101,5 @@ function updateTextStyle(
   const currColor = data.style[dataKey];
   data.style[dataKey] = value;
   (<any>data.container.div.style)[divKey] = value;
-  const action: ActionObject = {
-    objectId: data.container.id,
-    toolId: data.toolId,
-    toolType: "top-bar-tool",
-    action: dataKey as string,
-    data: currColor,
-  };
-  return action;
+  return actionObjToSave(data, dataKey as string, currColor);
 }

@@ -31,14 +31,16 @@ const redoTool: ActionTools = {
       }
     } else if (lastAction.toolType === "batch") {
       const data = lastAction.data as ActionObject[];
+      const result = [];
       for (const obj of data) {
         const tool = getToolById(ctx.drawingTools, obj.toolId);
         if (tool.onRedo) {
-          const result = tool.onRedo(obj, ctx);
-          if (ctx.shouldKeepHistory) {
-            ctx.undoStack.push(result);
-          }
+          result.push(tool.onRedo(obj, ctx));
         }
+      }
+      lastAction.data = result;
+      if (ctx.shouldKeepHistory) {
+        ctx.undoStack.push(lastAction);
       }
     }
   },

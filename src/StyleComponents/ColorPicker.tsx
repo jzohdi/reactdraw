@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useRef } from "react";
 import { StyleComponentProps } from "../types";
 import { makeid } from "../utils";
 
@@ -10,7 +10,7 @@ function ColorPicker({
   label,
   styleValue,
 }: ColorPickerProps) {
-  const id = makeid(5);
+  const id = useRef<string>(makeid(5));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -21,7 +21,7 @@ function ColorPicker({
   return (
     <div>
       <div style={{ textAlign: "left", marginBottom: 5 }}>
-        <label style={{ fontWeight: "bold" }} htmlFor={id}>
+        <label style={{ fontWeight: "bold" }} htmlFor={id.current}>
           {label}
         </label>
       </div>
@@ -51,6 +51,7 @@ function ColorPicker({
             #
           </span>
           <input
+            id={id.current}
             value={styleValue.replace("#", "")}
             onChange={handleChange}
             style={{ width: 80, borderRadius: "0px 5px 5px 0px" }}

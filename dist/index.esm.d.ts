@@ -45,6 +45,7 @@ interface ToolPropertiesMap {
     color: string;
     fontSize: string;
     background: string;
+    opacity: string;
     [id: string]: string;
 }
 type ReactDrawContext = {
@@ -141,7 +142,10 @@ type StyleComponentProps = {
 };
 type StyleComponent = (props: StyleComponentProps) => JSX.Element;
 type StyleComponents = {
-    [key: string]: StyleComponent;
+    [key: keyof ToolPropertiesMap]: {
+        order: number;
+        component: StyleComponent;
+    };
 };
 type ReactDrawProps = {
     children?: ReactChild;
@@ -174,5 +178,9 @@ declare const bringBackTool: ActionTools;
 declare const bringForwardTool: ActionTools;
 declare const ColorStyle: StyleComponent;
 declare const BackgroundStyle: StyleComponent;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle };
+type LineWidthPickerProps = StyleComponentProps;
+declare function LineWidthPicker({ onUpdate, styleKey, styleValue }: LineWidthPickerProps): JSX.Element;
+type OpacityPickerProps = StyleComponentProps;
+declare function LineWidthPicker$0({ onUpdate, styleKey, styleValue }: OpacityPickerProps): JSX.Element;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle };
 //# sourceMappingURL=index.esm.d.ts.map

@@ -9,6 +9,7 @@ export function createPathSvg(style: ToolPropertiesMap): SVGPathElement {
   newPath.setAttribute("fill", "transparent");
   newPath.setAttribute("stroke", style.color);
   newPath.style.strokeWidth = `${style.lineWidth}px`;
+  //   newPath.style.opacity = style.opacity;
   newPath.setAttribute("stroke-linejoin", "round");
   newPath.setAttribute("stroke-linecap", "round");
   return newPath;
@@ -22,12 +23,17 @@ export function createLineSvg(style: ToolPropertiesMap): SVGLineElement {
   newPath.setAttribute("fill", "transparent");
   newPath.setAttribute("stroke", style.color);
   newPath.style.strokeWidth = `${style.lineWidth}px`;
+  //   newPath.style.opacity = style.opacity;
   newPath.setAttribute("stroke-linejoin", "round");
   newPath.setAttribute("stroke-linecap", "round");
   return newPath;
 }
 
-export function createSvg(w: number, h: number): SVGSVGElement {
+export function createSvg(
+  w: number,
+  h: number,
+  opacity: string
+): SVGSVGElement {
   if (!isBrowser()) {
     throw new Error("createSVG called on server");
   }
@@ -42,9 +48,11 @@ export function createSvg(w: number, h: number): SVGSVGElement {
   //   newSVG.setAttribute("version", "1.1");
   //   newSVG.setAttribute("preserveAspectRatio", "none");
   newSVG.setAttribute("viewbox", `0 0 ${w} ${h}`);
+  newSVG.style.overflow = "visible";
   newSVG.style.position = "absolute";
   newSVG.style.top = "0";
   newSVG.style.left = "0";
+  newSVG.style.opacity = opacity;
   //   newSVG.style.transform = "scale(1.0, 1.0)";
   newSVG.style.width = "100%";
   newSVG.style.height = "100%";

@@ -12,12 +12,15 @@ import {
   redoDelete,
   saveCreateToUndoStack,
   undoCreate,
+  undoEleOpacity,
 } from "../utils/undo";
 import {
   updateEleBackgroundColor,
   updateTextBackgroundColor,
   updateTextColor,
 } from "../utils/updateStyles/color";
+import { updateEleLineWidth } from "../utils/updateStyles/linewidth";
+import { updateEleOpacity } from "../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../utils/utils";
 
 const textAreaTool: DrawingTools = {
@@ -32,7 +35,7 @@ const textAreaTool: DrawingTools = {
   tooltip: "Textarea Tool",
   cursor: "text",
   getEditableStyles() {
-    return ["color", "background", "fontSize", "lineWidth"];
+    return ["color", "background", "fontSize", "opacity"];
   },
   onDrawStart: (data, ctx) => {
     setupContainer(data, ctx);
@@ -73,6 +76,9 @@ const textAreaTool: DrawingTools = {
     if (action.action === "background") {
       return undoTextAreaBackground(action, ctx);
     }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -89,6 +95,9 @@ const textAreaTool: DrawingTools = {
     if (action.action === "background") {
       return undoTextAreaBackground(action, ctx);
     }
+    if (action.action === "opacity") {
+      return undoEleOpacity(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
@@ -101,6 +110,9 @@ const textAreaTool: DrawingTools = {
     }
     if (key === "background") {
       return updateTextBackgroundColor(data, value);
+    }
+    if (key === "opacity") {
+      return updateEleOpacity(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");
@@ -221,6 +233,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   div.appendChild(styleTag);
 
   const cursorDiv = makeCursorDiv();
+  cursorDiv.style.opacity = data.style.opacity;
   data.element = cursorDiv;
 
   function setBoundsOnTyping() {
