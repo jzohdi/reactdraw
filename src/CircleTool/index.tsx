@@ -3,9 +3,16 @@ import React from "react";
 import { CIRCLE_TOOL_ID } from "../constants";
 import { DrawingTools, ToolPropertiesMap } from "../types";
 import { setContainerRect } from "../utils";
-import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoEleBackgroundColor,
+  undoEleBorderColor,
+} from "../utils/undo";
 import {
   borderFromStyles,
+  updateEleBackgroundColor,
   updateEleBorderColor,
 } from "../utils/updateStyles/color";
 const circlTool: DrawingTools = {
@@ -35,6 +42,12 @@ const circlTool: DrawingTools = {
     if (action.action === "create") {
       return undoCreate(action, ctx);
     }
+    if (action.action === "color") {
+      return undoEleBorderColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoEleBackgroundColor(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -42,12 +55,21 @@ const circlTool: DrawingTools = {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
     }
+    if (action.action === "color") {
+      return undoEleBorderColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoEleBackgroundColor(action, ctx);
+    }
     console.error("unsupported action:", action);
     throw new Error();
   },
   onUpdateStyle(data, ctx, key, value) {
     if (key === "color") {
       return updateEleBorderColor(data, value);
+    }
+    if (key === "background") {
+      return updateEleBackgroundColor(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");

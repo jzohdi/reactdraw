@@ -26,6 +26,7 @@ import {
   getObjectFromMap,
   getRelativePoint,
   getTouchCoords,
+  isNotUndefined,
 } from "../utils/utils";
 import {
   getSelectedIdsFromFullState,
@@ -34,6 +35,7 @@ import {
 } from "../utils/select/utils";
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
 import EditMenu from "./EditMenu";
+import { pushActionToStack } from "../utils/undo";
 
 export default function ReactDraw({
   children,
@@ -327,8 +329,7 @@ export default function ReactDraw({
     const selectedIds = getSelectedIdsFromFullState(ctx);
     if (selectedIds.length === 0) {
       globalStyles.current[key] = value;
-      //   console.log(globalStyles.current);
-      return;
+      return [];
     }
     const selectObjects = selectedIds.map((id) =>
       getObjectFromMap(ctx.objectsMap, id)
@@ -341,8 +342,24 @@ export default function ReactDraw({
       return undefined;
     });
     // TODO: notify
+	pushStyleUpdateToStack(allActions, ctx);
     return allActions;
   };
+
+  const pushStyleUpdateToStack = (actions: (ActionObject | undefined)[], ctx: ReactDrawContext) => {
+	const filterUndefined: ActionObject[] = actions.filter(isNotUndefined<ActionObject>);
+	if (filterUndefined.length === 0) {
+		return;
+	}
+	const action: ActionObject = {
+		data: filterUndefined,
+		objectId: "",
+		toolId: "",
+		toolType: "batch",
+		action: "batch"
+	}
+	pushActionToStack(action, ctx);
+  }
 
   // TODO: handle non-style menu components
   const hasMenuItems = !!styleComponents && !isObjEmpty(styleComponents);
@@ -373,14 +390,13 @@ export default function ReactDraw({
           displayMap={bottomToolsDisplayMap}
           tools={bottomBarTools}
           dispatch={dispatchBottomToolCtx}
+          hasMenu={hasMenuItems}
         >
-          {hasMenuItems && (
-            <EditMenu
-              getEditProps={handleGetEditProps}
-              styleComponents={styleComponents}
-              onUpdateStyle={handleUpdateStyles}
-            />
-          )}
+          <EditMenu
+            getEditProps={handleGetEditProps}
+            styleComponents={styleComponents}
+            onUpdateStyle={handleUpdateStyles}
+          />
         </BottomToolBar>
       )}
       <style>{`

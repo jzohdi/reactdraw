@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionTools } from "../types";
+import { ActionObject, ActionTools } from "../types";
 import { RedoIcon } from "@jzohdi/jsx-icons";
 import { getToolById } from "../utils/utils";
 
@@ -27,6 +27,17 @@ const redoTool: ActionTools = {
         const result = tool.onRedo(lastAction, ctx);
         if (ctx.shouldKeepHistory) {
           ctx.undoStack.push(result);
+        }
+      }
+    } else if (lastAction.toolType === "batch") {
+      const data = lastAction.data as ActionObject[];
+      for (const obj of data) {
+        const tool = getToolById(ctx.drawingTools, obj.toolId);
+        if (tool.onRedo) {
+          const result = tool.onRedo(obj, ctx);
+          if (ctx.shouldKeepHistory) {
+            ctx.undoStack.push(result);
+          }
         }
       }
     }

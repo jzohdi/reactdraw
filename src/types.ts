@@ -107,11 +107,15 @@ export type DrawingTools = {
     ctx: ReactDrawContext,
     key: keyof ToolPropertiesMap,
     value: string
-  ) => ActionObject;
+  ) => ActionObject | undefined;
   cursor?: string;
 };
 
-export type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
+export type ActionType =
+  | "top-bar-tool"
+  | "bottom-bar-tool"
+  | "menu-tool"
+  | "batch";
 export type ActionKey =
   | "color"
   | "delete"
@@ -176,7 +180,7 @@ export type BottomToolDisplayMap = Map<string, DisplayMode>;
 export type UpdateStyleFn = (
   key: keyof ToolPropertiesMap,
   value: string
-) => (ActionObject | undefined)[] | undefined;
+) => (ActionObject | undefined)[];
 
 export type StyleComponentProps = {
   onUpdate: (key: keyof ToolPropertiesMap, value: string) => void;

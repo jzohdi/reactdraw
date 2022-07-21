@@ -16,6 +16,7 @@ export type BottomToolBarProps = {
   displayMap: BottomToolDisplayMap;
   children: ReactChild;
   dispatch: (fn: (ctx: ReactDrawContext) => void) => void;
+  hasMenu: boolean;
 };
 
 const BottomBarContainer = styled.div`
@@ -126,6 +127,7 @@ export function BottomToolBar({
   tools,
   displayMap,
   dispatch,
+  hasMenu,
   children,
 }: BottomToolBarProps) {
   //   console.log(displayMap);
@@ -143,7 +145,7 @@ export function BottomToolBar({
     <>
       {showMenu && <Menu>{children}</Menu>}
       <BottomBarContainer>
-        {children && (
+        {hasMenu && (
           <ToolTip text="Menu" top="-40px" left="10px">
             <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
               <MenuIcon size={30} />

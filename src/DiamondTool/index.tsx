@@ -9,8 +9,17 @@ import {
 } from "../types";
 import { scaleSvg, setContainerRect } from "../utils";
 import { createPathSvg, createSvg } from "../utils/svgUtils";
-import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
-import { updateSvgPathStroke } from "../utils/updateStyles/color";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoSvgPathColor,
+  undoSvgPathFill,
+} from "../utils/undo";
+import {
+  updateSvgPathFill,
+  updateSvgPathStroke,
+} from "../utils/updateStyles/color";
 
 const diamondTool: DrawingTools = {
   id: DIAMOND_TOOL_ID,
@@ -46,6 +55,12 @@ const diamondTool: DrawingTools = {
     if (action.action === "create") {
       return undoCreate(action, ctx);
     }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoSvgPathFill(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
@@ -53,12 +68,21 @@ const diamondTool: DrawingTools = {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
     }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoSvgPathFill(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
   onUpdateStyle(data, ctx, key, value) {
     if (key === "color") {
       return updateSvgPathStroke(data, value);
+    }
+    if (key === "background") {
+      return updateSvgPathFill(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");

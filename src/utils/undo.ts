@@ -1,4 +1,10 @@
-import { ActionObject, DrawingData, ReactDrawContext } from "../types";
+import {
+  ActionObject,
+  DrawingData,
+  ReactDrawContext,
+  ToolPropertiesMap,
+} from "../types";
+import { borderFromStyles } from "./updateStyles/color";
 import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
 
 export function saveCreateToUndoStack(
@@ -92,5 +98,80 @@ export function deleteCreatedObjects(
     deleteObjectAndNotify(objectId, ctx);
   }
   action.action = "delete";
+  return action;
+}
+
+// TODO: Generalize?
+export function undoEleBackgroundColor(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const currColor = object.style.background;
+  const colorTo = action.data;
+  const ele = object.element;
+  if (!colorTo || !ele) {
+    throw new Error();
+  }
+  object.style.background = colorTo;
+  ele.style.backgroundColor = colorTo;
+  action.data = currColor;
+  return action;
+}
+
+export function undoEleBorderColor(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const currColor = object.style.color;
+  const colorTo = action.data;
+  const ele = object.element;
+  if (!colorTo || !ele) {
+    throw new Error();
+  }
+  object.style.color = colorTo;
+  ele.style.border = borderFromStyles(object.style);
+  action.data = currColor;
+  return action;
+}
+
+export function undoSvgPathColor(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  return undoSvgStyle(action, ctx, "color", "stroke");
+}
+
+export function undoSvgPathFill(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  return undoSvgStyle(action, ctx, "background", "fill");
+}
+
+function undoSvgStyle(
+  action: ActionObject,
+  ctx: ReactDrawContext,
+  dataKey: keyof ToolPropertiesMap,
+  svgKey: string
+) {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const currColor = object.style[dataKey];
+  const colorTo = action.data;
+  const svg = object.element;
+  if (!svg) {
+    throw new Error();
+  }
+  let path = svg.querySelector("path");
+  if (!path) {
+    path = svg.querySelector("line");
+  }
+  if (!path) {
+    throw new Error();
+  }
+  object.style[dataKey] = colorTo;
+  (<any>path.style)[svgKey] = colorTo;
+  action.data = currColor;
   return action;
 }

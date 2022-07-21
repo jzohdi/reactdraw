@@ -5,7 +5,12 @@ import { setContainerRect } from "../utils";
 import { drawLineFromStartToEnd } from "../utils/onDrawingUtils";
 import { createCircle, createLineSvg, createSvg } from "../utils/svgUtils";
 import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
-import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoSvgPathColor,
+} from "../utils/undo";
 import { updateSvgPathStroke } from "../utils/updateStyles/color";
 
 type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
@@ -68,12 +73,18 @@ const straightLineTool: DrawingTools = {
     if (action.action === "create") {
       return undoCreate(action, ctx);
     }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
   onRedo(action, ctx) {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
     }
     console.error("unsupported action:", action);
     throw new Error();

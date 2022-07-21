@@ -3,8 +3,17 @@ import { SQUARE_TOOL_ID } from "../constants";
 import { DrawingTools, ToolPropertiesMap } from "../types";
 import { SquareBoldIcon } from "@jzohdi/jsx-icons";
 import { setContainerRect } from "../utils";
-import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
-import { updateEleBorderColor } from "../utils/updateStyles/color";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoEleBackgroundColor,
+  undoEleBorderColor,
+} from "../utils/undo";
+import {
+  updateEleBackgroundColor,
+  updateEleBorderColor,
+} from "../utils/updateStyles/color";
 
 const squareTool: DrawingTools = {
   id: SQUARE_TOOL_ID,
@@ -33,12 +42,24 @@ const squareTool: DrawingTools = {
     if (action.action === "create") {
       return undoCreate(action, ctx);
     }
+    if (action.action === "color") {
+      return undoEleBorderColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoEleBackgroundColor(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
   onRedo(action, ctx) {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoEleBorderColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoEleBackgroundColor(action, ctx);
     }
     console.error("unsupported action:", action);
     throw new Error();
@@ -47,6 +68,9 @@ const squareTool: DrawingTools = {
   onUpdateStyle(data, ctx, key, value) {
     if (key === "color") {
       return updateEleBorderColor(data, value);
+    }
+    if (key === "background") {
+      return updateEleBackgroundColor(data, value);
     }
     console.log(key, value, data);
     throw new Error("unknown update style action");

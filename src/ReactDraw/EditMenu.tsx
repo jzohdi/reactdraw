@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
+  ActionObject,
   StringObject,
   StyleComponents,
   ToolPropertiesMap,
   UpdateStyleFn,
 } from "../types";
+import { isNotUndefined } from "../utils/utils";
 
 type EditMenuProps = {
   getEditProps: () => StringObject;
@@ -39,8 +41,7 @@ export default function EditMenu({
   // TODO: handle undo/redo
   const onUpdate = (key: keyof ToolPropertiesMap, value: string) => {
     setState({ ...state, [key]: value });
-    const result = onUpdateStyle(key, value);
-    console.log("onUpdateResult", result);
+    onUpdateStyle(key, value);
   };
 
   // TODO: return some message

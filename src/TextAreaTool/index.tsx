@@ -13,6 +13,11 @@ import {
   saveCreateToUndoStack,
   undoCreate,
 } from "../utils/undo";
+import {
+  updateEleBackgroundColor,
+  updateTextBackgroundColor,
+  updateTextColor,
+} from "../utils/updateStyles/color";
 import { getObjectFromMap } from "../utils/utils";
 
 const textAreaTool: DrawingTools = {
@@ -58,8 +63,15 @@ const textAreaTool: DrawingTools = {
   onUndo(action, ctx) {
     if (action.action === "create") {
       return undoCreate(action, ctx);
-    } else if (action.action === "input") {
+    }
+    if (action.action === "input") {
       return undoTextAreaInput(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoTextAreaColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoTextAreaBackground(action, ctx);
     }
     console.error("Unsupported action: ", action);
     throw new Error();
@@ -67,8 +79,15 @@ const textAreaTool: DrawingTools = {
   onRedo(action, ctx) {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
-    } else if (action.action === "input") {
+    }
+    if (action.action === "input") {
       return undoTextAreaInput(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoTextAreaColor(action, ctx);
+    }
+    if (action.action === "background") {
+      return undoTextAreaBackground(action, ctx);
     }
     console.error("unsupported action:", action);
     throw new Error();
@@ -80,29 +99,15 @@ const textAreaTool: DrawingTools = {
     if (key === "color") {
       return updateTextColor(data, value);
     }
+    if (key === "background") {
+      return updateTextBackgroundColor(data, value);
+    }
     console.log(key, value, data);
     throw new Error("unknown update style action");
   },
 };
 
 export default textAreaTool;
-
-function updateTextColor(data: DrawingData, value: string): ActionObject {
-  const ele = data.element;
-  if (!ele) {
-    throw new Error();
-  }
-  const currColor = data.style.color;
-  data.style.color = value;
-  ele.style.color = value;
-  return {
-    objectId: data.container.id,
-    toolId: data.toolId,
-    toolType: "top-bar-tool",
-    action: "color",
-    data: currColor,
-  };
-}
 
 function undoTextAreaInput(
   action: ActionObject,
@@ -117,6 +122,32 @@ function undoTextAreaInput(
   const undoInput = action.data as string;
   ele.innerHTML = undoInput;
   action.data = currentInput;
+  return action;
+}
+
+function undoTextAreaColor(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  return undoTextAreaStyle(action, ctx, "color", "color");
+}
+
+function undoTextAreaBackground(action: ActionObject, ctx: ReactDrawContext) {
+  return undoTextAreaStyle(action, ctx, "background", "backgroundColor");
+}
+
+function undoTextAreaStyle(
+  action: ActionObject,
+  ctx: ReactDrawContext,
+  dataKey: keyof ToolPropertiesMap,
+  divKey: string
+) {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const currColor = object.style[dataKey];
+  const colorTo = action.data;
+  object.style[dataKey] = colorTo;
+  (object.container.div.style as any)[divKey] = colorTo;
+  action.data = currColor;
   return action;
 }
 
@@ -178,6 +209,8 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   div.style.padding = padding + "px";
   div.style.borderRadius = "2px";
   div.style.boxSizing = "border-box";
+  div.style.color = data.style.color;
+  div.style.fontSize = `${data.style.fontSize}px`;
   const styleTag = document.createElement("style");
   styleTag.innerHTML = `
 	.react-draw-cursor {
@@ -187,7 +220,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
 
   div.appendChild(styleTag);
 
-  const cursorDiv = makeCursorDiv(data.style);
+  const cursorDiv = makeCursorDiv();
   data.element = cursorDiv;
 
   function setBoundsOnTyping() {
@@ -211,11 +244,6 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   }, 0);
 }
 
-type TextAreaCustomData = {
-  handler: (() => void) | null;
-  capture: ((...args: any) => void) | null;
-  lastCapture: number | null;
-};
 function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
   const div = data.element as HTMLDivElement;
   const customData = data.customData;
@@ -248,10 +276,8 @@ function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
   customData.set("capture", captureDidType);
 }
 
-function makeCursorDiv(style: ToolPropertiesMap) {
+function makeCursorDiv() {
   const div = document.createElement("div");
-  div.style.fontSize = `${style.fontSize}px`;
-  div.style.color = style.color;
   div.setAttribute("contenteditable", "true");
   div.style.minWidth = "1px";
   div.style.height = "100%";

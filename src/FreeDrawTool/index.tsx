@@ -9,7 +9,12 @@ import {
   //   makeRelativeDiv,
 } from "../utils";
 import { createCircle, createPathSvg, createSvg } from "../utils/svgUtils";
-import { redoDelete, saveCreateToUndoStack, undoCreate } from "../utils/undo";
+import {
+  redoDelete,
+  saveCreateToUndoStack,
+  undoCreate,
+  undoSvgPathColor,
+} from "../utils/undo";
 import { updateSvgPathStroke } from "../utils/updateStyles/color";
 
 const cursorPencilBase64 = `PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjU4NTggMC41ODU3ODZDMTEuMzY2OCAtMC4xOTUyNjIgMTIuNjMzMiAtMC4xOTUyNjIgMTMuNDE0MiAwLjU4NTc4NkMxNC4xOTUzIDEuMzY2ODMgMTQuMTk1MyAyLjYzMzE2IDEzLjQxNDIgMy40MTQyMUwxMi42MjEzIDQuMjA3MTFMOS43OTI4OSAxLjM3ODY4TDEwLjU4NTggMC41ODU3ODZaIiBmaWxsPSIjMTExODI3Ii8+CjxwYXRoIGQ9Ik04LjM3ODY4IDIuNzkyODlMMCAxMS4xNzE2VjE0SDIuODI4NDJMMTEuMjA3MSA1LjYyMTMyTDguMzc4NjggMi43OTI4OVoiIGZpbGw9IiMxMTE4MjciLz4KPC9zdmc+`;
@@ -69,12 +74,18 @@ const freeDrawTool: DrawingTools = {
     if (action.action === "create") {
       return undoCreate(action, ctx);
     }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
+    }
     console.error("Unsupported action: ", action);
     throw new Error();
   },
   onRedo(action, ctx) {
     if (action.action === "delete") {
       return redoDelete(action, ctx);
+    }
+    if (action.action === "color") {
+      return undoSvgPathColor(action, ctx);
     }
     console.error("unsupported action:", action);
     throw new Error();

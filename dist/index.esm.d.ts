@@ -89,10 +89,10 @@ type DrawingTools = {
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
-    onUpdateStyle?: (data: DrawingData, ctx: ReactDrawContext, key: keyof ToolPropertiesMap, value: string) => ActionObject;
+    onUpdateStyle?: (data: DrawingData, ctx: ReactDrawContext, key: keyof ToolPropertiesMap, value: string) => ActionObject | undefined;
     cursor?: string;
 };
-type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool";
+type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool" | "batch";
 type ActionKey = "color" | "delete" | "create" | string | "drag" | "resize" | "rotate" | "input";
 type ActionObject = {
     toolType: ActionType;

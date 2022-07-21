@@ -2,9 +2,6 @@ import React, { ChangeEvent } from "react";
 import { StyleComponentProps } from "../types";
 import { makeid } from "../utils";
 
-const regex = /^([0-9A-F]{3}){1,2}$/i;
-
-// type
 type ColorPickerProps = StyleComponentProps & { label: string };
 
 function ColorPicker({
@@ -17,7 +14,8 @@ function ColorPicker({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    onUpdate(styleKey, "#" + value);
+    const hex = value === "transparent" ? value : "#" + value;
+    onUpdate(styleKey, hex);
   };
 
   return (

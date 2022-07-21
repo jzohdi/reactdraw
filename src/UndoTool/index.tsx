@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionTools } from "../types";
+import { ActionObject, ActionTools } from "../types";
 import { UndoIcon } from "@jzohdi/jsx-icons";
 import { getToolById } from "../utils/utils";
 
@@ -26,6 +26,18 @@ const undoTool: ActionTools = {
         const result = tool.onUndo(lastAction, ctx);
         if (ctx.shouldKeepHistory) {
           ctx.redoStack.push(result);
+        }
+      }
+    }
+    if (lastAction.toolType === "batch") {
+      const data = lastAction.data as ActionObject[];
+      for (const obj of data) {
+        const tool = getToolById(ctx.drawingTools, obj.toolId);
+        if (tool.onUndo) {
+          const result = tool.onUndo(obj, ctx);
+          if (ctx.shouldKeepHistory) {
+            ctx.redoStack.push(result);
+          }
         }
       }
     }
