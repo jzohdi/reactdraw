@@ -1,6 +1,6 @@
-import { DrawingData, Point, RectBounds } from "../../types";
+import { DrawingData, OnResizeContext, Point, RectBounds } from "../../types";
 
-export type ResizeFunction = (data: DrawingData, pointDiff: Point) => void;
+export type ResizeFunction = (data: DrawingData, ctx: OnResizeContext) => void;
 
 export type DragUndoData = {
   objectId: string;

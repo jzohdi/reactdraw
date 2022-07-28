@@ -31,7 +31,7 @@ function startResizing(
     throw new Error("start rotating got incorrect number of objects to handle");
   }
   const data = selectedObject[0];
-  const pointDiff: Point = getPointDiff(relativePoint, prevPoint);
+  //   const pointDiff: Point = getPointDiff(relativePoint, prevPoint);
   const toolUsed = getToolById(ctx.drawingTools, data.toolId);
   const newResizeCtx: OnResizeContext = {
     viewContainer: ctx.viewContainer,
@@ -42,7 +42,7 @@ function startResizing(
   if (toolUsed.doResize) {
     toolUsed.doResize(data, newResizeCtx);
   } else {
-    resizeFn(data, pointDiff);
+    resizeFn(data, newResizeCtx);
   }
   toolUsed.onResize(data, newResizeCtx);
   state.prevPoint = relativePoint;
