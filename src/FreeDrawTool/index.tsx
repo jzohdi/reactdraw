@@ -2,6 +2,7 @@ import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import { DrawingData, DrawingTools, Point } from "../types";
 import {
+  distance,
   expandContainer,
   getBoxSize,
   mapPointToRect,
@@ -42,6 +43,7 @@ const freeDrawTool: DrawingTools = {
     data.element = newSvg;
   },
   onDrawing: (data, { viewContainer }) => {
+    smoothCoords(data.coords);
     expandContainer(data);
     const boxSize = getBoxSize(data);
     const newSvg = createSvg(boxSize.width, boxSize.height, data.style.opacity);
@@ -128,80 +130,111 @@ function getPathPoint(curr: Point, index: number): string {
 }
 
 /**
- * function getPathDString(
-  data: DrawingData,
-  viewContainer: HTMLDivElement
-): string {
-  let pathString = "";
-  let prev: Point = data.coords[0];
-  let prev2: Point | null = null;
-  for (let i = 0; i < data.coords.length; i++) {
-    const point = data.coords[i];
-    const mappedPoint = mapPointToRect(point, data.container, viewContainer);
-    const next =
-      i < data.coords.length - 1
-        ? mapPointToRect(data.coords[i + 1], data.container, viewContainer)
-        : mappedPoint;
-    if (i === 0) {
-      pathString += `M ${mappedPoint[0]} ${mappedPoint[1]}`;
-    } else {
-      pathString += bezierCommand(mappedPoint, prev, prev2, next);
-    }
-
-    // pathString += getPathPoint(mappedPoint, lastPoint, i);
-    if (i !== data.coords.length - 1) {
-      pathString += " ";
-    }
-    prev = mappedPoint;
-    prev2 = prev;
-  }
-  return pathString;
-}
-
-function lineProperties(pointA: Point, pointB: Point) {
-  const lengthX = pointB[0] - pointA[0];
-  const lengthY = pointB[1] - pointA[1];
-  return {
-    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
-    angle: Math.atan2(lengthY, lengthX),
-  };
-}
-
-function controlPoint(
-  current: Point,
-  previous: Point | null,
-  next: Point,
-  reverse: boolean
-) {
-  // When 'current' is the first or last point of the array
-  // 'previous' or 'next' don't exist.
-  // Replace with 'current'
-  const p = previous || current;
-  const n = next || current;
-  // The smoothing ratio
-  const smoothing = 0.2;
-  // Properties of the opposed-line
-  const o = lineProperties(p, n);
-  // If is end-control-point, add PI to the angle to go backward
-  const angle = o.angle + (reverse ? Math.PI : 0);
-  const length = o.length * smoothing;
-  // The control point position is relative to the current point
-  const x = current[0] + Math.cos(angle) * length;
-  const y = current[1] + Math.sin(angle) * length;
-  return [x, y];
-}
-
-function bezierCommand(
-  point: Point,
-  prev: Point,
-  prev2: Point | null,
-  next: Point
-) {
-  // start control point
-  const [cpsX, cpsY] = controlPoint(prev, prev2, point, false);
-  // end control point
-  const [cpeX, cpeY] = controlPoint(point, prev, next, true);
-  return `C ${cpsX},${cpsY} ${cpeX},${cpeY} ${point[0]},${point[1]}`;
-}
-
+ 
+ function getPathDString(
+   data: DrawingData,
+   viewContainer: HTMLDivElement
+ ): string {
+   let pathString = "";
+   let prev: Point = data.coords[0];
+   let prev2: Point | null = null;
+   for (let i = 0; i < data.coords.length; i++) {
+	 const point = data.coords[i];
+	 const mappedPoint = mapPointToRect(point, data.container, viewContainer);
+	 const next =
+	   i < data.coords.length - 1
+		 ? mapPointToRect(data.coords[i + 1], data.container, viewContainer)
+		 : mappedPoint;
+	 if (i === 0) {
+	   pathString += `M ${mappedPoint[0]} ${mappedPoint[1]}`;
+	 } else {
+	   pathString += bezierCommand(mappedPoint, prev, prev2, next);
+	 }
+ 
+	 // pathString += getPathPoint(mappedPoint, lastPoint, i);
+	 if (i !== data.coords.length - 1) {
+	   pathString += " ";
+	 }
+	 prev = mappedPoint;
+	 prev2 = prev;
+   }
+   return pathString;
+ }
+ 
+ function lineProperties(pointA: Point, pointB: Point) {
+   const lengthX = pointB[0] - pointA[0];
+   const lengthY = pointB[1] - pointA[1];
+   return {
+	 length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+	 angle: Math.atan2(lengthY, lengthX),
+   };
+ }
+ 
+ function controlPoint(
+   current: Point,
+   previous: Point | null,
+   next: Point,
+   reverse: boolean
+ ) {
+   // When 'current' is the first or last point of the array
+   // 'previous' or 'next' don't exist.
+   // Replace with 'current'
+   const p = previous || current;
+   const n = next || current;
+   // The smoothing ratio
+   const smoothing = 0.2;
+   // Properties of the opposed-line
+   const o = lineProperties(p, n);
+   // If is end-control-point, add PI to the angle to go backward
+   const angle = o.angle + (reverse ? Math.PI : 0);
+   const length = o.length * smoothing;
+   // The control point position is relative to the current point
+   const x = current[0] + Math.cos(angle) * length;
+   const y = current[1] + Math.sin(angle) * length;
+   return [x, y];
+ }
+ 
+ function bezierCommand(
+   point: Point,
+   prev: Point,
+   prev2: Point | null,
+   next: Point
+ ) {
+   // start control point
+   const [cpsX, cpsY] = controlPoint(prev, prev2, point, false);
+   // end control point
+   const [cpeX, cpeY] = controlPoint(point, prev, next, true);
+   return `C ${cpsX},${cpsY} ${cpeX},${cpeY} ${point[0]},${point[1]}`;
+ }
  */
+
+/* input: [
+	[1, 1],
+	[2, 3],
+	[10, 10]
+]
+*/
+function smoothCoords(coords: Point[]): void {
+  const cLen = coords.length;
+  if (cLen < 3) {
+    return;
+  }
+  const first = coords[cLen - 3];
+  //  const middle = coords[cLen - 2];
+  const last = coords[cLen - 1];
+  if (distance(first, last) < 10) {
+    coords.splice(cLen - 2, 1);
+  }
+  if (distance(first, last) < 20) {
+    coords[cLen - 2] = average(first, last);
+  }
+}
+
+function average(a: Point, b: Point): Point {
+  const [ax, ay] = a;
+  const [bx, by] = b;
+  return [
+    Math.min(ax, bx) + Math.abs(ax - bx) / 2,
+    Math.min(ay, by) + Math.abs(ay - by) / 2,
+  ];
+}
