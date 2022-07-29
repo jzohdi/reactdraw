@@ -59,21 +59,10 @@ function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
   const yNew = px * s + py * c;
 
   return [xNew + cx, yNew + cy];
-  //   const [px, py] = point;
-  //   return [
-  //     px * Math.cos(angle) - py * Math.sin(angle),
-  //     py * Math.cos(angle) + px * Math.sin(angle),
-  //   ];
-  //   angle += ( * Math.PI) / 180;
-  //   return [
-  //     Math.cos(angle) * (px - cx) - Math.sin(angle) * (py - cy) + cx,
-  //     Math.sin(angle) * (px - cx) + Math.cos(angle) * (py - cy) + cy,
-  //   ];
 }
 
 export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
-  console.log({ xDiff, yDiff });
   const container = data.container;
   const bounds = container.bounds;
   const div = container.div;
@@ -81,7 +70,6 @@ export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
     bounds.left + 5 >= bounds.right + xDiff ||
     bounds.bottom - 5 <= bounds.top + yDiff
   ) {
-    // console.log("got here");
     return;
   }
   bounds.top += yDiff;
@@ -89,20 +77,9 @@ export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
   div.style.top = bounds.top + "px";
   div.style.width = bounds.right - bounds.left + "px";
   div.style.height = bounds.bottom - bounds.top + "px";
-  //   const [xDiff2, yDiff2] = [
-  //     ctx.newPoint[0] - ctx.previousPoint[0],
-  //     ctx.newPoint[1] - ctx.previousPoint[1],
-  //   ];
-  //   bounds.left += xDiff2;
-  //   div.style.left = bounds.left + "px";
 }
 
 export function resizeNW(data: DrawingData, ctx: OnResizeContext) {
-  //   const point = [
-  //     ctx.newPoint[0] - ctx.previousPoint[0],
-  //     ctx.newPoint[1] - ctx.previousPoint[1],
-  //   ];
-  //   const [xDiff, yDiff] = point;
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
   const container = data.container;
   const bounds = container.bounds;

@@ -76,19 +76,11 @@ const eraseTool: DrawingTools = {
       pushActionToStack(action, ctx);
     }
   },
-  onUndo(action, ctx) {
-    if (action.action === "delete") {
-      return recreateDeletedObjects(action, ctx);
-    }
-    console.error("unrecognized action", action);
-    throw new Error();
+  undoHandlers: {
+    delete: recreateDeletedObjects,
   },
-  onRedo(action, ctx) {
-    if (action.action === "create") {
-      return deleteCreatedObjects(action, ctx);
-    }
-    console.error("unrecognized action", action);
-    throw new Error();
+  redoHandlers: {
+    create: deleteCreatedObjects,
   },
   onResize(data, ctx) {},
 };

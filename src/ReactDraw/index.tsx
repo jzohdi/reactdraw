@@ -336,8 +336,9 @@ export default function ReactDraw({
     );
     const allActions = selectObjects.map((obj) => {
       const tool = getToolById(ctx.drawingTools, obj.toolId);
-      if (tool.onUpdateStyle) {
-        return tool.onUpdateStyle(obj, ctx, key, value);
+	  const handlers = tool.styleHandlers
+      if (handlers && handlers[key]) {
+        return handlers[key](obj,  value, ctx);
       }
       return undefined;
     });
@@ -498,8 +499,8 @@ function getEditStylesFromSelected(
 
   for (const object of selectedObjects) {
     const tool = getToolById(ctx.drawingTools, object.toolId);
-    if (tool.getEditableStyles) {
-      const toolsAllowedStyles = tool.getEditableStyles();
+    if (tool.styleHandlers) {
+      const toolsAllowedStyles = Object.keys(tool.styleHandlers);
       for (const key of toolsAllowedStyles) {
         // TODO
         const currentObjectValue = object.style[key];

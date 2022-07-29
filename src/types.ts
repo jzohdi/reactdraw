@@ -72,7 +72,15 @@ export type ReactDrawContext = {
   selectDrawingTool: (toolId: string) => void;
   selectObject: (object: DrawingData) => void;
 };
-
+export type UpdateStyleHandler = (
+  data: DrawingData,
+  value: string,
+  ctx: ReactDrawContext
+) => ActionObject | undefined;
+export type UndoHandler = (
+  action: ActionObject,
+  ctx: ReactDrawContext
+) => ActionObject;
 export type ToolStylesMap = Map<string, ToolPropertiesMap>;
 export type StringObject = { [key: string]: string };
 /**
@@ -85,7 +93,6 @@ export type DrawingTools = {
   icon: JSX.Element;
   tooltip?: string;
   id: string;
-  getEditableStyles?: () => (keyof ToolPropertiesMap)[];
   setupCustomState?: (state: CustomState) => any;
   onPickTool?: (ctx: ReactDrawContext) => void;
   onUnPickTool?: (ctx: ReactDrawContext) => void;
@@ -100,15 +107,18 @@ export type DrawingTools = {
   onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
   onKeyPress?: (event: KeyboardEvent, ctx: ReactDrawContext) => void;
   onUnMount?: (ctx: ReactDrawContext) => void;
-  onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
-  onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  //   onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  //   onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
   onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
-  onUpdateStyle?: (
-    data: DrawingData,
-    ctx: ReactDrawContext,
-    key: keyof ToolPropertiesMap,
-    value: string
-  ) => ActionObject | undefined;
+  undoHandlers?: {
+    [action: ActionKey]: UndoHandler;
+  };
+  redoHandlers?: {
+    [action: ActionKey]: UndoHandler;
+  };
+  styleHandlers?: {
+    [key: keyof ToolPropertiesMap]: UpdateStyleHandler;
+  };
   cursor?: string;
 };
 

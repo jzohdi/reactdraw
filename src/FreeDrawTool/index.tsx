@@ -27,9 +27,6 @@ const freeDrawTool: DrawingTools = {
   id: "free-draw-tool",
   tooltip: "Free draw tool",
   icon: <PencilBoldIcon />,
-  getEditableStyles() {
-    return ["color", "lineWidth", "opacity"];
-  },
   onDrawStart: (data) => {
     const lineWidth = parseInt(data.style.lineWidth);
     // const relativeDiv = makeRelativeDiv();
@@ -74,50 +71,22 @@ const freeDrawTool: DrawingTools = {
     }
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
-  onUndo(action, ctx) {
-    if (action.action === "create") {
-      return undoCreate(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoSvgPathColor(action, ctx);
-    }
-    if (action.action === "lineWidth") {
-      return undoSvgPathWidth(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("Unsupported action: ", action);
-    throw new Error();
+  undoHandlers: {
+    create: undoCreate,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
   },
-  onRedo(action, ctx) {
-    if (action.action === "delete") {
-      return redoDelete(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoSvgPathColor(action, ctx);
-    }
-    if (action.action === "lineWidth") {
-      return undoSvgPathWidth(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("unsupported action:", action);
-    throw new Error();
+  redoHandlers: {
+    delete: redoDelete,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
   },
-  onUpdateStyle(data, ctx, key, value) {
-    if (key === "color") {
-      return updateSvgPathStroke(data, value);
-    }
-    if (key === "lineWidth") {
-      return updateSvgPathWidth(data, value);
-    }
-    if (key === "opacity") {
-      return updateEleOpacity(data, value);
-    }
-    console.log(key, value, data);
-    throw new Error("unknown update style action");
+  styleHandlers: {
+    color: (data, value, _ctx) => updateSvgPathStroke(data, value),
+    lineWidth: (data, value, _ctx) => updateSvgPathWidth(data, value),
+    opacity: (data, value, _ctx) => updateEleOpacity(data, value),
   },
   cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
 };

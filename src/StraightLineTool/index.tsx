@@ -28,9 +28,6 @@ const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
   tooltip: "Straight Line Tool",
   icon: <HorizontalLineIcon />,
-  getEditableStyles() {
-    return ["color", "lineWidth", "opacity"];
-  },
   onDrawStart: (data) => {
     const div = data.container.div;
     const lineWidth = parseInt(data.style.lineWidth);
@@ -71,50 +68,22 @@ const straightLineTool: DrawingTools = {
     data.element = newSvg;
     data.coords.splice(1);
   },
-  onUndo(action, ctx) {
-    if (action.action === "create") {
-      return undoCreate(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoSvgPathColor(action, ctx);
-    }
-    if (action.action === "lineWidth") {
-      return undoSvgPathWidth(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("Unsupported action: ", action);
-    throw new Error();
+  undoHandlers: {
+    create: undoCreate,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
   },
-  onRedo(action, ctx) {
-    if (action.action === "delete") {
-      return redoDelete(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoSvgPathColor(action, ctx);
-    }
-    if (action.action === "lineWidth") {
-      return undoSvgPathWidth(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("unsupported action:", action);
-    throw new Error();
+  redoHandlers: {
+    delete: redoDelete,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
   },
-  onUpdateStyle(data, ctx, key, value) {
-    if (key === "color") {
-      return updateSvgPathStroke(data, value);
-    }
-    if (key === "lineWidth") {
-      return updateSvgPathWidth(data, value);
-    }
-    if (key === "opacity") {
-      return updateEleOpacity(data, value);
-    }
-    console.log(key, value, data);
-    throw new Error("unknown update style action");
+  styleHandlers: {
+    color: updateSvgPathStroke,
+    lineWidth: updateSvgPathWidth,
+    opacity: updateEleOpacity,
   },
 };
 

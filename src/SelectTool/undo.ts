@@ -55,7 +55,7 @@ export function handleRotateUndo(
   return action;
 }
 
-export function handelResizUndo(
+export function handelResizeUndo(
   action: ActionObject,
   ctx: ReactDrawContext
 ): ActionObject {

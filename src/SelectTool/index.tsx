@@ -30,7 +30,7 @@ import {
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
 import { unselectElement } from "../utils/select/unselectElement";
 import { UndoAction } from "../utils/select/types";
-import { handelResizUndo, handleDragUndo, handleRotateUndo } from "./undo";
+import { handelResizeUndo, handleDragUndo, handleRotateUndo } from "./undo";
 import {
   deleteCreatedObjects,
   pushActionToStack,
@@ -98,45 +98,19 @@ const selectTool: DrawingTools = {
     );
     pushActionToStack(resultAction, ctx);
   },
-  onUndo(action, ctx) {
-    const act = action.action as UndoAction;
-    if (act === "delete") {
-      return recreateDeletedObjects(action, ctx);
-    }
-    if (act === "create") {
-      return deleteCreatedObjects(action, ctx);
-    }
-    if (act === "drag") {
-      return handleDragUndo(action, ctx);
-    }
-    if (act === "rotate") {
-      return handleRotateUndo(action, ctx);
-    }
-    if (act === "resize") {
-      return handelResizUndo(action, ctx);
-    }
-    console.log("unsupported action", action);
-    throw new Error();
+  undoHandlers: {
+    delete: recreateDeletedObjects,
+    create: deleteCreatedObjects,
+    drag: handleDragUndo,
+    rotate: handleRotateUndo,
+    resize: handelResizeUndo,
   },
-  onRedo(action, ctx) {
-    const act = action.action as UndoAction;
-    if (act === "delete") {
-      return recreateDeletedObjects(action, ctx);
-    }
-    if (act === "create") {
-      return deleteCreatedObjects(action, ctx);
-    }
-    if (act === "drag") {
-      return handleDragUndo(action, ctx);
-    }
-    if (act === "rotate") {
-      return handleRotateUndo(action, ctx);
-    }
-    if (act === "resize") {
-      return handelResizUndo(action, ctx);
-    }
-    console.log("unsupported action", action);
-    throw new Error();
+  redoHandlers: {
+    delete: recreateDeletedObjects,
+    create: deleteCreatedObjects,
+    drag: handleDragUndo,
+    rotate: handleRotateUndo,
+    resize: handelResizeUndo,
   },
 };
 

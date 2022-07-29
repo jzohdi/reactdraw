@@ -21,7 +21,7 @@ const trashTool: ActionTools = {
     if (selectedIds.length < 1) {
       return;
     }
-    /// TODO: should be for self?
+    /// TODO: should be for self? this unloaded the work to the select tool
     const resultAction = deleteCreatedObjects(
       {
         toolId: SELECT_TOOL_ID,

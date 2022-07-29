@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionObject, ActionTools } from "../types";
+import { ActionObject, ActionTools, ReactDrawContext } from "../types";
 import { RedoIcon } from "@jzohdi/jsx-icons";
 import { getToolById } from "../utils/utils";
 
@@ -22,28 +22,56 @@ const redoTool: ActionTools = {
     // console.log("popped action", lastAction);
     // console.log("new stack", ctx.undoStack);
     if (lastAction.toolType === "top-bar-tool") {
-      const tool = getToolById(ctx.drawingTools, lastAction.toolId);
-      if (tool.onRedo) {
-        const result = tool.onRedo(lastAction, ctx);
-        if (ctx.shouldKeepHistory) {
-          ctx.undoStack.push(result);
-        }
-      }
-    } else if (lastAction.toolType === "batch") {
-      const data = lastAction.data as ActionObject[];
-      const result = [];
-      for (const obj of data) {
-        const tool = getToolById(ctx.drawingTools, obj.toolId);
-        if (tool.onRedo) {
-          result.push(tool.onRedo(obj, ctx));
-        }
-      }
-      lastAction.data = result;
-      if (ctx.shouldKeepHistory) {
-        ctx.undoStack.push(lastAction);
-      }
+      return handleTopBarRedo(ctx, lastAction);
+    }
+    if (lastAction.toolType === "batch") {
+      return handleBatchAction(ctx, lastAction);
     }
   },
 };
 
 export default redoTool;
+
+function handleTopBarRedo(ctx: ReactDrawContext, action: ActionObject) {
+  const toolId = action.toolId;
+  const tool = getToolById(ctx.drawingTools, toolId);
+  const handlers = tool.redoHandlers;
+  const actionKey = action.action;
+  if (!handlers) {
+    console.error("tool:", tool, "does not implement undo functionality");
+    return;
+  }
+  const handler = handlers[actionKey];
+  if (!handler) {
+    console.error("tool:", tool, "does not implement undo action:", actionKey);
+  }
+  const result = handler(action, ctx);
+  if (ctx.shouldKeepHistory) {
+    ctx.undoStack.push(result);
+  }
+}
+
+function handleBatchAction(ctx: ReactDrawContext, action: ActionObject) {
+  const data = action.data as ActionObject[];
+  const result = [];
+  for (const obj of data) {
+    const toolId = obj.toolId;
+    const tool = getToolById(ctx.drawingTools, toolId);
+    const handlers = tool.redoHandlers;
+    const actionKey = obj.action;
+    if (!handlers) {
+      console.error("tool:", tool, "does not implement undo functionality");
+      return;
+    }
+    const handler = handlers[actionKey];
+    if (!handler) {
+      console.error("tool:", tool, "does not implement action:", actionKey);
+      return;
+    }
+    result.push(handler(obj, ctx));
+  }
+  action.data = result;
+  if (ctx.shouldKeepHistory) {
+    ctx.undoStack.push(action);
+  }
+}

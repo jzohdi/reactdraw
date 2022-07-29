@@ -34,9 +34,6 @@ const textAreaTool: DrawingTools = {
   id: "react-draw-textarea-tool",
   tooltip: "Textarea Tool",
   cursor: "text",
-  getEditableStyles() {
-    return ["color", "background", "fontSize", "opacity"];
-  },
   onDrawStart: (data, ctx) => {
     setupContainer(data, ctx);
   },
@@ -63,59 +60,27 @@ const textAreaTool: DrawingTools = {
     cleanHandlers(data, false);
     placeCaretAtEnd(data.element as HTMLDivElement);
   },
-  onUndo(action, ctx) {
-    if (action.action === "create") {
-      return undoCreate(action, ctx);
-    }
-    if (action.action === "input") {
-      return undoTextAreaInput(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoTextAreaColor(action, ctx);
-    }
-    if (action.action === "background") {
-      return undoTextAreaBackground(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("Unsupported action: ", action);
-    throw new Error();
+  undoHandlers: {
+    create: undoCreate,
+    input: undoTextAreaInput,
+    color: undoTextAreaColor,
+    background: undoTextAreaBackground,
+    opacity: undoEleOpacity,
   },
-  onRedo(action, ctx) {
-    if (action.action === "delete") {
-      return redoDelete(action, ctx);
-    }
-    if (action.action === "input") {
-      return undoTextAreaInput(action, ctx);
-    }
-    if (action.action === "color") {
-      return undoTextAreaColor(action, ctx);
-    }
-    if (action.action === "background") {
-      return undoTextAreaBackground(action, ctx);
-    }
-    if (action.action === "opacity") {
-      return undoEleOpacity(action, ctx);
-    }
-    console.error("unsupported action:", action);
-    throw new Error();
+  redoHandlers: {
+    delete: redoDelete,
+    input: undoTextAreaInput,
+    color: undoTextAreaColor,
+    background: undoTextAreaBackground,
+    opacity: undoEleOpacity,
   },
   onDeleteObject(data, ctx) {
     cleanHandlers(data, true);
   },
-  onUpdateStyle(data, ctx, key, value) {
-    if (key === "color") {
-      return updateTextColor(data, value);
-    }
-    if (key === "background") {
-      return updateTextBackgroundColor(data, value);
-    }
-    if (key === "opacity") {
-      return updateEleOpacity(data, value);
-    }
-    console.log(key, value, data);
-    throw new Error("unknown update style action");
+  styleHandlers: {
+    color: updateTextColor,
+    background: updateTextBackgroundColor,
+    opacity: updateEleOpacity,
   },
 };
 

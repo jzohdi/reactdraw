@@ -1,7 +1,7 @@
 import React from "react";
 import { Story } from "@storybook/react";
-import ReactDraw from "../ReactDraw";
-import { ActionTools, DrawingTools, ReactDrawProps } from "../types";
+import ReactDraw from "../src/ReactDraw";
+import { ActionTools, DrawingTools, ReactDrawProps } from "../src/types";
 
 import {
   circleTool,
@@ -23,7 +23,7 @@ import {
   LineWidthStyle,
   OpacityStyle,
   arrowTool,
-} from "../../src";
+} from "../src";
 
 export default {
   title: "ReactDraw",
