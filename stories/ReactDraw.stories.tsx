@@ -23,6 +23,7 @@ import {
   LineWidthStyle,
   OpacityStyle,
   arrowTool,
+  ClearAllButton,
 } from "../src";
 
 export default {
@@ -65,6 +66,7 @@ DefaultLayoutWithoutChildren.args = {
     lineWidth: { order: 1, component: LineWidthStyle },
     opacity: { order: 0, component: OpacityStyle },
   },
+  menuComponents: [ClearAllButton],
 };
 
 export const HideTopAndBottomBar = Template.bind({});

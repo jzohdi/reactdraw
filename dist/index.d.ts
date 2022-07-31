@@ -156,6 +156,9 @@ type StyleComponents = {
         component: StyleComponent;
     };
 };
+type MenuComponent = (props: {
+    getContext: () => ReactDrawContext;
+}) => JSX.Element;
 type ReactDrawProps = {
     children?: ReactChild;
     layout?: LayoutOption;
@@ -167,8 +170,9 @@ type ReactDrawProps = {
     shouldSelectAfterCreate?: boolean;
     id: string;
     styleComponents?: StyleComponents;
+    menuComponents?: MenuComponent[];
 };
-declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, styleComponents, ...props }: ReactDrawProps): JSX.Element;
+declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, styleComponents, menuComponents, ...props }: ReactDrawProps): JSX.Element;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
@@ -192,5 +196,6 @@ declare function LineWidthPicker({ onUpdate, styleKey, styleValue }: LineWidthPi
 type OpacityPickerProps = StyleComponentProps;
 declare function LineWidthPicker$0({ onUpdate, styleKey, styleValue }: OpacityPickerProps): JSX.Element;
 declare const arrowTool: DrawingTools;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, arrowTool };
+declare const ClearAllButton: MenuComponent;
+export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, arrowTool, ClearAllButton };
 //# sourceMappingURL=index.d.ts.map

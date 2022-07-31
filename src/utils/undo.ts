@@ -4,6 +4,7 @@ import {
   ReactDrawContext,
   ToolPropertiesMap,
 } from "../types";
+import { pushActionToStack } from "./pushActionToStack";
 import { borderFromStyles } from "./updateStyles/color";
 import { getInnerEleFromSvg } from "./updateStyles/utils";
 import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
@@ -49,15 +50,6 @@ export function redoDelete(
   action.data = null;
   action.action = "create";
   return action;
-}
-
-export function pushActionToStack(action: ActionObject, ctx: ReactDrawContext) {
-  if (ctx.shouldKeepHistory) {
-    ctx.undoStack.push(action);
-    // console.log("before:", ctx.redoStack);
-    ctx.redoStack.splice(0);
-    // console.log("after:", ctx.redoStack);
-  }
 }
 
 /**

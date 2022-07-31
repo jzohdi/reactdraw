@@ -9,7 +9,7 @@ import { getRelativePoint, getTouchCoords } from "../utils";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import { getToolById } from "../utils";
 
-import { pushActionToStack } from "../undo";
+import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
 
 function startResizing(

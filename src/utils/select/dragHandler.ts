@@ -3,7 +3,7 @@ import { DragUndoData } from "./types";
 // import { dragDivs, getRelativePoint, getTouchCoords } from "./utils";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import { alertAfterUpdate } from "../alertAfterUpdate";
-import { pushActionToStack } from "../undo";
+import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
 import { dragDivs } from "./dragDivs";
 import { getRelativePoint, getTouchCoords } from "../utils";

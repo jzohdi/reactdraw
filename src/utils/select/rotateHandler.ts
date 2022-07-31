@@ -4,7 +4,7 @@ import { getCenterPoint, getRelativePoint, getTouchCoords } from "../utils";
 import { getRotateFromDiv } from "./getRotateFromDiv";
 import { getSelectedDrawingObjects } from "./getSelectedDrawingObjects";
 import { alertAfterUpdate } from "../alertAfterUpdate";
-import { pushActionToStack } from "../undo";
+import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
 import { rotateDiv } from "./rotateDiv";
 

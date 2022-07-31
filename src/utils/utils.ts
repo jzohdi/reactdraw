@@ -1,5 +1,6 @@
 import { unselectElement } from "./select/unselectElement";
 import {
+  ActionObject,
   DrawingData,
   DrawingDataMap,
   DrawingTools,
@@ -9,6 +10,7 @@ import {
   RectBounds,
   SelectMode,
 } from "../types";
+import { pushActionToStack } from "./pushActionToStack";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
@@ -113,4 +115,51 @@ export function makeSureArtifactsGone(
 
 export function isNotUndefined<T>(item: T | undefined): item is T {
   return item !== undefined;
+}
+
+export function batchDelete(deleteIds: string[], ctx: ReactDrawContext): void {
+  const action: ActionObject = {
+    action: "batch",
+    toolType: "batch",
+    toolId: "",
+    objectId: "",
+    data: [],
+  };
+  const couldNotDeleteToolsSet = new Set<string>();
+  for (const objectId of deleteIds) {
+    const object = getObjectFromMap(ctx.objectsMap, objectId);
+    const toolId = object.toolId;
+    const tool = getToolById(ctx.drawingTools, toolId);
+    if (ctx.shouldKeepHistory && tool?.undoHandlers?.delete) {
+      const toolAction: ActionObject = {
+        action: "delete",
+        toolType: "top-bar-tool",
+        toolId: toolId,
+        objectId,
+        data: object,
+      };
+      action.data.push(toolAction);
+    } else {
+      couldNotDeleteToolsSet.add(toolId);
+    }
+    deleteObjectAndNotify(objectId, ctx);
+  }
+  if (ctx.shouldKeepHistory) {
+    // const deletedObjects = new Map<>()
+    pushActionToStack(action, ctx);
+    if (couldNotDeleteToolsSet.size > 0) {
+      console.log(
+        "removing items from undo stack since they do not implement undoDelete",
+        couldNotDeleteToolsSet
+      );
+      for (let i = ctx.undoStack.length - 1; i >= 0; i--) {
+        if (couldNotDeleteToolsSet.has(ctx.undoStack[i].toolId)) {
+          ctx.undoStack.splice(i, 1);
+          i++;
+        }
+      }
+    }
+  } else {
+    ctx.undoStack.splice(0);
+  }
 }

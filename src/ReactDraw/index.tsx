@@ -16,7 +16,6 @@ import {
   ReactDrawProps,
   StringObject,
   ToolPropertiesMap,
-  ToolStylesMap,
 } from "../types";
 import { Children } from "react";
 import { makeNewBoundingDiv } from "../utils";
@@ -34,8 +33,8 @@ import {
   unselectAll,
 } from "../utils/select/utils";
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
-import EditMenu from "./EditMenu";
-import { pushActionToStack } from "../utils/undo";
+import StylesMenu from "./StylesMenu";
+import { pushActionToStack } from "../utils/pushActionToStack";
 
 export default function ReactDraw({
   children,
@@ -47,6 +46,7 @@ export default function ReactDraw({
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
   styleComponents,
+  menuComponents = [],
   ...props
 }: ReactDrawProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
@@ -391,14 +391,16 @@ export default function ReactDraw({
           displayMap={bottomToolsDisplayMap}
           tools={bottomBarTools}
           dispatch={dispatchBottomToolCtx}
-          hasMenu={hasMenuItems}
-        >
-          <EditMenu
-            getEditProps={handleGetEditProps}
-            styleComponents={styleComponents}
-            onUpdateStyle={handleUpdateStyles}
-          />
-        </BottomToolBar>
+          stylesMenu={{
+			getEditProps: handleGetEditProps,
+            styleComponents: styleComponents,
+            onUpdateStyle: handleUpdateStyles,}
+		  }
+		  >
+			{menuComponents.map((MenuItem, i) => {
+				return <MenuItem key={i} getContext={getReactDrawContext}/>
+			})}
+		  </BottomToolBar>
       )}
       <style>{`
 		#${drawingAreaId.current} {

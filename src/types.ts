@@ -206,6 +206,10 @@ export type StyleComponents = {
   };
 };
 
+export type MenuComponent = (props: {
+  getContext: () => ReactDrawContext;
+}) => JSX.Element;
+
 export type ReactDrawProps = {
   children?: ReactChild;
   layout?: LayoutOption;
@@ -217,6 +221,7 @@ export type ReactDrawProps = {
   shouldSelectAfterCreate?: boolean;
   id: string;
   styleComponents?: StyleComponents;
+  menuComponents?: MenuComponent[];
 };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;

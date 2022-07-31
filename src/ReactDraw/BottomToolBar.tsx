@@ -1,4 +1,4 @@
-import { MenuIcon } from "@jzohdi/jsx-icons";
+import { MenuIcon, PaletteBoldIcon } from "@jzohdi/jsx-icons";
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import ToolTip from "../components/ToolTip";
@@ -7,16 +7,25 @@ import {
   ActionTools,
   BottomToolDisplayMap,
   DisplayMode,
+  MenuComponent,
   ReactChild,
   ReactDrawContext,
+  StringObject,
+  StyleComponents,
+  UpdateStyleFn,
 } from "../types";
+import StylesMenu from "./StylesMenu";
 
 export type BottomToolBarProps = {
   tools: ActionTools[];
   displayMap: BottomToolDisplayMap;
-  children: ReactChild;
   dispatch: (fn: (ctx: ReactDrawContext) => void) => void;
-  hasMenu: boolean;
+  stylesMenu: {
+    getEditProps: () => StringObject;
+    styleComponents?: StyleComponents;
+    onUpdateStyle: UpdateStyleFn;
+  };
+  children: ReactChild;
 };
 
 const BottomBarContainer = styled.div`
@@ -107,7 +116,7 @@ const MenuButton = styled.button<MenuButtonProps>`
   }}
 `;
 
-const Menu = styled.div`
+const MenuContainer = styled.div`
   position: absolute;
   left: 0;
   padding: 15px;
@@ -123,15 +132,25 @@ const Menu = styled.div`
   }
 `;
 
+type MenuKeys = "styles" | "menu" | null;
+
 export function BottomToolBar({
   tools,
   displayMap,
   dispatch,
-  hasMenu,
+  stylesMenu,
   children,
 }: BottomToolBarProps) {
   //   console.log(displayMap);
-  const [showMenu, setShowMenu] = useState(false);
+  const [menuOpen, setMenuOpen] = useState<MenuKeys>(null);
+
+  const handleToggleMenu = (key: MenuKeys) => {
+    if (key === menuOpen) {
+      return setMenuOpen(null);
+    }
+    return setMenuOpen(key);
+  };
+
   const getPosition = (tool: ActionTools, index: number) => {
     if (!tool.tooltip) {
       return { top: "", left: "" };
@@ -141,14 +160,37 @@ export function BottomToolBar({
     }
     return { top: "-35px", left: `-${tool.tooltip.length * 3}px` };
   };
+
+  const hasStyleMenu =
+    !!stylesMenu.styleComponents && !isObjEmpty(stylesMenu.styleComponents);
+  const hasMenu = !!children && React.Children.count(children) > 0;
+
   return (
     <>
-      {showMenu && <Menu>{children}</Menu>}
+      {menuOpen === "styles" && (
+        <MenuContainer>
+          <StylesMenu {...stylesMenu} />
+        </MenuContainer>
+      )}
+      {menuOpen === "menu" && <MenuContainer>{children}</MenuContainer>}
       <BottomBarContainer>
         {hasMenu && (
           <ToolTip text="Menu" top="-40px" left="10px">
-            <MenuButton onClick={() => setShowMenu(!showMenu)} open={showMenu}>
-              <MenuIcon size={30} />
+            <MenuButton
+              onClick={() => handleToggleMenu("menu")}
+              open={menuOpen === "menu"}
+            >
+              <MenuIcon size={20} />
+            </MenuButton>
+          </ToolTip>
+        )}
+        {hasStyleMenu && (
+          <ToolTip text="Styles" top="-40px" left="10px">
+            <MenuButton
+              onClick={() => handleToggleMenu("styles")}
+              open={menuOpen === "styles"}
+            >
+              <PaletteBoldIcon size={20} />
             </MenuButton>
           </ToolTip>
         )}
@@ -175,4 +217,10 @@ export function BottomToolBar({
       </BottomBarContainer>
     </>
   );
+}
+function isObjEmpty(obj: { [key: string]: any }): boolean {
+  for (var _x in obj) {
+    return false;
+  }
+  return true;
 }
