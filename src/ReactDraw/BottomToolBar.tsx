@@ -124,11 +124,36 @@ const MenuContainer = styled.div`
   z-index: 1000;
   background-color: white;
   border-radius: 0px 5px 0px 0px;
+  max-height: calc(100% - 80px);
+  max-width: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+
   @media only screen and (min-width: ${BPmd}px) {
     bottom: 40px;
   }
   @media only screen and (max-width: ${BPmd}px) {
     bottom: 30px;
+  }
+  /* Firefox */
+  * {
+    scrollbar-width: none;
+    scrollbar-color: ${COLORS.primary.main} #e2ecf5;
+  }
+
+  /* Chrome, Edge, and Safari */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #e2ecf5;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${COLORS.primary.main};
+    border-radius: 8px;
+    border: 3px none #ffffff;
   }
 `;
 

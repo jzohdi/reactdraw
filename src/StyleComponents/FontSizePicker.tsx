@@ -2,13 +2,13 @@ import React, { ChangeEvent, useRef } from "react";
 import { StyleComponentProps } from "../types";
 import { makeid } from "../utils";
 
-type OpacityPickerProps = StyleComponentProps;
+type LineWidthPickerProps = StyleComponentProps;
 
 export default function LineWidthPicker({
   onUpdate,
   styleKey,
   styleValue,
-}: OpacityPickerProps) {
+}: LineWidthPickerProps) {
   const id = useRef<string>(makeid(5));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +20,7 @@ export default function LineWidthPicker({
     <div>
       <div style={{ textAlign: "left", marginBottom: 5 }}>
         <label style={{ fontWeight: "bold" }} htmlFor={id.current}>
-          opacity ({styleValue})
+          font size
         </label>
       </div>
       <div style={{ width: "100%" }}>
@@ -28,7 +28,7 @@ export default function LineWidthPicker({
           id={id.current}
           value={styleValue}
           onChange={handleChange}
-          type="range"
+          type="number"
           style={{
             boxSizing: "border-box",
             width: 168,
@@ -39,19 +39,8 @@ export default function LineWidthPicker({
             lineHeight: "1.6",
           }}
           min="0"
-          max="1"
-          step="0.1"
+          step="1"
         />
-        {/* <input
-          id={id.current}
-          value={styleValue}
-          onChange={handleChange}
-          style={{ width: "100%" }}
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-        /> */}
       </div>
     </div>
   );

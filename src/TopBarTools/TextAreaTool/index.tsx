@@ -20,6 +20,7 @@ import {
 } from "../../utils/updateStyles/color";
 import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../../utils/utils";
+import { actionObjToSave } from "../../utils/updateStyles/utils";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -65,6 +66,7 @@ const textAreaTool: DrawingTools = {
     color: undoTextAreaColor,
     background: undoTextAreaBackground,
     opacity: undoEleOpacity,
+    fontSize: undoFontSize,
   },
   redoHandlers: {
     create: undoCreate,
@@ -73,6 +75,7 @@ const textAreaTool: DrawingTools = {
     color: undoTextAreaColor,
     background: undoTextAreaBackground,
     opacity: undoEleOpacity,
+    fontSize: undoFontSize,
   },
   onDeleteObject(data, ctx) {
     cleanHandlers(data, true);
@@ -81,10 +84,35 @@ const textAreaTool: DrawingTools = {
     color: updateTextColor,
     background: updateTextBackgroundColor,
     opacity: updateEleOpacity,
+    fontSize: updateTextAreaFontSize,
   },
 };
 
+function updateTextAreaFontSize(
+  data: DrawingData,
+  value: string
+): ActionObject {
+  const curr = data.style.fontSize;
+  data.style.fontSize = value;
+  data.container.div.style.fontSize = value + "px";
+  setBoundsFromDiv(data.container.div, data.container.bounds);
+  return actionObjToSave(data, "fontSize", curr);
+}
+
 export default textAreaTool;
+
+function undoFontSize(
+  action: ActionObject,
+  ctx: ReactDrawContext
+): ActionObject {
+  const object = getObjectFromMap(ctx.objectsMap, action.objectId);
+  const curr = object.style.fontSize;
+  const styleToSave = action.data;
+  object.style.fontSize = styleToSave;
+  object.container.div.style.fontSize = styleToSave + "px";
+  action.data = curr;
+  return action;
+}
 
 function undoTextAreaInput(
   action: ActionObject,

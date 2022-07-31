@@ -17,5 +17,6 @@ export { default as ColorStyle } from "./StyleComponents/Color";
 export { default as BackgroundStyle } from "./StyleComponents/Background";
 export { default as LineWidthStyle } from "./StyleComponents/LineWidth";
 export { default as OpacityStyle } from "./StyleComponents/OpacityPicker";
+export { default as FontSizeStyle } from "./StyleComponents/FontSizePicker";
 export { default as arrowTool } from "./TopBarTools/ArrowTool";
 export { default as ClearAllButton } from "./MenuComponents/ClearAllButton";
