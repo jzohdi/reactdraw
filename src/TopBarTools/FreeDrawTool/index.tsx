@@ -92,7 +92,7 @@ const freeDrawTool: DrawingTools = {
     lineWidth: (data, value, _ctx) => updateSvgPathWidth(data, value),
     opacity: (data, value, _ctx) => updateEleOpacity(data, value),
   },
-  cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
+  cursor: `url(data:image/svg+xml;base64,${cursorPencilBase64}) 0 16, pointer`,
 };
 
 export default freeDrawTool;
