@@ -17,7 +17,11 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-        <ReactDraw topBarTools={[freeDrawTool]}></ReactDraw>
+        <ReactDraw
+          topBarTools={[freeDrawTool]}
+          id="main"
+          bottomBarTools={[]}
+        ></ReactDraw>
       </main>
 
       <footer className={styles.footer}>
