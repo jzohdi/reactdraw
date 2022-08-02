@@ -1,13 +1,14 @@
 import { MenuIcon, PaletteBoldIcon } from "@jzohdi/jsx-icons";
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import ToolTip from "../components/ToolTip";
+import ToolTip from "../Alerts/ToolTip";
+// import ToolTip from "../components/ToolTip";
 import { BPmd, COLORS } from "../constants";
 import {
   ActionTools,
   BottomToolDisplayMap,
   DisplayMode,
-  MenuComponent,
+  //   MenuComponent,
   ReactChild,
   ReactDrawContext,
   StringObject,
@@ -32,6 +33,31 @@ const BottomBarContainer = styled.div`
   display: flex;
   background-color: ${COLORS.primary.light};
   z-index: 1000;
+  width: 100%;
+  overflow-x: auto;
+  /* Firefox */
+  * {
+    scrollbar-width: none;
+    scrollbar-color: ${COLORS.primary.main} #e2ecf5;
+  }
+
+  /* Chrome, Edge, and Safari */
+  &::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #e2ecf5;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #035195;
+    border-radius: 10px;
+    border: 3px none #ffffff;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #00294d;
+  }
 `;
 
 type BottomToolButtonProps = {
@@ -176,16 +202,6 @@ export function BottomToolBar({
     return setMenuOpen(key);
   };
 
-  const getPosition = (tool: ActionTools, index: number) => {
-    if (!tool.tooltip) {
-      return { top: "", left: "" };
-    }
-    if (index <= tools.length / 2) {
-      return { top: "-35px", left: "0" };
-    }
-    return { top: "-35px", left: `-${tool.tooltip.length * 3}px` };
-  };
-
   const hasStyleMenu =
     !!stylesMenu.styleComponents && !isObjEmpty(stylesMenu.styleComponents);
   const hasMenu = !!children && React.Children.count(children) > 0;
@@ -200,7 +216,7 @@ export function BottomToolBar({
       {menuOpen === "menu" && <MenuContainer>{children}</MenuContainer>}
       <BottomBarContainer>
         {hasMenu && (
-          <ToolTip text="Menu" top="-40px" left="10px">
+          <ToolTip text="Menu" position="bottom">
             <MenuButton
               onClick={() => handleToggleMenu("menu")}
               open={menuOpen === "menu"}
@@ -210,7 +226,7 @@ export function BottomToolBar({
           </ToolTip>
         )}
         {hasStyleMenu && (
-          <ToolTip text="Styles" top="-40px" left="10px">
+          <ToolTip text="Styles" position="bottom">
             <MenuButton
               onClick={() => handleToggleMenu("styles")}
               open={menuOpen === "styles"}
@@ -226,7 +242,8 @@ export function BottomToolBar({
             <ToolTip
               key={tool.id}
               text={tool.tooltip}
-              {...getPosition(tool, i)}
+              position="bottom"
+              //   {...getPosition(tool, i)}
               disabled={toolDisplayMode === "disabled"}
             >
               <BottomToolButton
