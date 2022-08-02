@@ -1,3 +1,4 @@
+import React from "react";
 import { MutableRefObject } from "react";
 declare const ERASE_TOOL_ID = "react-draw-erase-tool";
 declare const SELECT_TOOL_ID = "react-draw-cursor";
@@ -172,7 +173,7 @@ type ReactDrawProps = {
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
 };
-declare function ReactDraw({ children, id, topBarTools, hideTopBar, bottomBarTools, hideBottomBar, shouldKeepHistory, shouldSelectAfterCreate, styleComponents, menuComponents, ...props }: ReactDrawProps): JSX.Element;
+declare const _default: React.ForwardRefExoticComponent<ReactDrawProps & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
@@ -199,5 +200,5 @@ type LineWidthPickerProps$0 = StyleComponentProps;
 declare function LineWidthPicker$1({ onUpdate, styleKey, styleValue }: LineWidthPickerProps$0): JSX.Element;
 declare const arrowTool: DrawingTools;
 declare const ClearAllButton: MenuComponent;
-export { ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton };
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton };
 //# sourceMappingURL=index.d.ts.map

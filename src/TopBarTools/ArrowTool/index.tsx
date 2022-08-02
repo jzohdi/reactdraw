@@ -26,6 +26,7 @@ const ORIENT_KEY = "orientation";
 const arrowTool: DrawingTools = {
   icon: <ArrowRightBoldIcon />,
   id: ARROW_TOOL_ID,
+  tooltip: "Arrow Tool",
   onDrawStart: (data) => {
     const div = data.container.div;
     const lineWidth = parseInt(data.style.lineWidth);

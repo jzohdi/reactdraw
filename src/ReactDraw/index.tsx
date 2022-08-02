@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, forwardRef, useRef, useState } from "react";
 import Container from "./Container";
 import { TopToolBar } from "./TopToolBar";
 import {
@@ -33,10 +33,10 @@ import {
   unselectAll,
 } from "../utils/select/utils";
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
-import StylesMenu from "./StylesMenu";
 import { pushActionToStack } from "../utils/pushActionToStack";
+import { AlertMessage, AlertMessageProvider } from "../Alerts";
 
-export default function ReactDraw({
+export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
   children,
   id = "main",
   topBarTools,
@@ -48,7 +48,7 @@ export default function ReactDraw({
   styleComponents,
   menuComponents = [],
   ...props
-}: ReactDrawProps): JSX.Element {
+}, ref): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
   const { layout } = validateProps(children, props.layout);
@@ -362,17 +362,15 @@ export default function ReactDraw({
 	pushActionToStack(action, ctx);
   }
 
-  // TODO: handle non-style menu components
-  const hasMenuItems = !!styleComponents && !isObjEmpty(styleComponents);
-
   return (
-    <Container layout={layout}>
+	<AlertMessageProvider>
+    <Container layout={layout} ref={ref}>
       {!hideTopBar && (
-        <TopToolBar
-          tools={topBarTools}
-          onSelectTool={handleSelectTopTool}
-          currentTool={currentDrawingTool.id}
-        />
+		<TopToolBar
+			tools={topBarTools}
+			onSelectTool={handleSelectTopTool}
+			currentTool={currentDrawingTool.id}
+		/>
       )}
       <div
         id={drawingAreaId.current}
@@ -380,10 +378,12 @@ export default function ReactDraw({
           position: "relative",
           width: "100%",
           flex: 1,
+		  overflow: 'hidden',
           boxSizing: "border-box",
         }}
         ref={drawingAreaRef}
       >
+		<AlertMessage/>
         {children}
       </div>
       {!hideBottomBar && (
@@ -408,8 +408,9 @@ export default function ReactDraw({
 		}
 	  `}</style>
     </Container>
+	</AlertMessageProvider>
   );
-}
+})
 
 function validateProps(children: ReactChild, layout?: LayoutOption) {
   const numChildren = Children.count(children);

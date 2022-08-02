@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, forwardRef } from "react";
 import { LayoutOption, ReactChild } from "../types";
 
 export type ReactDrawContainerProps = {
@@ -21,17 +21,20 @@ function getStyles(layout: LayoutOption) {
 const defaultStyles: CSSProperties = {
   boxShadow: "#000000 0px 1px 3px 0px",
   borderRadius: 4,
-  overflow: "hidden",
+  //   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
   position: "relative",
   fontFamily: "sans-serif",
 };
 
-export default function Container({
-  children,
-  layout,
-}: ReactDrawContainerProps) {
-  const styles = getStyles(layout);
-  return <div style={{ ...defaultStyles, ...styles }}>{children}</div>;
-}
+export default forwardRef<HTMLDivElement, ReactDrawContainerProps>(
+  function Container({ children, layout }, ref) {
+    const styles = getStyles(layout);
+    return (
+      <div style={{ ...defaultStyles, ...styles }} ref={ref}>
+        {children}
+      </div>
+    );
+  }
+);
