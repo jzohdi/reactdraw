@@ -1,6 +1,6 @@
 {
   "name": "@jzohdi/react-draw",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "description": "A plugin architecture react library for adding drawing ability in the browser.",
   "files": [
     "dist/**",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-react": "^7.18.6",
-    "@jzohdi/jsx-icons": "^0.0.19",
+    "@jzohdi/jsx-icons": "^0.0.20",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@storybook/addon-actions": "^6.5.9",

@@ -11,6 +11,7 @@ import {
   SelectMode,
 } from "../types";
 import { pushActionToStack } from "./pushActionToStack";
+import { makeNewBoundingDiv } from ".";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
@@ -162,4 +163,46 @@ export function batchDelete(deleteIds: string[], ctx: ReactDrawContext): void {
   } else {
     ctx.undoStack.splice(0);
   }
+}
+
+export function createNewObject(
+  ctx: ReactDrawContext,
+  point: Point,
+  toolId: string
+): DrawingData {
+  const styles = { ...ctx.globalStyles };
+  const newData = makeNewBoundingDiv(point, styles, toolId);
+  return newData;
+}
+
+export function addObject(ctx: ReactDrawContext, obj: DrawingData): void {
+  const { div, id } = obj.container;
+  ctx.viewContainer.appendChild(div);
+  ctx.objectsMap.set(id, obj);
+}
+
+export function centerObject(
+  ctx: ReactDrawContext,
+  obj: DrawingData,
+  w?: number,
+  h?: number
+) {
+  const viewContainer = ctx.viewContainer;
+  const viewBox = viewContainer.getBoundingClientRect();
+  const { div, bounds } = obj.container;
+  if (!w || !h) {
+    const { width, height } = div.getBoundingClientRect();
+    w = w || width;
+    h = h || height;
+  }
+  const top = viewBox.height / 2 - h / 2;
+  const left = viewBox.width / 2 - w / 2;
+  bounds.top = top;
+  bounds.left = left;
+  bounds.right = bounds.left + w;
+  bounds.bottom = bounds.top + h;
+  div.style.top = top + "px";
+  div.style.left = left + "px";
+  div.style.height = h + "px";
+  div.style.width = w + "px";
 }

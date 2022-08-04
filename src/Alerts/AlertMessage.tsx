@@ -14,6 +14,7 @@ const Dialog = styled.dialog<DialogProps>`
   text-align: center;
   border-radius: 6px;
   padding: 5px 10px;
+  z-index: 1001;
   ${(props) => {
     return css`
       ${props.position}: 10px

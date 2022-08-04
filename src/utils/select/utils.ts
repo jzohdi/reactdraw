@@ -86,6 +86,7 @@ export function unselectAll(
 
 export function selectElement(data: DrawingData, ctx: ReactDrawContext): void {
   const selectFrame = makeSelectFrameDiv(data);
+  //   console.log(ctx);
   if (selectFrame) {
     addHandlersToSelectFrame(selectFrame, data.container.id, ctx);
     addToolsToSelectionDiv(selectFrame, data, ctx);

@@ -2,7 +2,7 @@ import { Meta } from "@storybook/addon-docs";
 
 <Meta title="Drawing Tools" />
 
-# Drawing Tools
+# Top Bar Tools (Drawing Tools)
 
 ReactDraw uses a plugin system for drawing tools.
 This allows you to have full control over the functionality of the component.
@@ -50,11 +50,32 @@ More of the types included in the <b>Type Descriptions</b> page.
 ```typescript
 type DrawingTools = {
   icon: JSX.Element;
+  tooltip?: string;
   id: string;
-  onDrawStart: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onDrawing: (data: DrawingData, viewContainer: HTMLDivElement) => void;
-  onDrawEnd: (data: DrawingData, viewContainer: HTMLDivElement) => void;
+  setupCustomState?: (state: CustomState) => any;
+  onPickTool?: (ctx: ReactDrawContext) => void;
+  onUnPickTool?: (ctx: ReactDrawContext) => void;
+  onDrawStart: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
+  doResize?: (data: DrawingData, ctx: OnResizeContext) => void;
   onResize: (data: DrawingData, ctx: OnResizeContext) => void;
+  onSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onAfterUpdate?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onUnSelect?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onDeleteObject?: (data: DrawingData, ctx: ReactDrawContext) => void;
+  onKeyPress?: (event: KeyboardEvent, ctx: ReactDrawContext) => void;
+  onUnMount?: (ctx: ReactDrawContext) => void;
+  onDuplicate?: (newData: DrawingData, ctx: ReactDrawContext) => DrawingData;
+  undoHandlers?: {
+    [action: ActionKey]: UndoHandler;
+  };
+  redoHandlers?: {
+    [action: ActionKey]: UndoHandler;
+  };
+  styleHandlers?: {
+    [key: keyof ToolPropertiesMap]: UpdateStyleHandler;
+  };
   cursor?: string;
 };
 ```
@@ -91,27 +112,34 @@ For example here is the free draw tool implementation.
 ```typescript
 const freeDrawTool: DrawingTools = {
   id: "free-draw-tool",
+  tooltip: "Free draw tool",
   icon: <PencilBoldIcon />,
   onDrawStart: (data) => {
     const lineWidth = parseInt(data.style.lineWidth);
-    const newSvg = createSvg(lineWidth, lineWidth);
-    const newPath = createCircle(lineWidth / 2);
+    const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
+    newSvg.style.overflow = "visible";
+    const newPath = createCircle(lineWidth / 2, data.style.color);
     newSvg.appendChild(newPath);
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
-  onDrawing: (data, viewContainer) => {
+  onDrawing: (data, { viewContainer }) => {
+    smoothCoords(data.coords);
     expandContainer(data);
     const boxSize = getBoxSize(data);
-    const newSvg = createSvg(boxSize.width, boxSize.height);
+    const newSvg = createSvg(boxSize.width, boxSize.height, data.style.opacity);
+    newSvg.style.overflow = "visible";
     const path = svgPathFromData(data, viewContainer);
     newSvg.appendChild(path);
     data.container.div.innerHTML = "";
     data.container.div.appendChild(newSvg);
     data.element = newSvg;
   },
-  onDrawEnd: (data) => {
-    // console.log("free draw end");
+  onDrawEnd: (data, ctx) => {
+    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldSelectAfterCreate) {
+      ctx.selectObject(data);
+    }
   },
   onResize: (data, ctx) => {
     if (!data.element) {
@@ -119,6 +147,25 @@ const freeDrawTool: DrawingTools = {
     }
     scaleSvg(data.element as SVGSVGElement, data.container.bounds);
   },
-  cursor: `url('data:image/svg+xml;base64,${cursorPencilBase64}') 0 16, pointer`,
+  undoHandlers: {
+    create: undoCreate,
+    delete: redoDelete,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
+  },
+  redoHandlers: {
+    create: undoCreate,
+    delete: redoDelete,
+    color: undoSvgPathColor,
+    lineWidth: undoSvgPathWidth,
+    opacity: undoEleOpacity,
+  },
+  styleHandlers: {
+    color: (data, value, _ctx) => updateSvgPathStroke(data, value),
+    lineWidth: (data, value, _ctx) => updateSvgPathWidth(data, value),
+    opacity: (data, value, _ctx) => updateEleOpacity(data, value),
+  },
+  cursor: `url(data:image/svg+xml;base64,${cursorPencilBase64}) 0 16, pointer`,
 };
 ```
