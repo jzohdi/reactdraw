@@ -100,7 +100,6 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
         const ctx = getReactDrawContext();
         unselectEverything(ctx);
         ctx.fullState[SELECT_TOOL_ID].selectedIds = [obj.container.id];
-		console.log(ctx.fullState)
         selectElement(obj, ctx);
 		objectToSelect.current = null;
       }
