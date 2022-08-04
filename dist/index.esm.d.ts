@@ -2,6 +2,15 @@ import React from "react";
 import { MutableRefObject } from "react";
 declare const ERASE_TOOL_ID = "react-draw-erase-tool";
 declare const SELECT_TOOL_ID = "react-draw-cursor";
+declare const COLORS: {
+    primary: {
+        light: string;
+        main: string;
+    };
+    grey: {
+        light: string;
+    };
+};
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
@@ -60,11 +69,16 @@ type ReactDrawContext = {
     redoStack: ActionObject[];
     shouldKeepHistory: boolean;
     shouldSelectAfterCreate: boolean;
+    globalStyles: ToolPropertiesMap;
     selectDrawingTool: (toolId: string) => void;
     selectObject: (object: DrawingData) => void;
 };
 type UpdateStyleHandler = (data: DrawingData, value: string, ctx: ReactDrawContext) => ActionObject | undefined;
 type UndoHandler = (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+type ToolStylesMap = Map<string, ToolPropertiesMap>;
+type StringObject = {
+    [key: string]: string;
+};
 /**
  * icon: the icon to be displayed in the top bar tools
  * id: required so that react draw can identify objects created by this id.
@@ -72,7 +86,7 @@ type UndoHandler = (action: ActionObject, ctx: ReactDrawContext) => ActionObject
  * ----
  */
 type DrawingTools = {
-    icon: JSX.Element;
+    icon?: JSX.Element;
     tooltip?: string;
     id: string;
     setupCustomState?: (state: CustomState) => any;
@@ -145,6 +159,15 @@ type ActionTools = {
     onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
     onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
+type StyleToolComponentProps = {
+    handleContext: (ctx: ReactDrawContext) => void;
+};
+type MenuStyleTools = {
+    [key: string]: (props: StyleToolComponentProps) => JSX.Element;
+};
+// export type
+type BottomToolDisplayMap = Map<string, DisplayMode>;
+type UpdateStyleFn = (key: keyof ToolPropertiesMap, value: string) => (ActionObject | undefined)[];
 type StyleComponentProps = {
     onUpdate: (key: keyof ToolPropertiesMap, value: string) => void;
     styleKey: string;
@@ -173,6 +196,9 @@ type ReactDrawProps = {
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
 };
+type PartialCSS = Partial<CSSStyleDeclaration>;
+type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
+type HTMLEvent = keyof HTMLElementEventMap;
 declare const _default: React.ForwardRefExoticComponent<ReactDrawProps & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
@@ -200,5 +226,8 @@ type LineWidthPickerProps$0 = StyleComponentProps;
 declare function LineWidthPicker$1({ onUpdate, styleKey, styleValue }: LineWidthPickerProps$0): JSX.Element;
 declare const arrowTool: DrawingTools;
 declare const ClearAllButton: MenuComponent;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton };
+declare function createNewObject(ctx: ReactDrawContext, point: Point, toolId: string): DrawingData;
+declare function addObject(ctx: ReactDrawContext, obj: DrawingData): void;
+declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: number, h?: number): void;
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, COLORS, createNewObject, addObject, centerObject };
 //# sourceMappingURL=index.esm.d.ts.map

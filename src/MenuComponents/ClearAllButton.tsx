@@ -2,14 +2,9 @@ import { TrashCanIcon } from "@jzohdi/jsx-icons";
 import React from "react";
 import styled from "styled-components";
 import { COLORS } from "../constants";
-import { ActionObject, MenuComponent } from "../types";
+import { MenuComponent } from "../types";
 import { makeid } from "../utils";
-import { pushActionToStack } from "../utils/pushActionToStack";
-import {
-  batchDelete,
-  deleteObjectAndNotify,
-  getObjectFromMap,
-} from "../utils/utils";
+import { batchDelete } from "../utils/utils";
 
 const StyledButton = styled.button`
   width: 180px;
@@ -22,6 +17,9 @@ const StyledButton = styled.button`
   border: none;
   padding: 7px 10px;
   background-color: ${COLORS.primary.light};
+  &:hover {
+    background-color: ${COLORS.primary.main};
+  }
 `;
 
 const ClearAllButton: MenuComponent = ({ getContext }) => {
@@ -37,8 +35,8 @@ const ClearAllButton: MenuComponent = ({ getContext }) => {
 
   return (
     <StyledButton id={buttonId.current} onClick={handleClearAll}>
-      <div style={{ padding: "0px 5px" }}>
-        <TrashCanIcon size={15} />
+      <div style={{ padding: "0px 5px", height: 20 }}>
+        <TrashCanIcon width={15} height={20} />
       </div>
       <label
         htmlFor={buttonId.current}

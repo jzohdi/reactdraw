@@ -11,14 +11,16 @@ import { getRelativePoint, getTouchCoords } from "../utils";
 function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
   const state = ctx.fullState[SELECT_TOOL_ID];
   const prevPoint = state.prevPoint;
+  //   console.log("start dragging");
   if (!prevPoint) {
-    // throw new Error("handleDrag prev point not set");
+    console.error("handleDrag prev point not set");
     return;
   }
   const selectedObjects = getSelectedDrawingObjects(
     state.selectedIds,
     ctx.objectsMap
   );
+  //   console.log(state.selectedIds, ctx.objectsMap);
   dragDivs(selectedObjects, prevPoint, relativePoint);
   state.prevPoint = relativePoint;
   if (selectedObjects.length === 1) {

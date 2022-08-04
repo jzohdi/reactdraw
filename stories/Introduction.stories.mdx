@@ -24,15 +24,28 @@ Install using `npm` or `yarn`
 ```jsx
 import React from "react";
 import {
-  ReactDraw,
   circleTool,
   squareTool,
   selectTool,
   freeDrawTool,
   diamondTool,
   straightLineTool,
+  textAreaTool,
+  eraseTool,
+  undoTool,
+  redoTool,
+  trashTool,
+  duplicateTool,
+  bringBackTool,
+  bringForwardTool,
+  ColorStyle,
+  BackgroundStyle,
+  LineWidthStyle,
+  OpacityStyle,
   arrowTool,
-} from "@jzohdi/react-draw";
+  ClearAllButton,
+  FontSizeStyle,
+} from "../src";
 
 export default function MyComponent() {
   <div>
@@ -47,6 +60,23 @@ export default function MyComponent() {
         straightLineTool,
         arrowTool,
       ]}
+      bottomBarTools={[
+        undoTool,
+        redoTool,
+        trashTool,
+        duplicateTool,
+        bringBackTool,
+        bringForwardTool,
+      ]}
+      shouldSelectAfterCreate={true}
+      styleComponents={{
+        color: { order: 3, component: ColorStyle },
+        background: { order: 4, component: BackgroundStyle },
+        lineWidth: { order: 1, component: LineWidthStyle },
+        opacity: { order: 0, component: OpacityStyle },
+        fontSize: { order: 2, component: FontSizeStyle },
+      }}
+      menuComponents={[ClearAllButton]}
     >
       ... any child you want can go inside the drawing area.
     </ReactDraw>
@@ -62,6 +92,13 @@ type ReactDrawProps = {
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
   hideTopBar?: boolean;
+  bottomBarTools: ActionTools[];
+  hideBottomBar?: boolean;
+  shouldKeepHistory?: boolean;
+  shouldSelectAfterCreate?: boolean;
+  id: string;
+  styleComponents?: StyleComponents;
+  menuComponents?: MenuComponent[];
 };
 
 type LayoutOption = "default" | LayoutAbsolute | "fit";
@@ -82,6 +119,9 @@ type LayoutAbsolute = {
 - [x] text area font size update
 - [x] forward ref
 - [x] tool bar overflow
+- [ ] styles/classnames props
+- [ ] remove bounds and derive bounds from div instead
+- [ ] improve docs
 - [ ] responsive mode?
 - [ ] save/load?
 - [ ] fix select object when rotated (correctly calculate the new bounds if rotated) (maybe fix getCenterPoint too)

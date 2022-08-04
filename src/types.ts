@@ -69,6 +69,7 @@ export type ReactDrawContext = {
   redoStack: ActionObject[];
   shouldKeepHistory: boolean;
   shouldSelectAfterCreate: boolean;
+  globalStyles: ToolPropertiesMap;
   selectDrawingTool: (toolId: string) => void;
   selectObject: (object: DrawingData) => void;
 };
@@ -90,7 +91,7 @@ export type StringObject = { [key: string]: string };
  * ----
  */
 export type DrawingTools = {
-  icon: JSX.Element;
+  icon?: JSX.Element;
   tooltip?: string;
   id: string;
   setupCustomState?: (state: CustomState) => any;

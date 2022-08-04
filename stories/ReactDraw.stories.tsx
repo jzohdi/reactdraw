@@ -27,9 +27,41 @@ import {
   FontSizeStyle,
 } from "../src";
 
+const AbsoluteLayout = { width: 500, height: 500 };
+const layoutOptions = {
+  fit: "fit",
+  default: "default",
+  AbsoluteLayout,
+};
 export default {
   title: "ReactDraw",
   component: ReactDraw,
+  argTypes: {
+    topBarTools: {
+      type: { name: "object", required: true },
+      defaultValue: null,
+      description:
+        "Drawing tools that will be displayed at the top of the canvas and can be selected if they have an icon property. These tools are of type `DrawingTools`. Not implementing an icon on the tool can be useful if you want a tool in the background that can still handle object updates.",
+      control: {
+        type: "object",
+      },
+    },
+    layout: {
+      options: Object.keys(layoutOptions),
+      mapping: layoutOptions,
+      description:
+        "if default sets absolute size of width: 500, height: 500. fit will simply wrap the children to <ReactDraw>{children}</ReactDraw>. layout can also be passed an object of { width: number, height: number }",
+      defaultValue: "default",
+      control: {
+        type: "select",
+        labels: {
+          default: "default",
+          fit: "fit",
+          AbsoluteLayout: "{ width: 500, height: 500 }",
+        },
+      },
+    },
+  },
 };
 
 const Template: Story<ReactDrawProps> = (args) => <ReactDraw {...args} />;
@@ -55,9 +87,9 @@ const bottomBarTools: ActionTools[] = [
   bringForwardTool,
 ];
 
-export const DefaultLayoutWithoutChildren = Template.bind({});
+export const DefaultLayoutAllTools = Template.bind({});
 
-DefaultLayoutWithoutChildren.args = {
+DefaultLayoutAllTools.args = {
   topBarTools,
   bottomBarTools,
   shouldSelectAfterCreate: true,

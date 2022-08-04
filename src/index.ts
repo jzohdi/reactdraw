@@ -20,3 +20,6 @@ export { default as OpacityStyle } from "./StyleComponents/OpacityPicker";
 export { default as FontSizeStyle } from "./StyleComponents/FontSizePicker";
 export { default as arrowTool } from "./TopBarTools/ArrowTool";
 export { default as ClearAllButton } from "./MenuComponents/ClearAllButton";
+export * from "./types";
+export { COLORS as COLORS } from "./constants";
+export { createNewObject, addObject, centerObject } from "./utils/utils";

@@ -6,7 +6,7 @@ import { COLORS } from "../constants";
 import ToolTip from "../Alerts/ToolTip";
 
 type TopBarTool = {
-  icon: JSX.Element;
+  icon?: JSX.Element;
   id: string;
   tooltip?: string;
 };
@@ -53,30 +53,23 @@ export function TopToolBar({
   onSelectTool,
   currentTool,
 }: TopToolBarProps) {
-  const getPosition = (tool: TopBarTool, index: number) => {
-    if (!tool.tooltip) {
-      return { top: "", left: "" };
-    }
-    if (index <= tools.length / 2) {
-      return { top: "50px", left: "0" };
-    }
-    return { top: "50px", left: `-${tool.tooltip.length * 3}px` };
-  };
   return (
     <TopBarContainer>
-      {tools.map((tool, i) => {
-        const tooltip = tool.tooltip;
-        return (
-          <ToolTip text={tooltip} position="top" key={tool.id}>
-            <ToolIconWrapper
-              selected={tool.id === currentTool}
-              onSelect={() => onSelectTool(tool.id)}
-            >
-              {tool.icon}
-            </ToolIconWrapper>
-          </ToolTip>
-        );
-      })}
+      {tools
+        .filter((tool) => !!tool.icon)
+        .map((tool, i) => {
+          const tooltip = tool.tooltip;
+          return (
+            <ToolTip text={tooltip} position="top" key={tool.id}>
+              <ToolIconWrapper
+                selected={tool.id === currentTool}
+                onSelect={() => onSelectTool(tool.id)}
+              >
+                {tool.icon}
+              </ToolIconWrapper>
+            </ToolTip>
+          );
+        })}
     </TopBarContainer>
   );
 }

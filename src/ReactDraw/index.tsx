@@ -41,7 +41,7 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
   id = "main",
   topBarTools,
   hideTopBar,
-  bottomBarTools,
+  bottomBarTools = [],
   hideBottomBar,
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
@@ -100,7 +100,9 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
         const ctx = getReactDrawContext();
         unselectEverything(ctx);
         ctx.fullState[SELECT_TOOL_ID].selectedIds = [obj.container.id];
+		console.log(ctx.fullState)
         selectElement(obj, ctx);
+		objectToSelect.current = null;
       }
     }
     updateBottomToolDisplayMap();
@@ -119,6 +121,7 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
     }
     const ctx = getReactDrawContext();
     unselectEverything(ctx);
+	ctx.fullState[SELECT_TOOL_ID].selectedIds = [data.container.id]
     selectElement(data, ctx);
     updateBottomToolDisplayMap();
   };
@@ -139,6 +142,7 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(function ReactDraw({
       selectDrawingTool: handleSelectTopTool,
       selectObject,
       shouldSelectAfterCreate,
+	  globalStyles: globalStyles.current
     };
   };
 
