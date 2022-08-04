@@ -79,6 +79,6 @@ npm run add
 ISC, see [License][1] for details
 
 [1]: https://github.com/jzohdi/reactdraw/blob/main/LICENSE
-[3]: https://jzohdi.github.io/reactdraw/?path=/story/reactdraw--hide-top-and-bottom-bar
+[3]: https://jzohdi.github.io/reactdraw/?path=/docs/reactdraw--free-draw-only
 [2]: https://jzohdi.github.io/reactdraw/?path=/story/introduction--page
 [4]: https://storybook.js.org/

@@ -17,8 +17,8 @@ import { PhotographBoldIcon } from "@jzohdi/jsx-icons";
 import styled from "styled-components";
 
 export default {
-  title: "Customization Examples",
-  component: ReactDraw,
+  title: "Customization Examples/Add Images To Canvas",
+  //   component: ReactDraw,
 };
 
 const inputId = "my-button-id";
