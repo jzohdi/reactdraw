@@ -103,8 +103,8 @@ DefaultLayoutAllTools.args = {
   menuComponents: [ClearAllButton],
 };
 
-export const HideTopAndBottomBar = Template.bind({});
-HideTopAndBottomBar.args = {
+export const FreeDrawOnly = Template.bind({});
+FreeDrawOnly.args = {
   topBarTools: [freeDrawTool],
   hideTopBar: true,
   bottomBarTools: [],
