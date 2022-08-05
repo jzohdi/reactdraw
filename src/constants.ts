@@ -8,6 +8,16 @@ export const ERASE_TOOL_ID = "react-draw-erase-tool";
 export const FREE_DRAW_TOOL_ID = "react-draw-free-tool";
 export const SELECT_TOOL_ID = "react-draw-cursor";
 //============== STYLES =========================
+//          Styles Keys
+export const BOTTOM_BAR_CONTAINER_CLASSES = "bottomBarContainer";
+export const TOOL_ICON_WRAPPER_CLASSES = "toolIconWrapper";
+export const CLEAR_ALL_BUTTON_CLASSES = "clearAllButton";
+export const ALERT_MESSAGE_DIALOG_CLASSES = "alertMessageDialog";
+export const BOTTOM_TOOL_BUTTON_CLASSES = "bottomToolButton";
+export const MENU_BUTTON_CLASSES = "menuButton";
+export const MENU_CONTAINER_CLASSES = "menuContainer";
+export const TOP_BAR_CONTAINER_CLASSES = "topBarBontainer";
+
 // break point medium
 export const BPmd = 450;
 // max distnace for a select click stop - end to be considered a click

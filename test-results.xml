@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.0030" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2022-08-04T22:38:21" tests="0" time="0.0000" failures="0">
+  </testsuite>
+  <testsuite name="tests basic" timestamp="2022-08-04T22:38:21" tests="1" file="C:\Users\jakez\Desktop\Programming\Personal_Projects\ReactDraw\test\cssFromState.test.ts" time="0.0020" failures="0">
+    <testcase name="tests basic should return css classes" time="0.0000" classname="should return css classes">
+    </testcase>
+  </testsuite>
+</testsuites>

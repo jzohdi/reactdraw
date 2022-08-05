@@ -1,39 +1,21 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import { ALERT_MESSAGE_DIALOG_CLASSES } from "../constants";
+import { useStyles } from "../Styles/hooks";
 import { useAlerts } from "./hooks";
-
-type DialogProps = {
-  open: boolean;
-  position: "top" | "bottom";
-};
-
-const Dialog = styled.dialog<DialogProps>`
-  position: absolute;
-  /* top: 10px; */
-  white-space: nowrap;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 10px;
-  z-index: 1001;
-  ${(props) => {
-    return css`
-      ${props.position}: 10px
-    `;
-  }}
-`;
 
 export default function AlertMessage() {
   const [state] = useAlerts();
+  const classes = useStyles(ALERT_MESSAGE_DIALOG_CLASSES);
   return (
-    <Dialog
+    <dialog
+      className={classes}
       style={{
         backgroundColor: state.color || "black",
-        color: "white",
+        [state.position]: 10,
       }}
-      position={state.position}
       open={state.message !== null}
     >
       {state.message}
-    </Dialog>
+    </dialog>
   );
 }

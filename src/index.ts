@@ -23,3 +23,4 @@ export { default as ClearAllButton } from "./MenuComponents/ClearAllButton";
 export * from "./types";
 export { COLORS as COLORS } from "./constants";
 export { createNewObject, addObject, centerObject } from "./utils/utils";
+export { useStyles } from "./Styles/hooks";

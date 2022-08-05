@@ -1,5 +1,16 @@
-import { MutableRefObject, CSSProperties } from "react";
-import { ERASE_TOOL_ID, FREE_DRAW_TOOL_ID, SELECT_TOOL_ID } from "./constants";
+import { MutableRefObject } from "react";
+import {
+  ERASE_TOOL_ID,
+  SELECT_TOOL_ID,
+  ALERT_MESSAGE_DIALOG_CLASSES,
+  BOTTOM_BAR_CONTAINER_CLASSES,
+  BOTTOM_TOOL_BUTTON_CLASSES,
+  CLEAR_ALL_BUTTON_CLASSES,
+  MENU_BUTTON_CLASSES,
+  MENU_CONTAINER_CLASSES,
+  TOOL_ICON_WRAPPER_CLASSES,
+} from "./constants";
+import { StylesValue } from "./Styles/types";
 
 export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 export type LayoutAbsolute = {
@@ -211,7 +222,7 @@ export type MenuComponent = (props: {
   getContext: () => ReactDrawContext;
 }) => JSX.Element;
 
-export type ReactDrawProps = {
+export type ReactDrawInnerProps = {
   children?: ReactChild;
   layout?: LayoutOption;
   topBarTools: DrawingTools[];
@@ -224,6 +235,34 @@ export type ReactDrawProps = {
   styleComponents?: StyleComponents;
   menuComponents?: MenuComponent[];
 };
+
+export type StylesObject = {
+  [BOTTOM_BAR_CONTAINER_CLASSES]?: StylesValue;
+  [TOOL_ICON_WRAPPER_CLASSES]?: StylesValue;
+  [CLEAR_ALL_BUTTON_CLASSES]?: StylesValue;
+  [ALERT_MESSAGE_DIALOG_CLASSES]?: StylesValue;
+  [BOTTOM_TOOL_BUTTON_CLASSES]?: StylesValue;
+  [MENU_BUTTON_CLASSES]?: StylesValue;
+  [MENU_CONTAINER_CLASSES]?: StylesValue;
+  [MENU_BUTTON_CLASSES]?: StylesValue;
+  [other: string]: StylesValue | undefined;
+};
+export type ClassNamesObject = {
+  [BOTTOM_BAR_CONTAINER_CLASSES]?: string;
+  [TOOL_ICON_WRAPPER_CLASSES]?: string;
+  [CLEAR_ALL_BUTTON_CLASSES]?: string;
+  [ALERT_MESSAGE_DIALOG_CLASSES]?: string;
+  [BOTTOM_TOOL_BUTTON_CLASSES]?: string;
+  [MENU_BUTTON_CLASSES]?: string;
+  [MENU_CONTAINER_CLASSES]?: string;
+  [MENU_BUTTON_CLASSES]?: string;
+  [other: string]: string | undefined;
+};
+export type StylesProviderProps = {
+  styles?: StylesObject;
+  classNames?: ClassNamesObject;
+};
+export type ReactDrawProps = StylesProviderProps & ReactDrawInnerProps;
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =
