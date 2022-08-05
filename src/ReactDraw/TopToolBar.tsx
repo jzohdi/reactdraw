@@ -1,9 +1,8 @@
 import React from "react";
 import ToolIconWrapper from "./ToolIconWrapper";
-import styled from "styled-components";
-import { COLORS } from "../constants";
-// import ToolTip from "../components/ToolTip";
 import ToolTip from "../Alerts/ToolTip";
+import { useStyles } from "../Styles/hooks";
+import { TOP_BAR_CONTAINER_CLASSES } from "../constants";
 
 type TopBarTool = {
   icon?: JSX.Element;
@@ -17,44 +16,15 @@ export type TopToolBarProps = {
   currentTool: string;
 };
 
-const TopBarContainer = styled.div`
-  display: flex;
-  background-color: ${COLORS.primary.light};
-  z-index: 1000;
-  width: 100%;
-  overflow-x: auto;
-  /* Firefox */
-  * {
-    scrollbar-width: none;
-    scrollbar-color: ${COLORS.primary.main} #e2ecf5;
-  }
-
-  /* Chrome, Edge, and Safari */
-  &::-webkit-scrollbar {
-    height: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #e2ecf5;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #035195;
-    border-radius: 10px;
-    border: 3px none #ffffff;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #00294d;
-  }
-`;
-
 export function TopToolBar({
   tools,
   onSelectTool,
   currentTool,
 }: TopToolBarProps) {
+  const classes = useStyles(TOP_BAR_CONTAINER_CLASSES);
+
   return (
-    <TopBarContainer>
+    <div className={classes}>
       {tools
         .filter((tool) => !!tool.icon)
         .map((tool, i) => {
@@ -70,6 +40,6 @@ export function TopToolBar({
             </ToolTip>
           );
         })}
-    </TopBarContainer>
+    </div>
   );
 }

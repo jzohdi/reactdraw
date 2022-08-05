@@ -1,7 +1,16 @@
 import React from "react";
-import { MutableRefObject } from "react";
+import { MutableRefObject, CSSProperties } from "react";
 declare const ERASE_TOOL_ID = "react-draw-erase-tool";
 declare const SELECT_TOOL_ID = "react-draw-cursor";
+//============== STYLES =========================
+//          Styles Keys
+declare const BOTTOM_BAR_CONTAINER_CLASSES = "bottomBarContainer";
+declare const TOOL_ICON_WRAPPER_CLASSES = "toolIconWrapper";
+declare const CLEAR_ALL_BUTTON_CLASSES = "clearAllButton";
+declare const ALERT_MESSAGE_DIALOG_CLASSES = "alertMessageDialog";
+declare const BOTTOM_TOOL_BUTTON_CLASSES = "bottomToolButton";
+declare const MENU_BUTTON_CLASSES = "menuButton";
+declare const MENU_CONTAINER_CLASSES = "menuContainer";
 declare const COLORS: {
     primary: {
         light: string;
@@ -11,6 +20,28 @@ declare const COLORS: {
         light: string;
     };
 };
+/**
+ * Example:
+ * {
+ *    '@keyframes my-animation': {
+ *        '0%': {
+ *            ...CSSProperties
+ *        },
+ *        '100%': {
+ *            ...CSSProperties
+ *        }
+ *    }
+ * }
+ */
+type KeyFramesValue = {
+    [percent: string]: CSSProperties;
+};
+type KeyFramesDefinition = {
+    [keyframesDef: string]: KeyFramesValue;
+};
+type StylesValue = CSSProperties | {
+    [selector: string]: CSSProperties;
+} | KeyFramesDefinition;
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
@@ -183,7 +214,7 @@ type StyleComponents = {
 type MenuComponent = (props: {
     getContext: () => ReactDrawContext;
 }) => JSX.Element;
-type ReactDrawProps = {
+type ReactDrawInnerProps = {
     children?: ReactChild;
     layout?: LayoutOption;
     topBarTools: DrawingTools[];
@@ -196,10 +227,37 @@ type ReactDrawProps = {
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
 };
+type StylesObject = {
+    [BOTTOM_BAR_CONTAINER_CLASSES]?: StylesValue;
+    [TOOL_ICON_WRAPPER_CLASSES]?: StylesValue;
+    [CLEAR_ALL_BUTTON_CLASSES]?: StylesValue;
+    [ALERT_MESSAGE_DIALOG_CLASSES]?: StylesValue;
+    [BOTTOM_TOOL_BUTTON_CLASSES]?: StylesValue;
+    [MENU_BUTTON_CLASSES]?: StylesValue;
+    [MENU_CONTAINER_CLASSES]?: StylesValue;
+    [MENU_BUTTON_CLASSES]?: StylesValue;
+    [other: string]: StylesValue | undefined;
+};
+type ClassNamesObject = {
+    [BOTTOM_BAR_CONTAINER_CLASSES]?: string;
+    [TOOL_ICON_WRAPPER_CLASSES]?: string;
+    [CLEAR_ALL_BUTTON_CLASSES]?: string;
+    [ALERT_MESSAGE_DIALOG_CLASSES]?: string;
+    [BOTTOM_TOOL_BUTTON_CLASSES]?: string;
+    [MENU_BUTTON_CLASSES]?: string;
+    [MENU_CONTAINER_CLASSES]?: string;
+    [MENU_BUTTON_CLASSES]?: string;
+    [other: string]: string | undefined;
+};
+type StylesProviderProps = {
+    styles?: StylesObject;
+    classNames?: ClassNamesObject;
+};
+type ReactDrawProps = StylesProviderProps & ReactDrawInnerProps;
 type PartialCSS = Partial<CSSStyleDeclaration>;
 type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
 type HTMLEvent = keyof HTMLElementEventMap;
-declare const _default: React.ForwardRefExoticComponent<ReactDrawProps & React.RefAttributes<HTMLDivElement>>;
+declare const _default: React.ForwardRefExoticComponent<StylesProviderProps & ReactDrawInnerProps & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
@@ -229,5 +287,6 @@ declare const ClearAllButton: MenuComponent;
 declare function createNewObject(ctx: ReactDrawContext, point: Point, toolId: string): DrawingData;
 declare function addObject(ctx: ReactDrawContext, obj: DrawingData): void;
 declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: number, h?: number): void;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, COLORS, createNewObject, addObject, centerObject };
+declare function useStyles(key: string): string;
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, COLORS, createNewObject, addObject, centerObject, useStyles };
 //# sourceMappingURL=index.d.ts.map

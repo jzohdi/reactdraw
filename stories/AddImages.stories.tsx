@@ -7,14 +7,15 @@ import {
   ClearAllButton,
   DrawingTools,
   MenuComponent,
-  ReactDrawProps,
+  ReactDrawInnerProps,
   COLORS,
   createNewObject,
   addObject,
   centerObject,
+  useStyles,
+  ReactDrawProps,
 } from "../src";
 import { PhotographBoldIcon } from "@jzohdi/jsx-icons";
-import styled from "styled-components";
 
 export default {
   title: "Customization Examples/Add Images To Canvas",
@@ -49,25 +50,9 @@ function getDimensions(img: HTMLImageElement) {
   return { width: naturalWidth, height: naturalHeight };
 }
 
-const StyledButton = styled.label`
-  width: 180px;
-  font-size: 16px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  border-radius: 5px;
-  cursor: pointer;
-  border: none;
-  padding: 7px 10px;
-  background-color: white;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-  border: 1px solid ${COLORS.primary.main};
-  &:hover {
-    background-color: ${COLORS.primary.light};
-  }
-`;
 const AddImageMenuComponent: MenuComponent = ({ getContext }) => {
+  const classes = useStyles("addImageComponent");
+
   const handleAddImage = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !files[0]) {
@@ -90,11 +75,13 @@ const AddImageMenuComponent: MenuComponent = ({ getContext }) => {
       if (ctx.shouldSelectAfterCreate) {
         ctx.selectObject(newData);
       }
+      e.target.files = null;
     };
     img.src = toUrl;
   };
+
   return (
-    <StyledButton htmlFor={inputId}>
+    <label htmlFor={inputId} role="button" className={classes}>
       <div style={{ padding: "0px 10px 0px 5px", height: 20 }}>
         <PhotographBoldIcon height={15} width={20} />
       </div>
@@ -106,11 +93,34 @@ const AddImageMenuComponent: MenuComponent = ({ getContext }) => {
         onChange={handleAddImage}
       />
       Add Image
-    </StyledButton>
+    </label>
   );
 };
 
-const Template: Story<ReactDrawProps> = (args) => <ReactDraw {...args} />;
+const Template: Story<ReactDrawProps> = (args) => (
+  <ReactDraw
+    {...args}
+    styles={{
+      addImageComponent: {
+        width: 180,
+        fontSize: 16,
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        borderRadius: 5,
+        cursor: "pointer",
+        padding: "7px 10px",
+        backgroundColor: "white",
+        marginBottom: 10,
+        boxSizing: "border-box",
+        border: `1px solid ${COLORS.primary.main}`,
+        "&:hover": {
+          backgroundColor: COLORS.primary.light,
+        },
+      },
+    }}
+  />
+);
 
 export const AddImagesToCanvas = Template.bind({});
 
@@ -161,75 +171,87 @@ export default function ExampleProject() {
 		shouldSelectAfterCreate={true}
 		menuComponents={[AddImageMenuComponent, ClearAllButton]}
 		shouldKeepHistory={false}
+		styles={{
+			addImageComponent: {
+			  width: 180,
+			  fontSize: 16,
+			  display: "flex",
+			  justifyContent: "flex-start",
+			  alignItems: "center",
+			  borderRadius: 5,
+			  cursor: "pointer",
+			  padding: "7px 10px",
+			  backgroundColor: "white",
+			  marginBottom: 10,
+			  boxSizing: "border-box",
+			  border: \`1px solid \${COLORS.primary.main}\`,
+			  "&:hover": {
+				backgroundColor: COLORS.primary.light,
+			  },
+			},
+		  }}		
 		/>
 
 }
 
 function getDimensions(img: HTMLImageElement) {
-  return { width: img.naturalWidth, height: img.naturalHeight };
+	const { naturalWidth, naturalHeight } = img;
+	const ratio = naturalWidth / naturalHeight;
+	if (naturalWidth > maxWidth) {
+	  return { width: maxWidth, height: maxWidth / ratio };
+	}
+	if (naturalHeight > maxHeight) {
+	  return { width: maxHeight * ratio, height: maxHeight };
+	}
+	return { width: naturalWidth, height: naturalHeight };
 }
 
-const StyledButton = styled.label\`
-  width: 180px;
-  font-size: 16px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  border-radius: 5px;
-  cursor: pointer;
-  border: none;
-  padding: 7px 10px;
-  background-color: white;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-  border: 1px solid \${COLORS.primary.main};
-  &:hover {
-    background-color: \${COLORS.primary.light};
-  }
-\`;
 const AddImageMenuComponent: MenuComponent = ({ getContext }) => {
-  const handleAddImage = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !files[0]) {
-      return;
-    }
-    const ctx = getContext();
-    const viewContainer = ctx.viewContainer;
-    const { width, height } = viewContainer.getBoundingClientRect();
-    const newData = createNewObject(ctx, [width / 2, height / 2], imageToolId);
-    addObject(ctx, newData);
-    const toUrl = URL.createObjectURL(files[0]);
-    const img = new Image();
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.onload = function () {
-	  newData.element = img;
-      newData.container.div.appendChild(img);
-      const { width, height } = getDimensions(img);
-      centerObject(ctx, newData, width, height);
-      if (ctx.shouldSelectAfterCreate) {
-          ctx.selectObject(newData);
-      }
-    };
-    img.src = toUrl;
-  };
-  return (
-    <StyledButton htmlFor={inputId}>
-      <div style={{ padding: "0px 10px 0px 5px", height: 20 }}>
-        <PhotographBoldIcon height={15} width={20} />
-      </div>
-      <input
-        id={inputId}
-        style={{ display: "none" }}
-        type="file"
-        accept="jpg,png,jpeg"
-        onChange={handleAddImage}
-      />
-      Add Image
-    </StyledButton>
-  );
-};	  
-	 
+	const classes = useStyles("addImageComponent");
+
+	const handleAddImage = (e: ChangeEvent<HTMLInputElement>) => {
+		const files = e.target.files;
+		if (!files || !files[0]) {
+		return;
+		}
+		const ctx = getContext();
+		const viewContainer = ctx.viewContainer;
+		const { width, height } = viewContainer.getBoundingClientRect();
+		const newData = createNewObject(ctx, [width / 2, height / 2], imageToolId);
+		addObject(ctx, newData);
+		const toUrl = URL.createObjectURL(files[0]);
+		const img = new Image();
+		img.style.width = "100%";
+		img.style.height = "100%";
+		img.onload = function () {
+		newData.element = img;
+		newData.container.div.appendChild(img);
+		const { width, height } = getDimensions(img);
+		centerObject(ctx, newData, width, height);
+		if (ctx.shouldSelectAfterCreate) {
+			ctx.selectObject(newData);
+		}
+		e.target.files = null;
+		};
+		img.src = toUrl;
+	};
+
+	return (
+		<label htmlFor={inputId} role="button" className={classes}>
+		<div style={{ padding: "0px 10px 0px 5px", height: 20 }}>
+			<PhotographBoldIcon height={15} width={20} />
+		</div>
+		<input
+			id={inputId}
+			style={{ display: "none" }}
+			type="file"
+			accept="jpg,png,jpeg"
+			onChange={handleAddImage}
+		/>
+		Add Image
+		</label>
+	);
+};
 	  `,
       language: "tsx",
       type: "auto",

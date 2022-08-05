@@ -1,7 +1,12 @@
 import React from "react";
 import { Story } from "@storybook/react";
 import ReactDraw from "../src/ReactDraw";
-import { ActionTools, DrawingTools, ReactDrawProps } from "../src/types";
+import {
+  ActionTools,
+  DrawingTools,
+  ReactDrawInnerProps,
+  ReactDrawProps,
+} from "../src/types";
 
 import {
   circleTool,
@@ -138,4 +143,107 @@ FitLayoutWithChildren.args = {
     </div>
   ),
   layout: "fit",
+};
+
+export const CustomizeStyles = Template.bind({});
+
+CustomizeStyles.args = {
+  topBarTools,
+  bottomBarTools,
+  shouldKeepHistory: true,
+  shouldSelectAfterCreate: true,
+  styles: {
+    toolIconWrapper: {
+      "&:hover": {
+        backgroundColor: "red",
+      },
+    },
+    bottomToolButton: {
+      '&[data-disabled="false"]:hover': {
+        backgroundColor: "black",
+      },
+      '&[data-disabled="false"]:hover > svg path': {
+        fill: "white",
+        stroke: "white",
+      },
+    },
+  },
+};
+
+CustomizeStyles.parameters = {
+  docs: {
+    source: {
+      code: `
+import {
+	circleTool,
+	squareTool,
+	selectTool,
+	freeDrawTool,
+	diamondTool,
+	straightLineTool,
+	textAreaTool,
+	eraseTool,
+	undoTool,
+	redoTool,
+	trashTool,
+	duplicateTool,
+	bringBackTool,
+	bringForwardTool,
+	ColorStyle,
+	BackgroundStyle,
+	LineWidthStyle,
+	OpacityStyle,
+	arrowTool,
+	ClearAllButton,
+	FontSizeStyle,
+} from "../src";
+
+export default function ReactDrawWithCustomStyles() {
+	return (
+		<ReactDraw
+			topBarTools={[ 
+				selectTool,
+				freeDrawTool,
+				squareTool,
+				circleTool,
+				diamondTool,
+				straightLineTool,
+				textAreaTool,
+				arrowTool,
+				eraseTool
+			]}
+			bottomBarTools={[
+				undoTool,
+				redoTool,
+				trashTool,
+				duplicateTool,
+				bringBackTool,
+				bringForwardTool
+			]}
+			shouldKeepHistory={true}
+			shouldSelectAfterCreate={true}
+			styles={{
+				toolIconWrapper: {
+					"&:hover": {
+					backgroundColor: "red",
+					},
+				},
+				bottomToolButton: {
+					'&[data-disabled="false"]:hover': {
+						backgroundColor: "black",
+					},
+					'&[data-disabled="false"]:hover > svg path': {
+						fill: "white",
+						stroke: "white",
+					},
+				},				
+			}}
+		/> 
+	)
+}
+`,
+    },
+    language: "tsx",
+    type: "auto",
+  },
 };
