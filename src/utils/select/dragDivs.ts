@@ -1,3 +1,4 @@
+import { getBoxSize } from "..";
 import { DrawingData, Point } from "../../types";
 
 export function dragDivs(
@@ -10,13 +11,10 @@ export function dragDivs(
   const newLeft = currentMouseX - prevMouseX;
   const newTop = currentMouseY - prevMouseY;
   for (const obj of objects) {
-    const { bounds, div } = obj.container;
-    const { left, top, right, bottom } = bounds;
-    bounds.left = left + newLeft;
-    bounds.top = top + newTop;
-    bounds.right = bounds.left + (right - left);
-    bounds.bottom = bounds.top + (bottom - top);
-    div.style.top = bounds.top + "px";
-    div.style.left = bounds.left + "px";
+    const div = obj.containerDiv;
+    const bounds = getBoxSize(obj);
+    const { left, top } = bounds;
+    div.style.top = top + newTop + "px";
+    div.style.left = left + newLeft + "px";
   }
 }

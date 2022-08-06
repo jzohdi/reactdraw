@@ -12,8 +12,8 @@ export function unselectElement(
   data: DrawingData,
   ctx: ReactDrawContext
 ): void {
-  const objectId = data.container.id;
-  const { div } = data.container;
+  const objectId = data.id;
+  const div = data.containerDiv;
   const state = ctx.fullState[SELECT_TOOL_ID];
   const handlers = state.handlers[objectId];
   if (handlers) {

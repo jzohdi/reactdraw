@@ -7,6 +7,7 @@ import {
   RotateUndoData,
 } from "../../utils/select/types";
 import { getRotateFromDiv } from "../../utils/select/getRotateFromDiv";
+import { getBoxSize } from "../../utils";
 
 export function handleDragUndo(
   action: ActionObject,
@@ -16,15 +17,14 @@ export function handleDragUndo(
   const redoData: DragUndoData[] = [];
   for (const obj of data) {
     const object = getObjectFromMap(ctx.objectsMap, obj.objectId);
-    const { bounds, div } = object.container;
+    const div = object.containerDiv;
+    const bounds = getBoxSize(object);
     const { left, top } = obj;
     redoData.push({
       objectId: obj.objectId,
       top: bounds.top,
       left: bounds.left,
     });
-    bounds.top = top;
-    bounds.left = left;
     div.style.left = left + "px";
     div.style.top = top + "px";
     alertAfterUpdate(object, ctx);
@@ -42,7 +42,7 @@ export function handleRotateUndo(
   const redoData: RotateUndoData[] = [];
   for (const obj of data) {
     const object = getObjectFromMap(ctx.objectsMap, obj.objectId);
-    const { div } = object.container;
+    const div = object.containerDiv;
     const currRotate = getRotateFromDiv(div);
     redoData.push({
       objectId: obj.objectId,
@@ -61,12 +61,10 @@ export function handelResizeUndo(
 ): ActionObject {
   const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   const undoData = action.data as ResizeUndoData;
-  const currBounds = object.container.bounds;
+  const currBounds = getBoxSize(object);
   const redoBounds: RectBounds = { ...currBounds };
 
-  setDivToBounds(object.container.div, undoData.bounds);
-
-  object.container.bounds = undoData.bounds;
+  setDivToBounds(object.containerDiv, undoData.bounds);
 
   const toolUsed = getToolById(ctx.drawingTools, object.toolId);
   toolUsed.onResize(object, {

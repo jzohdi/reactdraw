@@ -170,11 +170,11 @@ type RectBounds = {
 type DrawingContainer = {
     div: HTMLDivElement;
     id: string;
-    bounds: RectBounds;
 };
 type DrawingData = {
+    id: string;
+    containerDiv: HTMLDivElement;
     coords: Point[];
-    container: DrawingContainer;
     element: HTMLElement | SVGSVGElement | null;
     style: ToolPropertiesMap;
     toolId: string;

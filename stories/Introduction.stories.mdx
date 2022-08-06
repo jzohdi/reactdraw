@@ -84,7 +84,9 @@ export default function MyComponent() {
 }
 ```
 
-## Prop Type
+## ReactDraw Prop Types
+
+See all types [here][2]
 
 ```typescript
 type ReactDrawProps = {
@@ -99,6 +101,8 @@ type ReactDrawProps = {
   id: string;
   styleComponents?: StyleComponents;
   menuComponents?: MenuComponent[];
+  styles?: StylesObject;
+  classNames?: ClassNamesObject;
 };
 
 type LayoutOption = "default" | LayoutAbsolute | "fit";
@@ -107,6 +111,45 @@ type LayoutAbsolute = {
   width: number | string;
   height: number | string;
 };
+
+type StylesObject = {
+  bottomBarContainer?: StylesValue;
+  toolIconWrapper?: StylesValue;
+  clearAllButton?: StylesValue;
+  alertMessageDialog?: StylesValue;
+  bottomToolButton?: StylesValue;
+  menuButton?: StylesValue;
+  menuContainer?: StylesValue;
+  topBarBontainer?: StylesValue;
+  [other: string]: StylesValue | undefined;
+};
+
+type ClassNamesObject = {
+  bottomBarContainer?: string;
+  toolIconWrapper?: string;
+  clearAllButton?: string;
+  alertMessageDialog?: string;
+  bottomToolButton?: string;
+  menuButton?: string;
+  menuContainer?: string;
+  topBarBontainer?: string;
+  [other: string]: string | undefined;
+};
+
+type KeyFramesValue = {
+  [percent: string]: CSSProperties;
+};
+
+type KeyFramesDefinition = {
+  [keyframesDef: string]: KeyFramesValue;
+};
+
+type StylesValue =
+  | CSSProperties
+  | {
+      [selector: string]: CSSProperties;
+    }
+  | KeyFramesDefinition;
 ```
 
 ## Roadmap
@@ -119,15 +162,15 @@ type LayoutAbsolute = {
 - [x] text area font size update
 - [x] forward ref
 - [x] tool bar overflow
-- [ ] styles/classnames props
+- [x] styles/classnames props
+- [x] remove dep on styled components - used for hover and animations
+- [x] give example of to image
 - [ ] remove bounds and derive bounds from div instead
 - [ ] improve docs
 - [ ] responsive mode?
 - [ ] save/load?
 - [ ] fix select object when rotated (correctly calculate the new bounds if rotated) (maybe fix getCenterPoint too)
 - [ ] provide utils as part of package
-- [ ] give example of to image
-- [ ] remove dep on styled components - used for hover and animations
 - [-] [free draw bezier curve][1]
 - [-] fix resize when rotated
 
@@ -140,3 +183,4 @@ type LayoutAbsolute = {
 - [x] rollup
 
 [1]: https://francoisromain.medium.com/smooth-a-svg-path-with-cubic-bezier-curves-e37b49d46c74
+[2]: https://github.com/jzohdi/reactdraw/blob/main/src/types.ts

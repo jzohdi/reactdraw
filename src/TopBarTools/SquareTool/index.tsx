@@ -25,7 +25,7 @@ const squareTool: DrawingTools = {
   icon: <SquareBoldIcon />,
   onDrawStart: (data) => {
     const newSquare = makeSquareDiv(data.style);
-    data.container.div.appendChild(newSquare);
+    data.containerDiv.appendChild(newSquare);
     data.element = newSquare;
   },
   onDrawing: (data) => {

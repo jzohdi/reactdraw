@@ -166,11 +166,11 @@ export type RectBounds = {
 export type DrawingContainer = {
   div: HTMLDivElement;
   id: string;
-  bounds: RectBounds;
 };
 export type DrawingData = {
+  id: string;
+  containerDiv: HTMLDivElement;
   coords: Point[];
-  container: DrawingContainer;
   element: HTMLElement | SVGSVGElement | null;
   style: ToolPropertiesMap;
   toolId: string;

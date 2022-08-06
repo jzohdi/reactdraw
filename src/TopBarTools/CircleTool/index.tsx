@@ -25,7 +25,7 @@ const circlTool: DrawingTools = {
   icon: <CircleBoldIcon />,
   onDrawStart: (data) => {
     const newSquare = makeCircleDiv(data.style);
-    data.container.div.appendChild(newSquare);
+    data.containerDiv.appendChild(newSquare);
     data.element = newSquare;
   },
   onDrawing: (data) => {

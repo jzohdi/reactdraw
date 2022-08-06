@@ -21,6 +21,7 @@ import {
 import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../../utils/utils";
 import { actionObjToSave } from "../../utils/updateStyles/utils";
+import { getBoxSize } from "../../utils";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -53,7 +54,7 @@ const textAreaTool: DrawingTools = {
   },
   onUnSelect(data) {
     cleanHandlers(data, false);
-    setBoundsFromDiv(data.container.div, data.container.bounds);
+    setBoundsFromDiv(data.containerDiv, getBoxSize(data));
   },
   onAfterUpdate(data, ctx) {
     cleanHandlers(data, false);
@@ -94,8 +95,8 @@ function updateTextAreaFontSize(
 ): ActionObject {
   const curr = data.style.fontSize;
   data.style.fontSize = value;
-  data.container.div.style.fontSize = value + "px";
-  setBoundsFromDiv(data.container.div, data.container.bounds);
+  data.containerDiv.style.fontSize = value + "px";
+  setBoundsFromDiv(data.containerDiv, getBoxSize(data));
   return actionObjToSave(data, "fontSize", curr);
 }
 
@@ -109,7 +110,7 @@ function undoFontSize(
   const curr = object.style.fontSize;
   const styleToSave = action.data;
   object.style.fontSize = styleToSave;
-  object.container.div.style.fontSize = styleToSave + "px";
+  object.containerDiv.style.fontSize = styleToSave + "px";
   action.data = curr;
   return action;
 }
@@ -151,7 +152,7 @@ function undoTextAreaStyle(
   const currColor = object.style[dataKey];
   const colorTo = action.data;
   object.style[dataKey] = colorTo;
-  (object.container.div.style as any)[divKey] = colorTo;
+  (object.containerDiv.style as any)[divKey] = colorTo;
   action.data = currColor;
   return action;
 }
@@ -203,10 +204,11 @@ function placeCaretAtEnd(el: HTMLDivElement) {
 function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   const fontSize = 12;
   const padding = 5;
-  const { div, bounds } = data.container;
-  bounds.bottom = bounds.top + fontSize + padding;
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
+  const bottom = bounds.top + fontSize + padding;
   div.style.height = "";
-  div.style.minHeight = bounds.bottom - bounds.top + "px";
+  div.style.minHeight = bottom - bounds.top + "px";
   div.style.minWidth = div.style.width;
   div.style.width = "";
   div.style.border = "1px solid black";
@@ -229,16 +231,6 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   cursorDiv.style.opacity = data.style.opacity;
   data.element = cursorDiv;
 
-  function setBoundsOnTyping() {
-    const trueBounds = div.getBoundingClientRect();
-    const { width, height } = trueBounds;
-    bounds.bottom = bounds.top + height;
-    bounds.right = bounds.left + width;
-    // console.log("setting bounds on typing");
-  }
-  data.customData.set("handler", setBoundsOnTyping);
-  // TODO: verify this is not leaked
-  cursorDiv.addEventListener("keypress", setBoundsOnTyping);
   div.appendChild(cursorDiv);
   setBoundsFromDiv(div, bounds);
 
@@ -262,7 +254,7 @@ function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
         action: "input",
         data: "",
         toolType: "top-bar-tool",
-        objectId: data.container.id,
+        objectId: data.id,
       };
       pushActionToStack(action, ctx);
     } else if (currentMS - lastCaptureMS > 1000 * 5) {
@@ -272,7 +264,7 @@ function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
         action: "input",
         data: target.innerHTML,
         toolType: "top-bar-tool",
-        objectId: data.container.id,
+        objectId: data.id,
       };
       pushActionToStack(action, ctx);
     }

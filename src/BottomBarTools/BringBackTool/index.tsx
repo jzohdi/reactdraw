@@ -32,7 +32,7 @@ const bringBackTool: ActionTools = {
       }
     }
     selectObjects.forEach((obj) => {
-      obj.container.div.style.zIndex = lowestZIndex.toString();
+      obj.containerDiv.style.zIndex = lowestZIndex.toString();
       obj.style.zIndex = lowestZIndex.toString();
     });
   },
@@ -42,7 +42,7 @@ export default bringBackTool;
 
 function pushObjectUp(data: DrawingData): number {
   const currZ = parseInt(data.style.zIndex);
-  data.container.div.style.zIndex = (currZ + 1).toString();
+  data.containerDiv.style.zIndex = (currZ + 1).toString();
   data.style.zIndex = (currZ + 1).toString();
   return currZ;
 }

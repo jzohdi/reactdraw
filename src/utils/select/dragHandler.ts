@@ -7,6 +7,7 @@ import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
 import { dragDivs } from "./dragDivs";
 import { getRelativePoint, getTouchCoords } from "../utils";
+import { getBoxSize } from "..";
 
 function startDragging(ctx: ReactDrawContext, relativePoint: Point) {
   const state = ctx.fullState[SELECT_TOOL_ID];
@@ -116,10 +117,11 @@ function pushDragToUndoStack(ctx: ReactDrawContext) {
     toolType: "top-bar-tool",
     action: "drag",
     data: selectedObjects.map((o) => {
+      const bounds = getBoxSize(o);
       return {
-        objectId: o.container.id,
-        top: o.container.bounds.top,
-        left: o.container.bounds.left,
+        objectId: o.id,
+        top: bounds.top,
+        left: bounds.left,
       } as DragUndoData;
     }),
   };

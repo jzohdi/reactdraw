@@ -100,6 +100,6 @@ function updateTextStyle(
   }
   const currColor = data.style[dataKey];
   data.style[dataKey] = value;
-  (<any>data.container.div.style)[divKey] = value;
+  (<any>data.containerDiv.style)[divKey] = value;
   return actionObjToSave(data, dataKey as string, currColor);
 }

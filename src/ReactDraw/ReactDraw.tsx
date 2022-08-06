@@ -97,7 +97,7 @@ export default function ReactDraw({
       if (obj) {
         const ctx = getReactDrawContext();
         unselectEverything(ctx);
-        ctx.fullState[SELECT_TOOL_ID].selectedIds = [obj.container.id];
+        ctx.fullState[SELECT_TOOL_ID].selectedIds = [obj.id];
         selectElement(obj, ctx);
 		objectToSelect.current = null;
       }
@@ -118,7 +118,7 @@ export default function ReactDraw({
     }
     const ctx = getReactDrawContext();
     unselectEverything(ctx);
-	ctx.fullState[SELECT_TOOL_ID].selectedIds = [data.container.id]
+	ctx.fullState[SELECT_TOOL_ID].selectedIds = [data.id]
     selectElement(data, ctx);
     updateBottomToolDisplayMap();
   };
@@ -172,7 +172,7 @@ export default function ReactDraw({
       currentDrawingTool.id
     );
     currDrawObj.current = newDrawingData;
-    ctx.viewContainer.append(newDrawingData.container.div);
+    ctx.viewContainer.append(newDrawingData.containerDiv);
     currentDrawingTool.onDrawStart(newDrawingData, ctx);
   }
 
@@ -198,7 +198,7 @@ export default function ReactDraw({
     }
     currentDrawingData.coords.push(relativePoint);
     renderedElementsMap.current.set(
-      currentDrawingData.container.id,
+      currentDrawingData.id,
       currentDrawingData
     );
     currentDrawingTool.onDrawEnd(currentDrawingData, getReactDrawContext());

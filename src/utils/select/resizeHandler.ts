@@ -11,6 +11,7 @@ import { getToolById } from "../utils";
 
 import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
+import { getBoxSize } from "..";
 
 function startResizing(
   ctx: ReactDrawContext,
@@ -136,10 +137,10 @@ function pushResizeToUndoStack(ctx: ReactDrawContext) {
   if (selectedObjects.length !== 1) {
     throw new Error("resize push to stack expects 1 object selected");
   }
-  const { id, bounds } = selectedObjects[0].container;
-
+  const object = selectedObjects[0];
+  const bounds = getBoxSize(object);
   const action: ActionObject = {
-    objectId: id,
+    objectId: object.id,
     toolId: SELECT_TOOL_ID,
     toolType: "top-bar-tool",
     action: "resize",

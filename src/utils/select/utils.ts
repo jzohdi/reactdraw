@@ -24,20 +24,20 @@ export function selectManyElements(
   for (const data of selectObjects) {
     const selectFrame = makeSelectFrameDiv(data);
     if (selectFrame) {
-      addHandlersToSelectFrame(selectFrame, data.container.id, ctx);
-      data.container.div.appendChild(selectFrame);
+      addHandlersToSelectFrame(selectFrame, data.id, ctx);
+      data.containerDiv.appendChild(selectFrame);
     }
   }
 }
 
 function makeSelectFrameDiv(data: DrawingData) {
-  const containerDiv = data.container.div;
-  const eleId = data.container.id;
+  const containerDiv = data.containerDiv;
+  const objectId = data.id;
   if (isElementSelected(containerDiv)) {
     return null;
   }
   const div = document.createElement("div");
-  div.setAttribute("id", `${SELECT_FRAME_PRE}-${eleId}`);
+  div.setAttribute("id", `${SELECT_FRAME_PRE}-${objectId}`);
   //   div.setAttribute("draggable", "true");
   setStyles(div, SELECT_FRAME_DIV_STYLES);
   return div;
@@ -88,9 +88,9 @@ export function selectElement(data: DrawingData, ctx: ReactDrawContext): void {
   const selectFrame = makeSelectFrameDiv(data);
   //   console.log(ctx);
   if (selectFrame) {
-    addHandlersToSelectFrame(selectFrame, data.container.id, ctx);
+    addHandlersToSelectFrame(selectFrame, data.id, ctx);
     addToolsToSelectionDiv(selectFrame, data, ctx);
-    data.container.div.appendChild(selectFrame);
+    data.containerDiv.appendChild(selectFrame);
   }
 }
 
@@ -99,7 +99,7 @@ function addToolsToSelectionDiv(
   data: DrawingData,
   ctx: ReactDrawContext
 ): void {
-  const eleId = data.container.id;
+  const eleId = data.id;
   // corner buttons
   const topLeftCorner = cornerButton(eleId, true, false, false, true);
   addHandlersToCornerButton(topLeftCorner, eleId, ctx, resizeNW);

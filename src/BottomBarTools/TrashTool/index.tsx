@@ -2,9 +2,6 @@ import React from "react";
 import { TrashCanBoldIcon } from "@jzohdi/jsx-icons";
 import { getSelectedIdsFromFullState } from "../../utils/select/utils";
 import { ActionTools } from "../../types";
-import { deleteCreatedObjects } from "../../utils/undo";
-import { pushActionToStack } from "../../utils/pushActionToStack";
-import { SELECT_TOOL_ID } from "../../constants";
 import { batchDelete } from "../../utils/utils";
 
 const trashTool: ActionTools = {

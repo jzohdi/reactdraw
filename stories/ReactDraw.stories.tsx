@@ -107,15 +107,75 @@ DefaultLayoutAllTools.args = {
   },
   menuComponents: [ClearAllButton],
 };
+DefaultLayoutAllTools.parameters = {
+  docs: {
+    source: {
+      code: `
+<ReactDraw 
+	topBarTools={[
+		selectTool,
+		freeDrawTool,
+		squareTool,
+		circleTool,
+		diamondTool,
+		straightLineTool,
+		textAreaTool,
+		arrowTool,
+		eraseTool,		
+	]}
+	bottomBarTools={[
+		undoTool,
+		redoTool,
+		trashTool,
+		duplicateTool,
+		bringBackTool,
+		bringForwardTool,		
+	]}
+  shouldSelectAfterCreate={true}
+  styleComponents={{
+    color: { order: 3, component: ColorStyle },
+    background: { order: 4, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
+    fontSize: { order: 2, component: FontSizeStyle },
+  }}
+  menuComponents={[ClearAllButton]}	
+/>			
+			`,
+      language: "tsx",
+      type: "auto",
+    },
+  },
+};
 
 export const FreeDrawOnly = Template.bind({});
 FreeDrawOnly.args = {
   topBarTools: [freeDrawTool],
+  // bottomBarTools: [],
   hideTopBar: true,
-  bottomBarTools: [],
   hideBottomBar: true,
   shouldSelectAfterCreate: false,
   shouldKeepHistory: false,
+};
+FreeDrawOnly.parameters = {
+  docs: {
+    source: {
+      code: `
+<ReactDraw 
+	topBarTools={[
+		freeDrawTool
+	]}
+	shouldSelectAfterCreate={false}
+	hideTopBar: true,
+	hideBottomBar: true,
+	shouldSelectAfterCreate: false,
+	shouldKeepHistory: false,
+/>
+			`,
+      language: "tsx",
+      type: "auto",
+    },
+  },
 };
 
 export const DefaultLayoutWithChildren = Template.bind({});
@@ -131,6 +191,43 @@ DefaultLayoutWithChildren.args = {
   ),
 };
 
+DefaultLayoutWithChildren.parameters = {
+  docs: {
+    source: {
+      code: `
+<ReactDraw 
+	topBarTools={[
+		selectTool,
+		freeDrawTool,
+		squareTool,
+		circleTool,
+		diamondTool,
+		straightLineTool,
+		textAreaTool,
+		arrowTool,
+		eraseTool,		
+	]}
+	bottomBarTools={[
+		undoTool,
+		redoTool,
+		trashTool,
+		duplicateTool,
+		bringBackTool,
+		bringForwardTool,		
+	]}
+	shouldSelectAfterCreate={true}
+>
+	<div>
+		<p> hello world</p>
+	</div>
+</ReactDraw>				
+			`,
+      language: "tsx",
+      type: "auto",
+    },
+  },
+};
+
 export const FitLayoutWithChildren = Template.bind({});
 
 FitLayoutWithChildren.args = {
@@ -143,6 +240,44 @@ FitLayoutWithChildren.args = {
     </div>
   ),
   layout: "fit",
+};
+
+FitLayoutWithChildren.parameters = {
+  docs: {
+    source: {
+      code: `
+<ReactDraw 
+	topBarTools={[
+		selectTool,
+		freeDrawTool,
+		squareTool,
+		circleTool,
+		diamondTool,
+		straightLineTool,
+		textAreaTool,
+		arrowTool,
+		eraseTool,		
+	]}
+	bottomBarTools={[
+		undoTool,
+		redoTool,
+		trashTool,
+		duplicateTool,
+		bringBackTool,
+		bringForwardTool,		
+	]}
+	shouldSelectAfterCreate={true}
+	layout="fit"
+>
+	<div>
+		<p> hello world</p>
+	</div>
+</ReactDraw>					
+			`,
+      language: "tsx",
+      type: "auto",
+    },
+  },
 };
 
 export const CustomizeStyles = Template.bind({});
@@ -242,8 +377,8 @@ export default function ReactDrawWithCustomStyles() {
 	)
 }
 `,
+      language: "tsx",
+      type: "auto",
     },
-    language: "tsx",
-    type: "auto",
   },
 };

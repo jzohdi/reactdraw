@@ -7,6 +7,7 @@ import { alertAfterUpdate } from "../alertAfterUpdate";
 import { pushActionToStack } from "../pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
 import { rotateDiv } from "./rotateDiv";
+import { getBoxSize } from "..";
 
 function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
   const state = ctx.fullState[SELECT_TOOL_ID];
@@ -23,7 +24,7 @@ function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
     throw new Error("start rotating got incorrect number of objects to handle");
   }
   const data = selectedObject[0];
-  const referenceCenter = getCenterPoint(data.container.bounds);
+  const referenceCenter = getCenterPoint(getBoxSize(data));
   rotateDiv(data, relativePoint, referenceCenter);
   state.prevPoint = relativePoint;
   alertAfterUpdate(data, ctx);
@@ -117,8 +118,8 @@ function pushRotateToUndoStack(ctx: ReactDrawContext) {
     action: "rotate",
     data: selectedObjects.map((o) => {
       return {
-        objectId: o.container.id,
-        rotate: getRotateFromDiv(o.container.div),
+        objectId: o.id,
+        rotate: getRotateFromDiv(o.containerDiv),
       } as RotateUndoData;
     }),
   };

@@ -44,26 +44,26 @@ export function getStartAndEndPoint(
 ): [Point, Point] {
   if (orientation === "right") {
     return [
-      [0, 0],
-      [width, 0],
+      [0, height / 2],
+      [width, height / 2],
     ];
   }
   if (orientation === "left") {
     return [
-      [width, 0],
-      [0, 0],
+      [width, height / 2],
+      [0, height / 2],
     ];
   }
   if (orientation === "down") {
     return [
-      [0, 0],
-      [0, height],
+      [width / 2, 0],
+      [width / 2, height],
     ];
   }
   if (orientation === "up") {
     return [
-      [0, height],
-      [0, 0],
+      [width / 2, height],
+      [width / 2, 0],
     ];
   }
   if (orientation === "nw") {

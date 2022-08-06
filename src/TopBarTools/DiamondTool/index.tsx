@@ -7,7 +7,7 @@ import {
   RectBounds,
   ToolPropertiesMap,
 } from "../../types";
-import { scaleSvg, setContainerRect } from "../../utils";
+import { getBoxSize, scaleSvg, setContainerRect } from "../../utils";
 import { createPathSvg, createSvg } from "../../utils/svgUtils";
 import {
   redoDelete,
@@ -30,13 +30,13 @@ const diamondTool: DrawingTools = {
   tooltip: "Diamond tool",
   icon: <DiamondBoldIcon />,
   onDrawStart: (data) => {
-    const div = data.container.div;
+    const div = data.containerDiv;
     const newSvg = makeDiamondSvg(data);
     div.appendChild(newSvg);
   },
   onDrawing: (data) => {
     setContainerRect(data);
-    const div = data.container.div;
+    const div = data.containerDiv;
     const newSvg = makeDiamondSvg(data);
     div.innerHTML = "";
     div.appendChild(newSvg);
@@ -50,7 +50,7 @@ const diamondTool: DrawingTools = {
     }
   },
   onResize(data, ctx) {
-    scaleSvg(data.element as SVGSVGElement, data.container.bounds);
+    scaleSvg(data.element as SVGSVGElement, getBoxSize(data));
   },
   undoHandlers: {
     create: undoCreate,
@@ -80,10 +80,9 @@ export default diamondTool;
 
 function makeDiamondSvg(data: DrawingData): SVGSVGElement {
   const lineWidth = parseInt(data.style.lineWidth);
-  const { bounds } = data.container;
-  // const width = bounds
-  const width = bounds.right - bounds.left;
-  const height = bounds.bottom - bounds.top;
+  const bounds = getBoxSize(data);
+  const { width, height } = bounds;
+
   const newSvg = createSvg(
     width + lineWidth,
     height + lineWidth,

@@ -1,10 +1,11 @@
+import { getBoxSize } from ".";
 import { DrawingData, OnResizeContext, Point } from "../types";
 import { getRotateFromDiv } from "./select/getRotateFromDiv";
 import { getCenterPoint } from "./utils";
 
 function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
-  const [centerX, centerY] = getCenterPoint(data.container.bounds);
-  const currRotation = getRotateFromDiv(data.container.div);
+  const [centerX, centerY] = getCenterPoint(getBoxSize(data));
+  const currRotation = getRotateFromDiv(data.containerDiv);
   if (currRotation === 0) {
     return [
       ctx.newPoint[0] - ctx.previousPoint[0],
@@ -14,29 +15,15 @@ function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
   const rotatedPrev = rotatePoint(
     centerX,
     centerY,
-    -((currRotation + 10) * Math.PI) / 180,
+    -(currRotation * Math.PI) / 180,
     ctx.previousPoint
   );
-  //   const [prevX, prevY] = ctx.previousPoint;
   const rotatedNew = rotatePoint(
     centerX,
     centerY,
-    -((currRotation + 10) * Math.PI) / 180,
+    -(currRotation * Math.PI) / 180,
     ctx.newPoint
   );
-  //   ctx.viewContainer.appendChild(makePoint(prevX, prevY, "purple"));
-  //   ctx.viewContainer.appendChild(
-  //     makePoint(rotatedPrev[0], rotatedPrev[1], "red")
-  //   );
-  //   ctx.viewContainer.appendChild(
-  //     makePoint(rotatedNew[0], rotatedNew[1], "green")
-  //   );
-  //   ctx.viewContainer.appendChild(
-  //     makePoint(ctx.newPoint[0], ctx.newPoint[1], "blue")
-  //   );
-  //   console.log({ currRotation, centerX, centerY });
-  //   console.log("prev:", ctx.previousPoint, " after: ", rotatedPrev);
-  //   console.log("new:", ctx.newPoint, " after: ", rotatedNew);
   return [rotatedNew[0] - rotatedPrev[0], rotatedNew[1] - rotatedPrev[1]];
 }
 
@@ -63,72 +50,68 @@ function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
 
 export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
-  const container = data.container;
-  const bounds = container.bounds;
-  const div = container.div;
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
   if (
-    bounds.left + 5 >= bounds.right + xDiff ||
-    bounds.bottom - 5 <= bounds.top + yDiff
+    bounds.left >= bounds.right + xDiff ||
+    bounds.bottom <= bounds.top + yDiff
   ) {
     return;
   }
-  bounds.top += yDiff;
-  bounds.right += xDiff;
-  div.style.top = bounds.top + "px";
-  div.style.width = bounds.right - bounds.left + "px";
-  div.style.height = bounds.bottom - bounds.top + "px";
+  const newTop = bounds.top + yDiff;
+  // const newRight = bounds.right + xDiff;
+  div.style.top = newTop + "px";
+  div.style.width = bounds.width + xDiff + "px";
+  div.style.height = bounds.bottom - newTop + "px";
 }
 
 export function resizeNW(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
-  const container = data.container;
-  const bounds = container.bounds;
-  const div = container.div;
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
   if (
-    bounds.left + xDiff >= bounds.right - 5 ||
-    bounds.bottom - 5 <= bounds.top + yDiff
+    bounds.left + xDiff >= bounds.right ||
+    bounds.bottom <= bounds.top + yDiff
   ) {
     return;
   }
-  bounds.top += yDiff;
-  bounds.left += xDiff;
-  div.style.top = bounds.top + "px";
-  div.style.left = bounds.left + "px";
-  div.style.width = bounds.right - bounds.left + "px";
-  div.style.height = bounds.bottom - bounds.top + "px";
+  const newTop = bounds.top + yDiff;
+  const newleft = bounds.left + xDiff;
+  div.style.top = newTop + "px";
+  div.style.left = newleft + "px";
+  div.style.width = bounds.right - newleft + "px";
+  div.style.height = bounds.bottom - newTop + "px";
 }
 
 export function resizeSE(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
-  const container = data.container;
-  const bounds = container.bounds;
-  const div = container.div;
+  const bounds = getBoxSize(data);
+  const div = data.containerDiv;
   if (
-    bounds.left + 5 >= bounds.right + xDiff ||
-    bounds.bottom + yDiff <= bounds.top + 5
+    bounds.left >= bounds.right + xDiff ||
+    bounds.bottom + yDiff <= bounds.top
   ) {
     return;
   }
-  bounds.right += xDiff;
-  bounds.bottom += yDiff;
-  div.style.width = bounds.right - bounds.left + "px";
-  div.style.height = bounds.bottom - bounds.top + "px";
+  const newRight = bounds.right + xDiff;
+  const newBottom = bounds.bottom + yDiff;
+  div.style.width = newRight - bounds.left + "px";
+  div.style.height = newBottom - bounds.top + "px";
 }
 
 export function resizeSW(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
-  const container = data.container;
-  const bounds = container.bounds;
-  const div = container.div;
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
   if (
-    bounds.left + xDiff >= bounds.right - 5 ||
-    bounds.bottom + yDiff <= bounds.top + 5
+    bounds.left + xDiff >= bounds.right ||
+    bounds.bottom + yDiff <= bounds.top
   ) {
     return;
   }
-  bounds.bottom += yDiff;
-  bounds.left += xDiff;
-  div.style.left = bounds.left + "px";
-  div.style.width = bounds.right - bounds.left + "px";
-  div.style.height = bounds.bottom - bounds.top + "px";
+  const newLeft = bounds.left + xDiff;
+  const newBottom = bounds.bottom + yDiff;
+  div.style.left = newLeft + "px";
+  div.style.width = bounds.right - newLeft + "px";
+  div.style.height = newBottom - bounds.top + "px";
 }
