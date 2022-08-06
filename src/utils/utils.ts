@@ -52,8 +52,8 @@ export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
   // if deleting a selected element, remove select
   unselectElement(object, ctx);
 
-  const { div, id } = object.container;
-  viewContainer.removeChild(div);
+  const { containerDiv, id } = object;
+  viewContainer.removeChild(containerDiv);
   objectsMap.delete(id);
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDeleteObject) {
@@ -176,8 +176,8 @@ export function createNewObject(
 }
 
 export function addObject(ctx: ReactDrawContext, obj: DrawingData): void {
-  const { div, id } = obj.container;
-  ctx.viewContainer.appendChild(div);
+  const { containerDiv, id } = obj;
+  ctx.viewContainer.appendChild(containerDiv);
   ctx.objectsMap.set(id, obj);
 }
 
@@ -189,7 +189,7 @@ export function centerObject(
 ) {
   const viewContainer = ctx.viewContainer;
   const viewBox = viewContainer.getBoundingClientRect();
-  const { div, bounds } = obj.container;
+  const div = obj.containerDiv;
   if (!w || !h) {
     const { width, height } = div.getBoundingClientRect();
     w = w || width;
@@ -197,10 +197,6 @@ export function centerObject(
   }
   const top = viewBox.height / 2 - h / 2;
   const left = viewBox.width / 2 - w / 2;
-  bounds.top = top;
-  bounds.left = left;
-  bounds.right = bounds.left + w;
-  bounds.bottom = bounds.top + h;
   div.style.top = top + "px";
   div.style.left = left + "px";
   div.style.height = h + "px";

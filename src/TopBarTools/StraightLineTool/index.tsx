@@ -1,7 +1,7 @@
 import React from "react";
 import { STRAIGHT_LINE_TOOL_ID } from "../../constants";
 import { DrawingData, DrawingTools } from "../../types";
-import { setContainerRect } from "../../utils";
+import { getBoxSize, setContainerRect } from "../../utils";
 import { createCircle, createLineSvg, createSvg } from "../../utils/svgUtils";
 import { HorizontalLineIcon } from "@jzohdi/jsx-icons";
 import {
@@ -28,7 +28,7 @@ const straightLineTool: DrawingTools = {
   tooltip: "Straight Line Tool",
   icon: <HorizontalLineIcon />,
   onDrawStart: (data) => {
-    const div = data.container.div;
+    const div = data.containerDiv;
     const lineWidth = parseInt(data.style.lineWidth);
     const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
     const newPath = createCircle(lineWidth / 2, data.style.color);
@@ -43,7 +43,7 @@ const straightLineTool: DrawingTools = {
     const orientation = calcOrientation(firstPoint, lastPoint);
     data.customData.set(ORIENT_KEY, orientation);
     const newSvg = makeLineInOrientation(data, orientation);
-    const div = data.container.div;
+    const div = data.containerDiv;
     div.innerHTML = "";
     div.appendChild(newSvg);
     data.element = newSvg;
@@ -61,7 +61,7 @@ const straightLineTool: DrawingTools = {
       throw new Error("orientation not set");
     }
     const newSvg = makeLineInOrientation(data, orientation);
-    const div = data.container.div;
+    const div = data.containerDiv;
     div.removeChild(data.element as SVGSVGElement);
     div.appendChild(newSvg);
     data.element = newSvg;
@@ -94,7 +94,7 @@ function makeLineInOrientation(
   data: DrawingData,
   orientation: Orientation
 ): SVGSVGElement {
-  const { bounds } = data.container;
+  const bounds = getBoxSize(data);
   const width = bounds.right - bounds.left;
   const height = bounds.bottom - bounds.top;
   const newSvg = createSvg(width, height, data.style.opacity);

@@ -6,7 +6,7 @@ export function actionObjToSave(
   saveValue: string
 ): ActionObject {
   const obj: ActionObject = {
-    objectId: data.container.id,
+    objectId: data.id,
     toolId: data.toolId,
     toolType: "top-bar-tool",
     action: action,

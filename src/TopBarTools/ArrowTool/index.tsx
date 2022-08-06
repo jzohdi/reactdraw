@@ -3,7 +3,7 @@ import { ArrowRightBoldIcon } from "@jzohdi/jsx-icons";
 import { DrawingData, DrawingTools, Point } from "../../types";
 import { ARROW_TOOL_ID } from "../../constants";
 import { createCircle, createPathSvg, createSvg } from "../../utils/svgUtils";
-import { mapPointToRect, scaleSvg, setContainerRect } from "../../utils";
+import { getBoxSize, setContainerRect } from "../../utils";
 import {
   redoDelete,
   saveCreateToUndoStack,
@@ -28,7 +28,7 @@ const arrowTool: DrawingTools = {
   id: ARROW_TOOL_ID,
   tooltip: "Arrow Tool",
   onDrawStart: (data) => {
-    const div = data.container.div;
+    const div = data.containerDiv;
     const lineWidth = parseInt(data.style.lineWidth);
     const newSvg = createSvg(lineWidth, lineWidth, data.style.opacity);
     const newPath = createCircle(lineWidth / 2, data.style.color);
@@ -43,14 +43,16 @@ const arrowTool: DrawingTools = {
     const orientation = calcOrientation(firstPoint, lastPoint);
     data.customData.set(ORIENT_KEY, orientation);
     const newSvg = makeArrowSvg(data, orientation);
-    const div = data.container.div;
+    const div = data.containerDiv;
     div.innerHTML = "";
     div.appendChild(newSvg);
     data.element = newSvg;
     data.coords.splice(1);
   },
   onDrawEnd: (data, ctx) => {
-    saveCreateToUndoStack(data, ctx);
+    if (ctx.shouldKeepHistory) {
+      saveCreateToUndoStack(data, ctx);
+    }
     if (ctx.shouldSelectAfterCreate) {
       ctx.selectObject(data);
     }
@@ -61,7 +63,7 @@ const arrowTool: DrawingTools = {
       throw new Error("orientation not set");
     }
     const newSvg = makeArrowSvg(data, orientation);
-    const div = data.container.div;
+    const div = data.containerDiv;
     div.removeChild(data.element as SVGSVGElement);
     div.appendChild(newSvg);
     data.element = newSvg;
@@ -103,10 +105,7 @@ function makeArrowSvg(
   orientation: Orientation
 ): SVGSVGElement {
   const lineWidth = parseInt(data.style.lineWidth);
-  const { bounds } = data.container;
-  // const width = bounds
-  const width = bounds.right - bounds.left;
-  const height = bounds.bottom - bounds.top;
+  const { width, height } = getBoxSize(data);
   const [start, end] = getStartAndEndPoint(width, height, orientation);
   // const containerSvg = createSvg(width, )
   const newSvg = createSvg(

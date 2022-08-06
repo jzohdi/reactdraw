@@ -41,8 +41,9 @@ const eraseTool: DrawingTools = {
     const newSvg = createSvg(boxSize.width, boxSize.height, "1");
     const eraserPath = getEraserPath(data, viewContainer);
     newSvg.appendChild(eraserPath);
-    data.container.div.innerHTML = "";
-    data.container.div.appendChild(newSvg);
+    const containerDiv = data.containerDiv;
+    containerDiv.innerHTML = "";
+    containerDiv.appendChild(newSvg);
     data.element = newSvg;
     const lastPoint = data.coords[data.coords.length - 1];
     const bounds = makeBoundingRect(lastPoint);
@@ -52,7 +53,10 @@ const eraseTool: DrawingTools = {
       if (!object) {
         continue;
       }
-      if (isRectBounding(object.container.bounds, bounds)) {
+      const objectBounds = getBoxSize(object);
+      // if the object's bounds surround the bounds created from the most recent point.
+      // console.log(objectBounds, bounds, isRectBounding(objectBounds, bounds));
+      if (isRectBounding(objectBounds, bounds)) {
         deleteObjectAndNotify(objectId, ctx);
         addObjectToCustomState(ctx, object);
       }
@@ -60,11 +64,11 @@ const eraseTool: DrawingTools = {
   },
   onDrawEnd(data, ctx) {
     const { objectsMap, viewContainer } = ctx;
-    viewContainer.removeChild(data.container.div);
-    objectsMap.delete(data.container.id);
+    viewContainer.removeChild(data.containerDiv);
+    objectsMap.delete(data.id);
     makeSureArtifactsGone('[id^="react-draw-erase-tool"', ctx.viewContainer);
     const objectsDeleted = ctx.fullState[ERASE_TOOL_ID].deletedObjects;
-    if (objectsDeleted.size > 0) {
+    if (objectsDeleted.size > 0 && ctx.shouldKeepHistory) {
       const action: ActionObject = {
         toolId: data.toolId,
         toolType: "top-bar-tool",
@@ -92,7 +96,7 @@ function addObjectToCustomState(
   object: DrawingData
 ): void {
   const state = ctx.fullState[ERASE_TOOL_ID];
-  state.deletedObjects.set(object.container.id, object);
+  state.deletedObjects.set(object.id, object);
 }
 
 function getEraserPath(
@@ -114,7 +118,7 @@ function getEraserPathDString(
   let lastPoint = data.coords[0];
   for (let i = 0; i < data.coords.length; i++) {
     const point = data.coords[i];
-    const mappedPoint = mapPointToRect(point, data.container, viewContainer);
+    const mappedPoint = mapPointToRect(point, data.containerDiv, viewContainer);
     pathString += getPathPoint(mappedPoint, lastPoint, i);
     lastPoint = mappedPoint;
     if (i !== data.coords.length - 1) {

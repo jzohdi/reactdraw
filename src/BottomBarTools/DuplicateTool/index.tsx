@@ -1,5 +1,10 @@
 import React from "react";
-import { ActionTools, DrawingData, ReactDrawContext } from "../../types";
+import {
+  ActionObject,
+  ActionTools,
+  DrawingData,
+  ReactDrawContext,
+} from "../../types";
 import { DuplicateIcon } from "@jzohdi/jsx-icons";
 import { getObjectFromMap, getToolById } from "../../utils/utils";
 import {
@@ -8,7 +13,7 @@ import {
   selectManyElements,
   unselectAll,
 } from "../../utils/select/utils";
-import { makeid } from "../../utils";
+import { getBoxSize, makeid } from "../../utils";
 import { recreateDeletedObjects } from "../../utils/undo";
 import { pushActionToStack } from "../../utils/pushActionToStack";
 import { SELECT_TOOL_ID } from "../../constants";
@@ -34,29 +39,36 @@ const duplicateTool: ActionTools = {
     );
     unselectAll(objects, ctx);
     const newObjects = objects.map((o) => duplicateObject(o, ctx));
-    const data: Map<string, DrawingData> = new Map();
-    // console.log("duplicated objects:", newObjects);
-    const resultAction = recreateDeletedObjects(
-      {
-        toolId: SELECT_TOOL_ID,
-        objectId: "",
+    const resultData = newObjects.map((object) => {
+      const { toolId, id } = object;
+      ctx.objectsMap.set(id, object);
+      ctx.viewContainer.appendChild(object.containerDiv);
+      const action: ActionObject = {
+        action: "create",
         toolType: "top-bar-tool",
-        action: "delete",
-        data: newObjects.reduce((prev, cur) => {
-          prev.set(cur.container.id, cur);
-          return prev;
-        }, data),
-      },
-      ctx
-    );
-    pushActionToStack(resultAction, ctx);
+        toolId,
+        objectId: id,
+        data: object,
+      };
+      return action;
+    });
+    if (ctx.shouldKeepHistory) {
+      const resultAction: ActionObject = {
+        toolId: "",
+        objectId: "",
+        toolType: "batch",
+        action: "batch",
+        data: resultData,
+      };
+      pushActionToStack(resultAction, ctx);
+    }
     if (selectedIds.length === 1) {
       selectElement(newObjects[0], ctx);
     } else {
       selectManyElements(newObjects, ctx);
     }
     const selectState = ctx.fullState[SELECT_TOOL_ID];
-    selectState.selectedIds = newObjects.map((o) => o.container.id);
+    selectState.selectedIds = newObjects.map((o) => o.id);
   },
 };
 
@@ -66,7 +78,7 @@ function duplicateObject(
   object: DrawingData,
   ctx: ReactDrawContext
 ): DrawingData {
-  const { div, id, bounds } = object.container;
+  const div = object.containerDiv;
   const newDiv = div.cloneNode(true) as HTMLDivElement;
   const { newId, divId } = makeNewId(div.id);
   newDiv.id = divId;
@@ -78,19 +90,12 @@ function duplicateObject(
       ...object.style,
     },
     customData: new Map(object.customData),
-    container: {
-      bounds: {
-        top: bounds.top + 10,
-        left: bounds.left + 10,
-        bottom: bounds.bottom + 10,
-        right: bounds.right + 10,
-      },
-      div: newDiv,
-      id: newId,
-    },
+    containerDiv: newDiv,
+    id: newId,
   };
-  newDiv.style.top = data.container.bounds.top + "px";
-  newDiv.style.left = data.container.bounds.left + "px";
+  const bbox = getBoxSize(object);
+  newDiv.style.top = bbox.top + 5 + "px";
+  newDiv.style.left = bbox.left + 10 + "px";
 
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDuplicate) {

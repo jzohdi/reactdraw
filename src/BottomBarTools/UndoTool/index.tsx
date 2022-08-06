@@ -18,8 +18,6 @@ const undoTool: ActionTools = {
     if (!lastAction) {
       return;
     }
-    // console.log("undo action", lastAction);
-    // console.log("new stack", ctx.undoStack);
     if (lastAction.toolType === "top-bar-tool") {
       return handleTopBarUndo(ctx, lastAction);
     }

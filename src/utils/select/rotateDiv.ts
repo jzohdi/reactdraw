@@ -5,7 +5,7 @@ export function rotateDiv(
   newPoint: Point,
   referenceCenter: Point
 ) {
-  const div = object.container.div;
+  const div = object.containerDiv;
   const x = newPoint[0] - referenceCenter[0];
   const y = newPoint[1] - referenceCenter[1];
   const angleDeg = (Math.atan2(y, x) * 180) / Math.PI + 90;

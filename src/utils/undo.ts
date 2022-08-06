@@ -19,7 +19,7 @@ export function saveCreateToUndoStack(
   const newAction: ActionObject = {
     toolId: data.toolId,
     toolType: "top-bar-tool",
-    objectId: data.container.id,
+    objectId: data.id,
     action: "create",
     data: null,
   };
@@ -45,8 +45,8 @@ export function redoDelete(
   if (!object) {
     throw new Error("redo delete but no data exists");
   }
-  ctx.objectsMap.set(object.container.id, object);
-  ctx.viewContainer.appendChild(object.container.div);
+  ctx.objectsMap.set(object.id, object);
+  ctx.viewContainer.appendChild(object.containerDiv);
   action.data = null;
   action.action = "create";
   return action;
@@ -68,7 +68,7 @@ export function recreateDeletedObjects(
   }
   //   console.log(data);
   for (const [objectId, object] of data.entries()) {
-    ctx.viewContainer.appendChild(object.container.div);
+    ctx.viewContainer.appendChild(object.containerDiv);
     ctx.objectsMap.set(objectId, object);
   }
   action.action = "create";

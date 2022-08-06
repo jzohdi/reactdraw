@@ -15,6 +15,7 @@ import {
 import {
   addPointToBounds,
   distance,
+  getBoxSize,
   getElementsThatBoundsAreWithin,
   isRectBounding,
   makeBoundingRect,
@@ -39,8 +40,8 @@ const selectTool: DrawingTools = {
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
   id: SELECT_TOOL_ID,
   onDrawStart: (data) => {
-    data.container.div.style.border = `1px solid ${COLORS.primary.main}`;
-    data.container.div.style.backgroundColor = COLORS.primary.light + "4d";
+    data.containerDiv.style.border = `1px solid ${COLORS.primary.main}`;
+    data.containerDiv.style.backgroundColor = COLORS.primary.light + "4d";
   },
   onDrawing: (data, ctx) => {
     setContainerRect(data);
@@ -49,8 +50,8 @@ const selectTool: DrawingTools = {
   },
   onDrawEnd: (data, ctx) => {
     const { objectsMap, viewContainer } = ctx;
-    viewContainer.removeChild(data.container.div);
-    objectsMap.delete(data.container.id);
+    viewContainer.removeChild(data.containerDiv);
+    objectsMap.delete(data.id);
     makeSureArtifactsGone('[id^="react-draw-cursor"', ctx.viewContainer);
     tryClickObject(data, ctx);
   },
@@ -144,7 +145,7 @@ const handleTryClickObject = (
   }
   // if item to select found, add to ids
   if (clickedEle !== null) {
-    ids = ids.concat([clickedEle.container.id]);
+    ids = ids.concat([clickedEle.id]);
   }
   handleSelectIds(ctx, ids);
   return ids;
@@ -168,7 +169,7 @@ function handleTrySelectObjects(currData: DrawingData, ctx: ReactDrawContext) {
   const selectedIds = [...selected];
   let elementIdsToSelect = getElementIdsInsideOfBounds(
     ctx.objectsMap,
-    currData.container.bounds,
+    getBoxSize(currData),
     ctx
   );
   if (didPressShift) {
@@ -188,7 +189,7 @@ function getElementIdsInsideOfBounds(
   for (const [eleId, eleData] of renderedMap.entries()) {
     unselectElement(eleData, ctx);
 
-    if (isRectBounding(bounds, eleData.container.bounds)) {
+    if (isRectBounding(bounds, getBoxSize(eleData))) {
       elementIdsToSelect.push(eleId);
     }
   }

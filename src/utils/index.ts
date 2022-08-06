@@ -5,6 +5,7 @@ import {
   RectBounds,
   DrawingDataMap,
   ToolPropertiesMap,
+  ReactDrawContext,
 } from "../types";
 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -33,26 +34,13 @@ export function makeNewBoundingDiv(
   }
   const lineWidth = parseInt(globalStyles.lineWidth);
   const [pointX, pointY] = relativePoint;
-  const { id, div, top, left, right, bottom } = makeNewDiv(
-    pointX,
-    pointY,
-    lineWidth,
-    toolId
-  );
+  const { id, div } = makeNewDiv(pointX, pointY, lineWidth, toolId);
   const data: DrawingData = {
     coords: [relativePoint],
     element: null,
     toolId,
-    container: {
-      id,
-      div,
-      bounds: {
-        top,
-        left,
-        right,
-        bottom,
-      },
-    },
+    containerDiv: div,
+    id,
     style: globalStyles,
     customData: new Map(),
   };
@@ -133,10 +121,10 @@ function getOriginalDimensions(svg: SVGSVGElement) {
 
 export function mapPointToRect(
   point: Point,
-  container: DrawingContainer,
+  containerDiv: HTMLDivElement,
   viewContainer: HTMLDivElement
 ): Point {
-  const containerBounds = container.div.getBoundingClientRect();
+  const containerBounds = containerDiv.getBoundingClientRect();
   const viewBounds = viewContainer.getBoundingClientRect();
   const topOfCotainerRelativeToView = containerBounds.top - viewBounds.top;
   const pointYRelativeToContainer = point[1] - topOfCotainerRelativeToView;
@@ -152,32 +140,50 @@ export function mapPointToRect(
 export function expandContainer(data: DrawingData): boolean {
   let didExapnd = false;
   const [newX, newY] = data.coords[data.coords.length - 1];
-  const container = data.container;
-  const bounds = container.bounds;
+  const container = data.containerDiv;
+  const bounds = getBoxSize(data);
+  // console.log(bounds);
   const lineWidth = parseInt(data.style.lineWidth);
-  //   console.log(lineWidth);
+
   if (newX - lineWidth <= bounds.left) {
-    bounds.left = newX - lineWidth;
-    container.div.style.left = newX - lineWidth + "px";
-    container.div.style.width = bounds.right + lineWidth * 2 - newX + "px";
-    // console.log(bounds);
+    const newLeft = newX - lineWidth;
+    const diff = bounds.left - newLeft;
+    container.style.left = newLeft + "px";
+    container.style.width = bounds.width + diff + "px";
     didExapnd = true;
   } else if (newX + lineWidth >= bounds.right) {
-    bounds.right = newX + lineWidth;
-    container.div.style.width = newX + lineWidth * 2 - bounds.left + "px";
+    container.style.width = newX + lineWidth * 2 - bounds.left + "px";
     didExapnd = true;
   }
   if (newY + lineWidth >= bounds.bottom) {
-    bounds.bottom = newY + lineWidth;
-    container.div.style.height = newY + lineWidth * 2 - bounds.top + "px";
+    // console.log("expanding bottom");
+    container.style.height = newY + lineWidth * 2 - bounds.top + "px";
     didExapnd = true;
   } else if (newY - lineWidth <= bounds.top) {
-    bounds.top = newY - lineWidth;
-    container.div.style.top = newY - lineWidth + "px";
-    container.div.style.height = bounds.bottom + lineWidth * 2 - newY + "px";
+    // console.log("expanding top");
+    const newTop = newY - lineWidth;
+    const diff = bounds.top - newTop;
+    container.style.top = newTop + "px";
+    container.style.height = bounds.height + diff + "px";
     didExapnd = true;
   }
   return didExapnd;
+}
+
+export function getRelativeBoxSize(data: DrawingData, ctx: ReactDrawContext) {
+  const bbox = data.containerDiv.getBoundingClientRect();
+  const viewBounds = ctx.viewContainer.getBoundingClientRect();
+  const left = bbox.left - viewBounds.left;
+  const top = bbox.top - viewBounds.top;
+  const { width, height } = bbox;
+  return {
+    top,
+    left,
+    right: bbox.right - viewBounds.left,
+    bottom: bbox.bottom - viewBounds.top,
+    width,
+    height,
+  };
 }
 
 /**
@@ -197,17 +203,12 @@ export function setContainerRect(data: DrawingData): Point[] {
   const maxX = Math.max(firstX, lastX);
   const maxY = Math.max(firstY, lastY);
 
-  const { bounds, div } = data.container;
-
-  bounds.left = minX;
-  bounds.right = maxX;
-  bounds.top = minY;
-  bounds.bottom = maxY;
+  const div = data.containerDiv;
 
   div.style.top = minY + "px";
   div.style.left = minX + "px";
-  div.style.width = `${maxX - minX + lineWidth}px`;
-  div.style.height = `${maxY - minY + lineWidth}px`;
+  div.style.width = `${Math.max(maxX - minX, 1)}px`;
+  div.style.height = `${Math.max(maxY - minY, 1)}px`;
 
   return data.coords;
 }
@@ -217,9 +218,10 @@ export function getElementsThatBoundsAreWithin(
   bounds: RectBounds
 ) {
   let itemToSelect = null;
-  for (const [eleId, eleData] of renderedMap.entries()) {
+  for (const [_eleId, eleData] of renderedMap.entries()) {
     const zIndex = parseInt(eleData.style.zIndex);
-    if (isRectBounding(eleData.container.bounds, bounds)) {
+    const eleBounds = getBoxSize(eleData);
+    if (isRectBounding(eleBounds, bounds)) {
       const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < zIndex;
       if (eleIsOnTop) {
         itemToSelect = eleData;
@@ -276,10 +278,30 @@ export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
 }
 
 export function getBoxSize(data: DrawingData) {
-  const bounds = data.container.bounds;
-  //   console.log(bounds);
+  const div = data.containerDiv;
+  const bbox = div.getBoundingClientRect();
+  const left = getNumFrom(div.style.left);
+  const top = getNumFrom(div.style.top);
+  const styleHeight = getNumFrom(div.style.height);
+  const styleWidth = getNumFrom(div.style.width);
+  const height = styleHeight === 0 ? bbox.height : styleHeight;
+  const width = styleWidth === 0 ? bbox.width : styleWidth;
   return {
-    width: bounds.right - bounds.left,
-    height: bounds.bottom - bounds.top,
+    left,
+    top,
+    height,
+    width,
+    right: left + width,
+    bottom: top + height,
   };
+}
+
+const numRegex = /-?\d+\.*\d*/;
+
+function getNumFrom(str: string): number {
+  const match = str.match(numRegex);
+  if (match) {
+    return parseFloat(match[0]);
+  }
+  return 0;
 }

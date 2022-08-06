@@ -106,7 +106,7 @@ export function BottomToolBar({
             >
               <button
                 className={bottomToolButtonClasses}
-                aria-aria-disabled={isDisabled}
+                aria-disabled={isDisabled}
                 data-disabled={isDisabled}
                 data-mode={toolDisplayMode}
                 disabled={isDisabled}
