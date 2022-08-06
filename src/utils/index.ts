@@ -296,7 +296,7 @@ export function getBoxSize(data: DrawingData) {
   };
 }
 
-const numRegex = /\d+\.*\d*/;
+const numRegex = /-?\d+\.*\d*/;
 
 function getNumFrom(str: string): number {
   const match = str.match(numRegex);
