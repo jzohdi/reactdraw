@@ -4,6 +4,8 @@ A drawing library in react
 
 [view storybook docs/demo here][2]
 
+https://user-images.githubusercontent.com/31998568/183299492-4cf5a7da-e7b8-4418-9b47-d04143db7baa.mp4
+
 ## Installation
 
 ```shell
