@@ -2,7 +2,7 @@
 
 A drawing library in react
 
-[view docs here][2]
+[view storybook docs/demo here][2]
 
 ## Installation
 
