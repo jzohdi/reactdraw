@@ -1,7 +1,15 @@
 import React from "react";
 import { MutableRefObject, CSSProperties } from "react";
+//============== TOOL IDS =========================
+declare const SQUARE_TOOL_ID = "react-draw-square-tool";
+declare const CIRCLE_TOOL_ID = "react-draw-circle-tool";
+declare const DIAMOND_TOOL_ID = "react-draw-diamond-tool";
+declare const STRAIGHT_LINE_TOOL_ID = "react-draw-line-tool";
+declare const ARROW_TOOL_ID = "react-draw-arrow-tool";
 declare const ERASE_TOOL_ID = "react-draw-erase-tool";
+declare const FREE_DRAW_TOOL_ID = "react-draw-free-tool";
 declare const SELECT_TOOL_ID = "react-draw-cursor";
+declare const TEXT_AREA_TOOL_ID = "react-draw-textarea-tool";
 //============== STYLES =========================
 //          Styles Keys
 declare const BOTTOM_BAR_CONTAINER_CLASSES = "bottomBarContainer";
@@ -42,6 +50,14 @@ type KeyFramesDefinition = {
 type StylesValue = CSSProperties | {
     [selector: string]: CSSProperties;
 } | KeyFramesDefinition;
+type BoxSize = {
+    left: number;
+    top: number;
+    height: number;
+    width: number;
+    right: number;
+    bottom: number;
+};
 type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 type LayoutAbsolute = {
     width: number | string;
@@ -226,6 +242,7 @@ type ReactDrawInnerProps = {
     id: string;
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
+    onLoad?: (ctx: ReactDrawContext) => void;
 };
 type StylesObject = {
     [BOTTOM_BAR_CONTAINER_CLASSES]?: StylesValue;
@@ -257,14 +274,63 @@ type ReactDrawProps = StylesProviderProps & ReactDrawInnerProps;
 type PartialCSS = Partial<CSSStyleDeclaration>;
 type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
 type HTMLEvent = keyof HTMLElementEventMap;
+type IntermediateStringableObject = {
+    toolId: string;
+    [key: string]: any;
+};
+/**
+ * Serializer function should take a DrawingData object and transform it
+ * into another form which can be stringified and parsed later
+ */
+type SerializerFunction = (obj: DrawingData) => IntermediateStringableObject;
+type Serializers = {
+    [ARROW_TOOL_ID]?: SerializerFunction;
+    [CIRCLE_TOOL_ID]?: SerializerFunction;
+    [DIAMOND_TOOL_ID]?: SerializerFunction;
+    [FREE_DRAW_TOOL_ID]?: SerializerFunction;
+    [SQUARE_TOOL_ID]?: SerializerFunction;
+    [STRAIGHT_LINE_TOOL_ID]?: SerializerFunction;
+    [TEXT_AREA_TOOL_ID]?: SerializerFunction;
+    [key: string]: SerializerFunction | undefined;
+};
+type DeserializerFunction = (obj: IntermediateStringableObject, ctx: ReactDrawContext, shouldAddToCanvas: boolean) => DrawingData;
+type Deserializers = {
+    [ARROW_TOOL_ID]?: DeserializerFunction;
+    [CIRCLE_TOOL_ID]?: DeserializerFunction;
+    [DIAMOND_TOOL_ID]?: DeserializerFunction;
+    [FREE_DRAW_TOOL_ID]?: DeserializerFunction;
+    [SQUARE_TOOL_ID]?: DeserializerFunction;
+    [STRAIGHT_LINE_TOOL_ID]?: DeserializerFunction;
+    [TEXT_AREA_TOOL_ID]?: DeserializerFunction;
+    [key: string]: DeserializerFunction | undefined;
+};
+type ContainerState = {
+    bbox: BoxSize;
+    rotation: number;
+    scale: null | {
+        x: string;
+        y: string;
+    };
+    other: {
+        [key: string]: any;
+    };
+};
 declare const _default: React.ForwardRefExoticComponent<StylesProviderProps & ReactDrawInnerProps & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
 declare const squareTool: DrawingTools;
+declare function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement;
 declare const circlTool: DrawingTools;
+declare function makeCircleDiv(styles: ToolPropertiesMap): HTMLDivElement;
 declare const diamondTool: DrawingTools;
+declare function makeDiamondSvg(data: DrawingData): SVGSVGElement;
+type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
 declare const straightLineTool: DrawingTools;
+declare function makeLineInOrientation(data: DrawingData, orientation: Orientation): SVGSVGElement;
 declare const textAreaTool: DrawingTools;
+declare function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext): void;
+declare const arrowTool: DrawingTools;
+declare function makeArrowSvg(data: DrawingData, orientation: Orientation): SVGSVGElement;
 // TODO: alter item on drawing
 // then finally delete stuff on draw end
 declare const eraseTool: DrawingTools;
@@ -282,11 +348,54 @@ type OpacityPickerProps = StyleComponentProps;
 declare function LineWidthPicker$0({ onUpdate, styleKey, styleValue }: OpacityPickerProps): JSX.Element;
 type LineWidthPickerProps$0 = StyleComponentProps;
 declare function LineWidthPicker$1({ onUpdate, styleKey, styleValue }: LineWidthPickerProps$0): JSX.Element;
-declare const arrowTool: DrawingTools;
 declare const ClearAllButton: MenuComponent;
 declare function createNewObject(ctx: ReactDrawContext, point: Point, toolId: string): DrawingData;
 declare function addObject(ctx: ReactDrawContext, obj: DrawingData): void;
 declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: number, h?: number): void;
 declare function useStyles(key: string): string;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, circlTool as circleTool, diamondTool, straightLineTool, textAreaTool, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, arrowTool, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, COLORS, createNewObject, addObject, centerObject, useStyles };
+/**
+ * Using each serializer which is mapped to the correct DrawingData object
+ * by "toolId" property, add each resulting serialized object to an array
+ * and return the result of JSON.stringify(array). Each resulting object
+ * should also have "toolId" property so that it can be properly mapped
+ * to the later deserializer function.
+ * @param serializers
+ * @param ctx
+ * @returns
+ */
+declare function serializeObjects(serializers: Serializers, ctx: ReactDrawContext): string;
+declare const serializeArrow: SerializerFunction;
+declare const serializeCircle: SerializerFunction;
+declare const serializeDiamond: SerializerFunction;
+declare const serializeFreeDraw: SerializerFunction;
+declare const serializeSquare: SerializerFunction;
+declare const serializeLine: SerializerFunction;
+declare const serializeText: SerializerFunction;
+/**
+ * Expects that the data is in the form of a stringified array of serialized objects.
+ * example "[serializedArrowObj, serialziedFreeDrawObj1, serializedFreeDrawObj2, etc..]"
+ * Also expects each object to have a key "toolId" so that it can map the object to the
+ * deserializer function that handles.
+ *
+ * Sometimes you may want to not automatically add the resulting DrawingData objects
+ * to the canvas. Use the third optional arguement  "shouldAddToCanvas" for this case
+ * (default true)
+ *
+ * @param stringifiedData
+ * @param ctx
+ */
+declare function deserializeData(stringifiedData: string, deserializers: Deserializers, ctx: ReactDrawContext, shouldAddToCanvas?: boolean): DrawingData[];
+declare function deserializationSetup(obj: IntermediateStringableObject): {
+    drawingData: DrawingData;
+    div: HTMLDivElement;
+    containerState: ContainerState;
+};
+declare const deserializeFreeDraw: DeserializerFunction;
+declare const deserializeSquare: DeserializerFunction;
+declare const deserializeCircle: DeserializerFunction;
+declare const deserializeDiamond: DeserializerFunction;
+declare const deserializeLine: DeserializerFunction;
+declare const deserializeTextArea: DeserializerFunction;
+declare const deserializeArrow: DeserializerFunction;
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, createNewObject, addObject, centerObject, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow };
 //# sourceMappingURL=index.d.ts.map

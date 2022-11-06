@@ -21,7 +21,8 @@ export const MENU_CONTAINER_CLASSES = "menuContainer";
 export const TOP_BAR_CONTAINER_CLASSES = "topBarBontainer";
 
 // ==================== CUSTOM DATA MAP KEYS ==================
-export const FREE_DRAW_ORIGINAL_BOUNDS = "originalBounds";
+export const CUSTOM_DATA_ORIGINAL_BOUNDS = "originalBounds";
+export const CUSTOM_DATA_ORIENT_KEY = "orientation";
 // break point medium
 export const BPmd = 450;
 // max distnace for a select click stop - end to be considered a click

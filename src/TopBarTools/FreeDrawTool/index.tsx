@@ -1,6 +1,6 @@
 import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { FREE_DRAW_ORIGINAL_BOUNDS } from "../../constants";
+import { CUSTOM_DATA_ORIGINAL_BOUNDS } from "../../constants";
 import { DrawingData, DrawingTools, Point } from "../../types";
 import {
   distance,
@@ -147,5 +147,5 @@ function average(a: Point, b: Point): Point {
 }
 
 function saveOriginalBoundsToData(data: DrawingData): void {
-  data.customData.set(FREE_DRAW_ORIGINAL_BOUNDS, getBoxSize(data));
+  data.customData.set(CUSTOM_DATA_ORIGINAL_BOUNDS, getBoxSize(data));
 }

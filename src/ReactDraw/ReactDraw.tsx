@@ -47,6 +47,7 @@ export default function ReactDraw({
   shouldSelectAfterCreate = true,
   styleComponents,
   menuComponents = [],
+	onLoad
 }: ReactDrawInnerProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
@@ -89,6 +90,9 @@ export default function ReactDraw({
 
   useEffect(() => {
     updateBottomToolDisplayMap();
+		if (onLoad) {
+			onLoad(getReactDrawContext())
+		}
   }, []);
 
   useEffect(() => {

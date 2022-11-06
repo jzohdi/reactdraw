@@ -242,6 +242,7 @@ export type ReactDrawInnerProps = {
   id: string;
   styleComponents?: StyleComponents;
   menuComponents?: MenuComponent[];
+  onLoad?: (ctx: ReactDrawContext) => void;
 };
 
 export type StylesObject = {

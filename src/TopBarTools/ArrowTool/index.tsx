@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowRightBoldIcon } from "@jzohdi/jsx-icons";
 import { DrawingData, DrawingTools, Point } from "../../types";
-import { ARROW_TOOL_ID } from "../../constants";
+import { ARROW_TOOL_ID, CUSTOM_DATA_ORIENT_KEY } from "../../constants";
 import { createCircle, createPathSvg, createSvg } from "../../utils/svgUtils";
 import { getBoxSize, setContainerRect } from "../../utils";
 import {
@@ -21,8 +21,6 @@ import { updateSvgPathStroke } from "../../utils/updateStyles/color";
 import { updateSvgPathWidth } from "../../utils/updateStyles/linewidth";
 import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 
-const ORIENT_KEY = "orientation";
-
 const arrowTool: DrawingTools = {
   icon: <ArrowRightBoldIcon />,
   id: ARROW_TOOL_ID,
@@ -41,7 +39,7 @@ const arrowTool: DrawingTools = {
     const firstPoint = data.coords[0];
     const lastPoint = data.coords[data.coords.length - 1];
     const orientation = calcOrientation(firstPoint, lastPoint);
-    data.customData.set(ORIENT_KEY, orientation);
+    data.customData.set(CUSTOM_DATA_ORIENT_KEY, orientation);
     const newSvg = makeArrowSvg(data, orientation);
     const div = data.containerDiv;
     div.innerHTML = "";
@@ -58,7 +56,7 @@ const arrowTool: DrawingTools = {
     }
   },
   onResize(data, ctx) {
-    const orientation = data.customData.get(ORIENT_KEY);
+    const orientation = data.customData.get(CUSTOM_DATA_ORIENT_KEY);
     if (!orientation) {
       throw new Error("orientation not set");
     }
@@ -100,7 +98,7 @@ const arrowTool: DrawingTools = {
 
 export default arrowTool;
 
-function makeArrowSvg(
+export function makeArrowSvg(
   data: DrawingData,
   orientation: Orientation
 ): SVGSVGElement {

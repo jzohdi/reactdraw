@@ -19,6 +19,7 @@ import {
 } from "../../utils/updateStyles/color";
 import { updateEleLineWidth } from "../../utils/updateStyles/linewidth";
 import { updateEleOpacity } from "../../utils/updateStyles/opacity";
+
 const circlTool: DrawingTools = {
   id: CIRCLE_TOOL_ID,
   tooltip: "Circle tool",
@@ -65,7 +66,7 @@ const circlTool: DrawingTools = {
 
 export default circlTool;
 
-function makeCircleDiv(styles: ToolPropertiesMap): HTMLDivElement {
+export function makeCircleDiv(styles: ToolPropertiesMap): HTMLDivElement {
   const newDiv = document.createElement("div");
   newDiv.style.width = "100%";
   newDiv.style.height = "100%";

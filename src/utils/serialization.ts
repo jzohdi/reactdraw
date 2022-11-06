@@ -1,8 +1,16 @@
 import { getBoxSize, makeNewDiv } from ".";
-import { FREE_DRAW_ORIGINAL_BOUNDS } from "../constants";
+import {
+  CUSTOM_DATA_ORIENT_KEY,
+  CUSTOM_DATA_ORIGINAL_BOUNDS,
+} from "../constants";
+import { makeArrowSvg } from "../TopBarTools/ArrowTool";
+import { makeCircleDiv } from "../TopBarTools/CircleTool";
+import { makeDiamondSvg } from "../TopBarTools/DiamondTool";
 import { svgPathFromData } from "../TopBarTools/FreeDrawTool";
 import { setDivToBounds } from "../TopBarTools/SelectTool/undo";
 import { makeSquareDiv } from "../TopBarTools/SquareTool";
+import { makeLineInOrientation } from "../TopBarTools/StraightLineTool";
+import { setupTextAreaDiv } from "../TopBarTools/TextAreaTool";
 import {
   ContainerState,
   DeserializerFunction,
@@ -47,15 +55,22 @@ export function serializeObjects(
 }
 
 export const serializeArrow: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const { containerState, customData } = serializeSvgSetup(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 export const serializeCircle: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const containerState = getContainerState(obj);
+  const customData = serializeCustomData(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 export const serializeDiamond: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const { containerState, customData } = serializeSvgSetup(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 function getContainerState(obj: DrawingData): ContainerState {
@@ -82,13 +97,23 @@ export type SerializedFreeDraw = {
   customData: JsonAny;
 };
 
-export const serializeFreeDraw: SerializerFunction = (obj: DrawingData) => {
+export function serializeSvgSetup(obj: DrawingData) {
   const containerState = getContainerState(obj);
   containerState.scale = getScaleFromSvg(obj);
   containerState.other["viewbox"] = obj.element?.getAttribute("viewbox");
   const customData = serializeCustomData(obj);
-  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return { containerState, customData };
+}
 
+export function serializeDomSetup(obj: DrawingData) {
+  const containerState = getContainerState(obj);
+  const customData = serializeCustomData(obj);
+  return { containerState, customData };
+}
+
+export const serializeFreeDraw: SerializerFunction = (obj: DrawingData) => {
+  const { containerState, customData } = serializeSvgSetup(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
   return objectCopy;
 };
 
@@ -101,18 +126,22 @@ export const serializeCustomData = (obj: DrawingData): JsonAny => {
 };
 
 export const serializeSquare: SerializerFunction = (obj: DrawingData) => {
-  const containerState = getContainerState(obj);
-  const customData = serializeCustomData(obj);
+  const { containerState, customData } = serializeDomSetup(obj);
   const objectCopy = { ...obj, containerDiv: containerState, customData };
   return objectCopy;
 };
 
 export const serializeLine: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const { containerState, customData } = serializeSvgSetup(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 export const serializeText: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const { containerState, customData } = serializeDomSetup(obj);
+  containerState.other["text"] = obj.containerDiv.innerText;
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 /**
@@ -158,21 +187,14 @@ function toolNotFoundError(object: any, serializers: any): any {
   );
 }
 
-export const deserializeFreeDraw: DeserializerFunction = (
-  obj: IntermediateStringableObject,
-  ctx: ReactDrawContext,
-  shouldAddToCanvas: boolean = true
-) => {
+export function deserializationSetup(obj: IntermediateStringableObject) {
   const freeDrawObj = obj as SerializedFreeDraw;
   const containerState = freeDrawObj.containerDiv;
   const customData = freeDrawObj.customData;
-  const originalBounds = customData[FREE_DRAW_ORIGINAL_BOUNDS];
-
   const p = freeDrawObj.coords[0];
-  const bbox = containerState.bbox;
   const lineWidth = parseInt(freeDrawObj.style.lineWidth);
   const { id, div } = makeNewDiv(p[0], p[1], lineWidth, freeDrawObj.toolId);
-  const newDrwingData: DrawingData = {
+  const drawingData: DrawingData = {
     toolId: freeDrawObj.toolId,
     id,
     style: freeDrawObj.style,
@@ -181,59 +203,166 @@ export const deserializeFreeDraw: DeserializerFunction = (
     element: null,
     coords: freeDrawObj.coords,
   };
+  return { drawingData, div, containerState };
+}
+
+function addToContainer(
+  data: DrawingData,
+  ele: HTMLElement | SVGSVGElement
+): void {
+  data.containerDiv.innerHTML = "";
+  data.containerDiv.appendChild(ele);
+  data.element = ele;
+}
+
+function applyRotation(
+  ele: HTMLElement | SVGSVGElement,
+  containerState: ContainerState
+): void {
+  ele.style.transform = `rotate(${containerState.rotation}deg)`;
+}
+
+export const deserializeFreeDraw: DeserializerFunction = (
+  obj: IntermediateStringableObject,
+  ctx: ReactDrawContext,
+  shouldAddToCanvas: boolean = true
+) => {
+  const { drawingData, div, containerState } = deserializationSetup(obj);
+  const originalBounds = drawingData.customData.get(
+    CUSTOM_DATA_ORIGINAL_BOUNDS
+  );
+  const bbox = containerState.bbox;
+
   setDivToBounds(div, originalBounds);
 
   if (shouldAddToCanvas) {
-    addObject(ctx, newDrwingData);
+    addObject(ctx, drawingData);
   }
   const newSvg = createSvg(
     originalBounds.width,
     originalBounds.height,
-    freeDrawObj.style.opacity
+    drawingData.style.opacity
   );
 
   newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
   newSvg.style.overflow = "visible";
-  newDrwingData.containerDiv.innerHTML = "";
-  const newPath = svgPathFromData(newDrwingData, ctx.viewContainer);
-  div.style.transform = `rotate(${containerState.rotation}deg)`;
+  const newPath = svgPathFromData(drawingData, ctx.viewContainer);
   newPath.style.transform = `scale(${containerState.scale?.x}, ${containerState.scale?.y})`;
   newSvg.appendChild(newPath);
-  newDrwingData.containerDiv.appendChild(newSvg);
-  newDrwingData.element = newSvg;
+  addToContainer(drawingData, newSvg);
+  applyRotation(newSvg, containerState);
   setDivToBounds(div, bbox);
-  return newDrwingData;
+  return drawingData;
 };
 
-export const deserializeSquare: DeserializerFunction = (intermedObj, ctx, shouldAddToCanvas) => {
-	const containerState = intermedObj.containerDiv;
-  const customData = intermedObj.customData;
-
-  const p = intermedObj.coords[0];
-  const bbox = containerState.bbox;
-  const lineWidth = parseInt(intermedObj.style.lineWidth);
-  const { id, div } = makeNewDiv(p[0], p[1], lineWidth, intermedObj.toolId);
-	const newDrwingData: DrawingData = {
-    toolId: intermedObj.toolId,
-    id,
-    style: intermedObj.style,
-    customData: deserializeCustomData(customData),
-    containerDiv: div,
-    element: null,
-    coords: intermedObj.coords,
-  };
-	const newSquare = makeSquareDiv(intermedObj.style);
-	newDrwingData.containerDiv.appendChild(newSquare);
-	newDrwingData.element = newSquare;
-	div.style.transform = `rotate(${containerState.rotation}deg)`;
-	setDivToBounds(div, bbox);
-
+export const deserializeSquare: DeserializerFunction = (
+  intermedObj,
+  ctx,
+  shouldAddToCanvas
+) => {
+  const { drawingData, containerState, div } =
+    deserializationSetup(intermedObj);
+  const newSquare = makeSquareDiv(intermedObj.style);
+  addToContainer(drawingData, newSquare);
+  applyRotation(div, containerState);
+  setDivToBounds(div, containerState.bbox);
   if (shouldAddToCanvas) {
-    addObject(ctx, newDrwingData);
+    addObject(ctx, drawingData);
   }
+  return drawingData;
+};
 
-	return newDrwingData
-}
+export const deserializeCircle: DeserializerFunction = (
+  obj,
+  ctx,
+  shouldAddToCanvas
+) => {
+  const { drawingData, containerState, div } = deserializationSetup(obj);
+  setDivToBounds(div, containerState.bbox);
+  const newCircle = makeCircleDiv(drawingData.style);
+  addToContainer(drawingData, newCircle);
+  applyRotation(div, containerState);
+  if (shouldAddToCanvas) {
+    addObject(ctx, drawingData);
+  }
+  return drawingData;
+};
+
+export const deserializeDiamond: DeserializerFunction = (
+  obj,
+  ctx,
+  shouldAdd
+) => {
+  const { drawingData, div, containerState } = deserializationSetup(obj);
+  const originalBounds = drawingData.customData.get(
+    CUSTOM_DATA_ORIGINAL_BOUNDS
+  );
+  const bbox = containerState.bbox;
+
+  setDivToBounds(div, originalBounds);
+  if (shouldAdd) {
+    addObject(ctx, drawingData);
+  }
+  const newSvg = makeDiamondSvg(drawingData);
+  newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
+  newSvg.style.overflow = "visible";
+  const innerPath = newSvg.getElementsByTagName("path")[0];
+  if (innerPath) {
+    innerPath.style.transform = `scale(${containerState.scale?.x}, ${containerState.scale?.y})`;
+  }
+  addToContainer(drawingData, newSvg);
+  applyRotation(newSvg, containerState);
+  setDivToBounds(div, bbox);
+  return drawingData;
+};
+
+export const deserializeLine: DeserializerFunction = (obj, ctx, shouldAdd) => {
+  const { drawingData, div, containerState } = deserializationSetup(obj);
+  const orientation = drawingData.customData.get(CUSTOM_DATA_ORIENT_KEY);
+  const bbox = containerState.bbox;
+  setDivToBounds(div, bbox);
+  if (shouldAdd) {
+    addObject(ctx, drawingData);
+  }
+  const newSvg = makeLineInOrientation(drawingData, orientation);
+  newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
+  newSvg.style.overflow = "visible";
+  addToContainer(drawingData, newSvg);
+  applyRotation(newSvg, containerState);
+  return drawingData;
+};
+
+export const deserializeTextArea: DeserializerFunction = (
+  obj,
+  ctx,
+  shouldAdd
+) => {
+  const { drawingData, containerState, div } = deserializationSetup(obj);
+  setupTextAreaDiv(drawingData, ctx);
+  div.innerHTML = containerState.other["text"];
+  setDivToBounds(div, containerState.bbox);
+  applyRotation(div, containerState);
+  if (shouldAdd) {
+    addObject(ctx, drawingData);
+  }
+  return drawingData;
+};
+
+export const deserializeArrow: DeserializerFunction = (obj, ctx, shouldAdd) => {
+  const { drawingData, div, containerState } = deserializationSetup(obj);
+  const orientation = drawingData.customData.get(CUSTOM_DATA_ORIENT_KEY);
+  const bbox = containerState.bbox;
+  setDivToBounds(div, bbox);
+  if (shouldAdd) {
+    addObject(ctx, drawingData);
+  }
+  const newSvg = makeArrowSvg(drawingData, orientation);
+  newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
+  newSvg.style.overflow = "visible";
+  addToContainer(drawingData, newSvg);
+  applyRotation(newSvg, containerState);
+  return drawingData;
+};
 
 function deserializeCustomData(customData: JsonAny): Map<string, any> {
   const data = new Map();
