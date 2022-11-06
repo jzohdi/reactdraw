@@ -1,0 +1,173 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Serialization (Saving + Loading)" />
+
+# Serialization (Saving + Loading) Canvas
+
+A common use case for the canvas objects is to be able to save the canvas and restore the state later.
+An example of this behavior can be seen under `ReactDraw/Save And Load Canvas JSON` where the source code is also provided.
+
+<p>
+  The function `serializeObjects` is provided from the root of this project and
+  returns a string which can be saved to localStorage or sent to a server. This
+  gives you the control when to save the canvas data and what to do with it. You
+  can create custom buttons to save and load the data such as in the example
+  mentioned above. Alternatively you can load the data using the `ReactDraw`
+  onLoad prop.
+</p>
+
+```javascript
+import {
+  ReactDraw,
+  Serializers,
+  serializeObjects,
+  Deserializers,
+  deserializeData,
+  serializeFreeDraw,
+  deserializeFreeDraw,
+} from "../src";
+
+const serializers: Serializers = {
+  [freeDrawTool.id]: serializeFreeDraw,
+};
+
+const deserializers: Deserializers = {
+  [freeDrawTool.id]: deserializeFreeDraw,
+};
+
+// collected serialization of each drowing object on the canvas
+// call this when you want to save canvas (returns string for you to save at your desired location)
+const data = serializeObjects(serializers, ctx);
+
+// turn the data (string) back into the canvas state
+deserializeData(data, deserializers, ctx);
+```
+
+## serializeObjects
+
+Below shows the implementation of the `serializeObjects` function. Each of the drawing objects must
+be turned into `IntermediateStringableObject` because the object's html elements are not json stringifiable.
+See below for an example of how `serializeFreeDraw` is implemented. If you want to serialize and deserialize your custom
+drawing tools you must create the serialization and deserialization functions for it as well.
+
+```javascript
+export function serializeObjects(
+  serializers: Serializers,
+  ctx: ReactDrawContext
+): string {
+  const serializedObjects: IntermediateStringableObject[] = [];
+  for (const drawingObject of ctx.objectsMap.values()) {
+    const toolId = drawingObject.toolId;
+    const serializerFunc = serializers[toolId];
+    if (serializerFunc === undefined) {
+      return toolNotFoundError(drawingObject, serializers);
+    }
+    serializedObjects.push(serializerFunc(drawingObject));
+  }
+  return JSON.stringify(serializedObjects);
+}
+```
+
+# deserializeData
+
+Below shows the implementation of `deserializeData`, there is a 4th optional arguement if you would like
+to return the drawing objects and not add them to the canvas right away. See below for implementation example
+for `deserializeFreeDraw`.
+
+```javascript
+export function deserializeData(
+  stringifiedData: string,
+  deserializers: Deserializers,
+  ctx: ReactDrawContext,
+  shouldAddToCanvas: boolean = true
+): DrawingData[] {
+  const toArray: IntermediateStringableObject[] = JSON.parse(stringifiedData);
+  const results: DrawingData[] = [];
+  for (const obj of toArray) {
+    const deserializerFunction = deserializers[obj.toolId];
+    if (deserializerFunction === undefined) {
+      return toolNotFoundError(obj, deserializers);
+    }
+    const drawingDataObject = deserializerFunction(obj, ctx, shouldAddToCanvas);
+    results.push(drawingDataObject);
+  }
+  return results;
+}
+```
+
+## serializeFreeDraw
+
+```javascript
+export const serializeFreeDraw: SerializerFunction = (obj: DrawingData) => {
+  const containerState = getContainerState(obj);
+  containerState.scale = getScaleFromSvg(obj);
+  containerState.other["viewbox"] = obj.element?.getAttribute("viewbox");
+  const customData = serializeCustomData(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
+};
+```
+
+## deserializeFreeDraw
+
+The general steps included here are:
+
+1. grab the previously serialized setup data (constainerState, customData)
+2. create a new containerDiv (makeNewDiv) with an empty size and center at the original first drawing point.
+3. create a new `DrawingData` object
+4. deserialize customData (turn back into `Map<string, any>`)
+5. set the containerDiv to the original size and position (this is needed so that we can redraw the svg as it was originally drawn)
+6. add the containerDiv to the canvas (need to do this first so that it's `div.getBoundingClientRect()` works)
+7. draw the svg again based on the original coords and original position
+8. restore the rotation, scale, and true saved position. (it's important to do this last or the free draw svg won't be created correctly)
+
+```javascript
+export const deserializeFreeDraw: DeserializerFunction = (
+  obj: IntermediateStringableObject,
+  ctx: ReactDrawContext,
+  shouldAddToCanvas: boolean = true
+) => {
+  const freeDrawObj = obj as SerializedFreeDraw;
+  const containerState = freeDrawObj.containerDiv;
+  const customData = freeDrawObj.customData;
+  const originalBounds = customData[FREE_DRAW_ORIGINAL_BOUNDS];
+  const p = freeDrawObj.coords[0];
+  const bbox = containerState.bbox;
+  const lineWidth = parseInt(freeDrawObj.style.lineWidth);
+
+  const { id, div } = makeNewDiv(p[0], p[1], lineWidth, freeDrawObj.toolId);
+
+  const newDrwingData: DrawingData = {
+    toolId: freeDrawObj.toolId,
+    id,
+    style: freeDrawObj.style,
+    customData: deserializeCustomData(customData),
+    containerDiv: div,
+    element: null,
+    coords: freeDrawObj.coords,
+  };
+
+  setDivToBounds(div, originalBounds);
+
+  if (shouldAddToCanvas) {
+    addObject(ctx, newDrwingData);
+  }
+  const newSvg = createSvg(
+    originalBounds.width,
+    originalBounds.height,
+    freeDrawObj.style.opacity
+  );
+
+  newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
+  newSvg.style.overflow = "visible";
+  newDrwingData.containerDiv.innerHTML = "";
+  const newPath = svgPathFromData(newDrwingData, ctx.viewContainer);
+  div.style.transform = `rotate(${containerState.rotation}deg)`;
+  newPath.style.transform = `scale(${containerState.scale?.x}, ${containerState.scale?.y})`;
+  newSvg.appendChild(newPath);
+  newDrwingData.containerDiv.appendChild(newSvg);
+  newDrwingData.element = newSvg;
+  setDivToBounds(div, bbox);
+  return newDrwingData;
+};
+```

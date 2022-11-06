@@ -33,7 +33,7 @@ export function serializeObjects(
   serializers: Serializers,
   ctx: ReactDrawContext
 ): string {
-  const serializedObjects: any[] = [];
+  const serializedObjects: IntermediateStringableObject[] = [];
   for (const drawingObject of ctx.objectsMap.values()) {
     const toolId = drawingObject.toolId;
     const serializerFunc = serializers[toolId];
@@ -165,7 +165,7 @@ export const deserializeFreeDraw: DeserializerFunction = (
   const containerState = freeDrawObj.containerDiv;
   const customData = freeDrawObj.customData;
   const originalBounds = customData[FREE_DRAW_ORIGINAL_BOUNDS];
-  // console.log("original bounds", originalBounds, "scale", containerState.scale);
+
   const p = freeDrawObj.coords[0];
   const bbox = containerState.bbox;
   const lineWidth = parseInt(freeDrawObj.style.lineWidth);
@@ -180,7 +180,7 @@ export const deserializeFreeDraw: DeserializerFunction = (
     coords: freeDrawObj.coords,
   };
   setDivToBounds(div, originalBounds);
-  // setDivToOriginalWidthAndHeight(div, containerState.other["viewbox"]);
+	
   if (shouldAddToCanvas) {
     addObject(ctx, newDrwingData);
   }
@@ -189,7 +189,7 @@ export const deserializeFreeDraw: DeserializerFunction = (
     originalBounds.height,
     freeDrawObj.style.opacity
   );
-  // setDivToBounds(div, bbox);
+
   newSvg.setAttribute("viewbox", containerState.other["viewbox"]);
   newSvg.style.overflow = "visible";
   newDrwingData.containerDiv.innerHTML = "";
@@ -202,16 +202,6 @@ export const deserializeFreeDraw: DeserializerFunction = (
   setDivToBounds(div, bbox);
   return newDrwingData;
 };
-
-function setDivToOriginalWidthAndHeight(
-  div: HTMLDivElement,
-  viewbox: string
-): void {
-  const split = viewbox.split(" ");
-  const [_t, _l, width, height] = split;
-  div.style.width = width + "px";
-  div.style.height = height + "px";
-}
 
 function deserializeCustomData(customData: JsonAny): Map<string, any> {
   const data = new Map();

@@ -9,7 +9,12 @@ export const parameters = {
   options: {
     storySort: {
       method: "alphabetical",
-      order: ["Introduction", "Drawing Tools", "Type Descriptions"],
+      order: [
+        "Introduction",
+        "Drawing Tools",
+        "Type Descriptions",
+        "Serialization (Saving + Loading)",
+      ],
       locales: "en-US",
     },
   },

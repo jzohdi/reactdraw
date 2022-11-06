@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Story } from "@storybook/react";
 import ReactDraw from "../src/ReactDraw";
 import {
   ActionTools,
+  Deserializers,
   DrawingTools,
+  MenuComponent,
   ReactDrawInnerProps,
   ReactDrawProps,
+  Serializers,
 } from "../src/types";
 
 import {
@@ -30,7 +33,14 @@ import {
   arrowTool,
   ClearAllButton,
   FontSizeStyle,
+  COLORS,
+  serializeFreeDraw,
+  deserializeFreeDraw,
+  serializeObjects,
+  deserializeData,
+  useStyles,
 } from "../src";
+import { DownloadIcon } from "@jzohdi/jsx-icons";
 
 const AbsoluteLayout = { width: 500, height: 500 };
 const layoutOptions = {
@@ -379,6 +389,101 @@ export default function ReactDrawWithCustomStyles() {
 `,
       language: "tsx",
       type: "auto",
+    },
+  },
+};
+
+const inputId = "my-id";
+
+const SaveCanvas: MenuComponent = ({ getContext }) => {
+  const classes = useStyles("saveCanvasComponent");
+  const ref = useRef<HTMLButtonElement>(null);
+
+  // could also do a loading state
+  useEffect(() => {
+    const savedData = localStorage.getItem("react-draw-saved-data");
+    if (savedData) {
+      const ctx = getContext();
+      deserializeData(savedData, deserializers, ctx);
+    }
+  }, []);
+
+  const handleSaveCanvas = () => {
+    const ctx = getContext();
+    // collected serialization of each drowing object on the canvas
+    const data = serializeObjects(serializers, ctx);
+    // save the data where ever you'd like
+    if (window) {
+      window.localStorage.setItem("react-draw-saved-data", data);
+    }
+  };
+  return (
+    <button
+      className={classes}
+      id={inputId}
+      onClick={handleSaveCanvas}
+      ref={ref}
+    >
+      <div style={{ padding: "0px 5px", height: 15 }}>
+        <DownloadIcon height={15} width={20} />
+      </div>
+      <label
+        htmlFor={inputId}
+        style={{ padding: "0px 10px", pointerEvents: "none" }}
+      >
+        Save Canvas
+      </label>
+    </button>
+  );
+};
+
+export const SaveAndLoadJson = Template.bind({});
+
+const serializers: Serializers = {
+  [freeDrawTool.id]: serializeFreeDraw,
+};
+
+const deserializers: Deserializers = {
+  [freeDrawTool.id]: deserializeFreeDraw,
+};
+
+SaveAndLoadJson.args = {
+  topBarTools,
+  shouldSelectAfterCreate: true,
+  menuComponents: [SaveCanvas, ClearAllButton],
+  shouldKeepHistory: false,
+  styleComponents: {
+    color: { order: 3, component: ColorStyle },
+    background: { order: 4, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
+    fontSize: { order: 2, component: FontSizeStyle },
+  },
+  styles: {
+    saveCanvasComponent: {
+      width: 180,
+      fontSize: 16,
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      borderRadius: 5,
+      cursor: "pointer",
+      padding: "7px 10px",
+      backgroundColor: "white",
+      marginBottom: 10,
+      boxSizing: "border-box",
+      border: `1px solid ${COLORS.primary.main}`,
+      "&:hover": {
+        backgroundColor: COLORS.primary.light,
+      },
+    },
+  },
+};
+
+SaveAndLoadJson.parameters = {
+  docs: {
+    source: {
+      code: ``,
     },
   },
 };
