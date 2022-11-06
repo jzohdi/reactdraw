@@ -56,7 +56,7 @@ type MakeNewDivOutput = {
   bottom: number;
 };
 
-function makeNewDiv(
+export function makeNewDiv(
   pointX: number,
   pointY: number,
   lineWidth: number,
@@ -277,7 +277,16 @@ export function addPointToBounds(bounds: RectBounds, point: Point): RectBounds {
   return { top, right, bottom, left };
 }
 
-export function getBoxSize(data: DrawingData) {
+export type BoxSize = {
+  left: number;
+  top: number;
+  height: number;
+  width: number;
+  right: number;
+  bottom: number;
+};
+
+export function getBoxSize(data: DrawingData): BoxSize {
   const div = data.containerDiv;
   const bbox = div.getBoundingClientRect();
   const left = getNumFrom(div.style.left);

@@ -202,3 +202,32 @@ export function centerObject(
   div.style.height = h + "px";
   div.style.width = w + "px";
 }
+
+export function makeDeleteAction(ctx: ReactDrawContext) {
+  const initialAction: ActionObject = {
+    toolId: "",
+    toolType: "top-bar-tool",
+    objectId: "",
+    data: [],
+    action: "delete",
+  };
+  return initialAction;
+}
+
+export function collectObjectsForDeleteAction(
+  action: ActionObject,
+  ctx: ReactDrawContext
+) {
+  const data: string[] = action.data;
+  if (!data || !Array.isArray(data)) {
+    console.error(action);
+    throw new Error("malformed data");
+  }
+  action.data = {};
+  for (const objectId of data) {
+    const object = getObjectFromMap(ctx.objectsMap, objectId);
+    action.data[objectId] = object;
+  }
+  action.action = "delete";
+  return action;
+}

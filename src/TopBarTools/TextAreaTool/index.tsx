@@ -22,6 +22,7 @@ import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../../utils/utils";
 import { actionObjToSave } from "../../utils/updateStyles/utils";
 import { getBoxSize } from "../../utils";
+import { TEXT_AREA_TOOL_ID } from "../../constants";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -31,11 +32,11 @@ const textAreaTool: DrawingTools = {
       A
     </span>
   ),
-  id: "react-draw-textarea-tool",
+  id: TEXT_AREA_TOOL_ID,
   tooltip: "Textarea Tool",
   cursor: "text",
   onDrawStart: (data, ctx) => {
-    setupContainer(data, ctx);
+    setupTextAreaDiv(data, ctx);
   },
   onDrawing(data, viewContainer) {},
   onDrawEnd(data, ctx) {
@@ -174,7 +175,7 @@ function cleanHandlers(data: DrawingData, deleteCapture: boolean) {
   }
 }
 
-function setBoundsFromDiv(div: HTMLDivElement, bounds: RectBounds) {
+export function setBoundsFromDiv(div: HTMLDivElement, bounds: RectBounds) {
   const trueBounds = div.getBoundingClientRect();
   const { width, height } = trueBounds;
   bounds.bottom = bounds.top + height;
@@ -201,7 +202,7 @@ function placeCaretAtEnd(el: HTMLDivElement) {
   return false;
 }
 
-function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
+export function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext) {
   const fontSize = 12;
   const padding = 5;
   const div = data.containerDiv;
@@ -217,6 +218,7 @@ function setupContainer(data: DrawingData, ctx: ReactDrawContext) {
   div.style.borderRadius = "2px";
   div.style.boxSizing = "border-box";
   div.style.color = data.style.color;
+  div.style.opacity = data.style.opacity;
   div.style.fontSize = `${data.style.fontSize}px`;
   const styleTag = document.createElement("style");
   styleTag.innerHTML = `

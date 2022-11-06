@@ -1,6 +1,6 @@
 import { DiamondBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
-import { DIAMOND_TOOL_ID } from "../../constants";
+import { CUSTOM_DATA_ORIGINAL_BOUNDS, DIAMOND_TOOL_ID } from "../../constants";
 import {
   DrawingData,
   DrawingTools,
@@ -45,6 +45,7 @@ const diamondTool: DrawingTools = {
   },
   onDrawEnd(data, ctx) {
     saveCreateToUndoStack(data, ctx);
+    data.customData.set(CUSTOM_DATA_ORIGINAL_BOUNDS, getBoxSize(data));
     if (ctx.shouldSelectAfterCreate) {
       ctx.selectObject(data);
     }
@@ -78,7 +79,7 @@ const diamondTool: DrawingTools = {
 
 export default diamondTool;
 
-function makeDiamondSvg(data: DrawingData): SVGSVGElement {
+export function makeDiamondSvg(data: DrawingData): SVGSVGElement {
   const lineWidth = parseInt(data.style.lineWidth);
   const bounds = getBoxSize(data);
   const { width, height } = bounds;
@@ -98,6 +99,7 @@ function drawDiamondInBounds(
   style: ToolPropertiesMap
 ): SVGPathElement {
   const newPath = createPathSvg(style);
+  newPath.setAttribute("fill", style.background);
   const lineWidth = parseInt(style.lineWidth);
   newPath.setAttribute("d", getPathDiamondString(bounds, lineWidth));
   return newPath;

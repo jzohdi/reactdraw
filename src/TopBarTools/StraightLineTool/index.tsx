@@ -1,5 +1,9 @@
 import React from "react";
-import { STRAIGHT_LINE_TOOL_ID } from "../../constants";
+import {
+  CUSTOM_DATA_ORIENT_KEY,
+  CUSTOM_DATA_ORIGINAL_BOUNDS,
+  STRAIGHT_LINE_TOOL_ID,
+} from "../../constants";
 import { DrawingData, DrawingTools } from "../../types";
 import { getBoxSize, setContainerRect } from "../../utils";
 import { createCircle, createLineSvg, createSvg } from "../../utils/svgUtils";
@@ -21,8 +25,6 @@ import {
   Orientation,
 } from "../../utils/lines";
 
-const ORIENT_KEY = "orientation";
-
 const straightLineTool: DrawingTools = {
   id: STRAIGHT_LINE_TOOL_ID,
   tooltip: "Straight Line Tool",
@@ -41,7 +43,7 @@ const straightLineTool: DrawingTools = {
     const firstPoint = data.coords[0];
     const lastPoint = data.coords[data.coords.length - 1];
     const orientation = calcOrientation(firstPoint, lastPoint);
-    data.customData.set(ORIENT_KEY, orientation);
+    data.customData.set(CUSTOM_DATA_ORIENT_KEY, orientation);
     const newSvg = makeLineInOrientation(data, orientation);
     const div = data.containerDiv;
     div.innerHTML = "";
@@ -56,7 +58,7 @@ const straightLineTool: DrawingTools = {
     }
   },
   onResize(data, ctx) {
-    const orientation = data.customData.get(ORIENT_KEY);
+    const orientation = data.customData.get(CUSTOM_DATA_ORIENT_KEY);
     if (!orientation) {
       throw new Error("orientation not set");
     }
@@ -90,7 +92,7 @@ const straightLineTool: DrawingTools = {
 
 export default straightLineTool;
 
-function makeLineInOrientation(
+export function makeLineInOrientation(
   data: DrawingData,
   orientation: Orientation
 ): SVGSVGElement {

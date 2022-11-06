@@ -1,5 +1,6 @@
 import { PencilBoldIcon } from "@jzohdi/jsx-icons";
 import React from "react";
+import { CUSTOM_DATA_ORIGINAL_BOUNDS } from "../../constants";
 import { DrawingData, DrawingTools, Point } from "../../types";
 import {
   distance,
@@ -51,6 +52,7 @@ const freeDrawTool: DrawingTools = {
   },
   onDrawEnd: (data, ctx) => {
     saveCreateToUndoStack(data, ctx);
+    saveOriginalBoundsToData(data);
     if (ctx.shouldSelectAfterCreate) {
       ctx.selectObject(data);
     }
@@ -85,7 +87,7 @@ const freeDrawTool: DrawingTools = {
 
 export default freeDrawTool;
 
-function svgPathFromData(
+export function svgPathFromData(
   data: DrawingData,
   viewContainer: HTMLDivElement
 ): SVGPathElement {
@@ -142,4 +144,8 @@ function average(a: Point, b: Point): Point {
     Math.min(ax, bx) + Math.abs(ax - bx) / 2,
     Math.min(ay, by) + Math.abs(ay - by) / 2,
   ];
+}
+
+function saveOriginalBoundsToData(data: DrawingData): void {
+  data.customData.set(CUSTOM_DATA_ORIGINAL_BOUNDS, getBoxSize(data));
 }
