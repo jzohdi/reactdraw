@@ -2,7 +2,30 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import { ReactDraw, freeDrawTool, squareTool } from "@jzohdi/react-draw";
+import {
+  ReactDraw,
+  circleTool,
+  squareTool,
+  selectTool,
+  freeDrawTool,
+  diamondTool,
+  straightLineTool,
+  textAreaTool,
+  eraseTool,
+  undoTool,
+  redoTool,
+  trashTool,
+  duplicateTool,
+  bringBackTool,
+  bringForwardTool,
+  ColorStyle,
+  BackgroundStyle,
+  LineWidthStyle,
+  OpacityStyle,
+  arrowTool,
+  ClearAllButton,
+  FontSizeStyle,
+} from "@jzohdi/react-draw";
 
 const Home: NextPage = () => {
   return (
@@ -18,12 +41,36 @@ const Home: NextPage = () => {
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
         <ReactDraw
-          topBarTools={[freeDrawTool, squareTool]}
           id="main"
-          bottomBarTools={[]}
-          shouldKeepHistory={false}
-          shouldSelectAfterCreate={false}
-        ></ReactDraw>
+          topBarTools={[
+            selectTool,
+            freeDrawTool,
+            squareTool,
+            circleTool,
+            diamondTool,
+            straightLineTool,
+            textAreaTool,
+            arrowTool,
+            eraseTool,
+          ]}
+          bottomBarTools={[
+            undoTool,
+            redoTool,
+            trashTool,
+            duplicateTool,
+            bringBackTool,
+            bringForwardTool,
+          ]}
+          shouldSelectAfterCreate={true}
+          styleComponents={{
+            color: { order: 3, component: ColorStyle },
+            background: { order: 4, component: BackgroundStyle },
+            lineWidth: { order: 1, component: LineWidthStyle },
+            opacity: { order: 0, component: OpacityStyle },
+            fontSize: { order: 2, component: FontSizeStyle },
+          }}
+          menuComponents={[ClearAllButton]}
+        />
       </main>
 
       <footer className={styles.footer}>

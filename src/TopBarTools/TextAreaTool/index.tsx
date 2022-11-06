@@ -22,6 +22,7 @@ import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../../utils/utils";
 import { actionObjToSave } from "../../utils/updateStyles/utils";
 import { getBoxSize } from "../../utils";
+import { TEXT_AREA_TOOL_ID } from "../../constants";
 
 const textAreaTool: DrawingTools = {
   icon: (
@@ -31,7 +32,7 @@ const textAreaTool: DrawingTools = {
       A
     </span>
   ),
-  id: "react-draw-textarea-tool",
+  id: TEXT_AREA_TOOL_ID,
   tooltip: "Textarea Tool",
   cursor: "text",
   onDrawStart: (data, ctx) => {

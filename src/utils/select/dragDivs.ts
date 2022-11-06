@@ -7,7 +7,6 @@ export function dragDivs(
   newPoint: Point
 ): void {
   const [currentMouseX, currentMouseY] = newPoint;
-  console.log(currentMouseX, currentMouseY);
   const [prevMouseX, prevMouseY] = prevPoint;
   const newLeft = currentMouseX - prevMouseX;
   const newTop = currentMouseY - prevMouseY;

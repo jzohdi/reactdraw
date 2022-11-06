@@ -9,8 +9,16 @@ import {
   MENU_BUTTON_CLASSES,
   MENU_CONTAINER_CLASSES,
   TOOL_ICON_WRAPPER_CLASSES,
+  FREE_DRAW_TOOL_ID,
+  ARROW_TOOL_ID,
+  CIRCLE_TOOL_ID,
+  DIAMOND_TOOL_ID,
+  SQUARE_TOOL_ID,
+  STRAIGHT_LINE_TOOL_ID,
+  TEXT_AREA_TOOL_ID,
 } from "./constants";
 import { StylesValue } from "./Styles/types";
+import { BoxSize } from "./utils";
 
 export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
 export type LayoutAbsolute = {
@@ -273,3 +281,51 @@ export type SelectMode =
   | "resize-se"
   | "resize-sw";
 export type HTMLEvent = keyof HTMLElementEventMap;
+
+export type IntermediateStringableObject = {
+  toolId: string;
+  [key: string]: any;
+};
+
+/**
+ * Serializer function should take a DrawingData object and transform it
+ * into another form which can be stringified and parsed later
+ */
+export type SerializerFunction = (
+  obj: DrawingData
+) => IntermediateStringableObject;
+
+export type Serializers = {
+  [ARROW_TOOL_ID]?: SerializerFunction;
+  [CIRCLE_TOOL_ID]?: SerializerFunction;
+  [DIAMOND_TOOL_ID]?: SerializerFunction;
+  [FREE_DRAW_TOOL_ID]?: SerializerFunction;
+  [SQUARE_TOOL_ID]?: SerializerFunction;
+  [STRAIGHT_LINE_TOOL_ID]?: SerializerFunction;
+  [TEXT_AREA_TOOL_ID]?: SerializerFunction;
+  [key: string]: SerializerFunction | undefined;
+};
+
+export type DeserializerFunction = (
+  obj: IntermediateStringableObject,
+  ctx: ReactDrawContext,
+  shouldAddToCanvas: boolean
+) => DrawingData;
+
+export type Deserializers = {
+  [ARROW_TOOL_ID]?: DeserializerFunction;
+  [CIRCLE_TOOL_ID]?: DeserializerFunction;
+  [DIAMOND_TOOL_ID]?: DeserializerFunction;
+  [FREE_DRAW_TOOL_ID]?: DeserializerFunction;
+  [SQUARE_TOOL_ID]?: DeserializerFunction;
+  [STRAIGHT_LINE_TOOL_ID]?: DeserializerFunction;
+  [TEXT_AREA_TOOL_ID]?: DeserializerFunction;
+  [key: string]: DeserializerFunction | undefined;
+};
+
+export type ContainerState = {
+  bbox: BoxSize;
+  rotation: number;
+  scale: null | { x: string; y: string };
+  other: { [key: string]: any };
+};

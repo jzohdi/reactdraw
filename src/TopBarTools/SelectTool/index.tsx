@@ -33,7 +33,7 @@ import { unselectElement } from "../../utils/select/unselectElement";
 import { handelResizeUndo, handleDragUndo, handleRotateUndo } from "./undo";
 import { deleteCreatedObjects, recreateDeletedObjects } from "../../utils/undo";
 import { pushActionToStack } from "../../utils/pushActionToStack";
-import { makeSureArtifactsGone } from "../../utils/utils";
+import { makeDeleteAction, makeSureArtifactsGone } from "../../utils/utils";
 
 const selectTool: DrawingTools = {
   tooltip: "Select tool",
@@ -83,16 +83,10 @@ const selectTool: DrawingTools = {
       return;
     }
     // unselectAll(objects, ctx);
-    const resultAction = deleteCreatedObjects(
-      {
-        toolId: SELECT_TOOL_ID,
-        toolType: "top-bar-tool",
-        objectId: "",
-        data: [...selectedIds],
-        action: "delete",
-      },
-      ctx
-    );
+    const action = makeDeleteAction(ctx);
+    action.toolId = SELECT_TOOL_ID;
+    action.data = [...selectedIds];
+    const resultAction = deleteCreatedObjects(action, ctx);
     pushActionToStack(resultAction, ctx);
   },
   undoHandlers: {

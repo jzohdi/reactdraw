@@ -76,7 +76,7 @@ export function handelResizeUndo(
   return action;
 }
 
-function setDivToBounds(div: HTMLDivElement, bounds: RectBounds) {
+export function setDivToBounds(div: HTMLDivElement, bounds: RectBounds) {
   div.style.left = bounds.left + "px";
   div.style.top = bounds.top + "px";
   div.style.width = bounds.right - bounds.left + "px";

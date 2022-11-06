@@ -69,7 +69,7 @@ const AddImageMenuComponent: MenuComponent = ({ getContext }) => {
     img.style.height = "100%";
     img.onload = function () {
       newData.element = img;
-      newData.container.div.appendChild(img);
+      newData.containerDiv.appendChild(img);
       const { width, height } = getDimensions(img);
       centerObject(ctx, newData, width, height);
       if (ctx.shouldSelectAfterCreate) {
