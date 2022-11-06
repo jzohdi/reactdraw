@@ -2,6 +2,7 @@ import { getBoxSize, makeNewDiv } from ".";
 import { FREE_DRAW_ORIGINAL_BOUNDS } from "../constants";
 import { svgPathFromData } from "../TopBarTools/FreeDrawTool";
 import { setDivToBounds } from "../TopBarTools/SelectTool/undo";
+import { makeSquareDiv } from "../TopBarTools/SquareTool";
 import {
   ContainerState,
   DeserializerFunction,
@@ -84,12 +85,10 @@ export type SerializedFreeDraw = {
 export const serializeFreeDraw: SerializerFunction = (obj: DrawingData) => {
   const containerState = getContainerState(obj);
   containerState.scale = getScaleFromSvg(obj);
-  // console.log("obj custom data", obj.customData);
   containerState.other["viewbox"] = obj.element?.getAttribute("viewbox");
   const customData = serializeCustomData(obj);
-  // console.log("custom data", customData);
   const objectCopy = { ...obj, containerDiv: containerState, customData };
-  // console.log({ ...objectCopy, coords: undefined });
+
   return objectCopy;
 };
 
@@ -102,7 +101,10 @@ export const serializeCustomData = (obj: DrawingData): JsonAny => {
 };
 
 export const serializeSquare: SerializerFunction = (obj: DrawingData) => {
-  return obj;
+  const containerState = getContainerState(obj);
+  const customData = serializeCustomData(obj);
+  const objectCopy = { ...obj, containerDiv: containerState, customData };
+  return objectCopy;
 };
 
 export const serializeLine: SerializerFunction = (obj: DrawingData) => {
@@ -180,7 +182,7 @@ export const deserializeFreeDraw: DeserializerFunction = (
     coords: freeDrawObj.coords,
   };
   setDivToBounds(div, originalBounds);
-	
+
   if (shouldAddToCanvas) {
     addObject(ctx, newDrwingData);
   }
@@ -202,6 +204,36 @@ export const deserializeFreeDraw: DeserializerFunction = (
   setDivToBounds(div, bbox);
   return newDrwingData;
 };
+
+export const deserializeSquare: DeserializerFunction = (intermedObj, ctx, shouldAddToCanvas) => {
+	const containerState = intermedObj.containerDiv;
+  const customData = intermedObj.customData;
+
+  const p = intermedObj.coords[0];
+  const bbox = containerState.bbox;
+  const lineWidth = parseInt(intermedObj.style.lineWidth);
+  const { id, div } = makeNewDiv(p[0], p[1], lineWidth, intermedObj.toolId);
+	const newDrwingData: DrawingData = {
+    toolId: intermedObj.toolId,
+    id,
+    style: intermedObj.style,
+    customData: deserializeCustomData(customData),
+    containerDiv: div,
+    element: null,
+    coords: intermedObj.coords,
+  };
+	const newSquare = makeSquareDiv(intermedObj.style);
+	newDrwingData.containerDiv.appendChild(newSquare);
+	newDrwingData.element = newSquare;
+	div.style.transform = `rotate(${containerState.rotation}deg)`;
+	setDivToBounds(div, bbox);
+
+  if (shouldAddToCanvas) {
+    addObject(ctx, newDrwingData);
+  }
+
+	return newDrwingData
+}
 
 function deserializeCustomData(customData: JsonAny): Map<string, any> {
   const data = new Map();

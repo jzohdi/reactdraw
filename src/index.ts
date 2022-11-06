@@ -1,7 +1,7 @@
 export { default as ReactDraw } from "./ReactDraw";
 export { default as freeDrawTool } from "./TopBarTools/FreeDrawTool";
 export { default as selectTool } from "./TopBarTools/SelectTool";
-export { default as squareTool } from "./TopBarTools/SquareTool";
+export { default as squareTool, makeSquareDiv } from "./TopBarTools/SquareTool";
 export { default as circleTool } from "./TopBarTools/CircleTool";
 export { default as diamondTool } from "./TopBarTools/DiamondTool";
 export { default as straightLineTool } from "./TopBarTools/StraightLineTool";
@@ -35,4 +35,5 @@ export {
   serializeText,
   deserializeData,
   deserializeFreeDraw,
+  deserializeSquare,
 } from "./utils/serialization";

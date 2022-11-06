@@ -39,6 +39,8 @@ import {
   serializeObjects,
   deserializeData,
   useStyles,
+  serializeSquare,
+  deserializeSquare,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 
@@ -393,6 +395,16 @@ export default function ReactDrawWithCustomStyles() {
   },
 };
 
+const serializers: Serializers = {
+  [freeDrawTool.id]: serializeFreeDraw,
+  [squareTool.id]: serializeSquare,
+};
+
+const deserializers: Deserializers = {
+  [freeDrawTool.id]: deserializeFreeDraw,
+  [squareTool.id]: deserializeSquare,
+};
+
 const inputId = "my-id";
 
 const SaveCanvas: MenuComponent = ({ getContext }) => {
@@ -438,14 +450,6 @@ const SaveCanvas: MenuComponent = ({ getContext }) => {
 };
 
 export const SaveAndLoadJson = Template.bind({});
-
-const serializers: Serializers = {
-  [freeDrawTool.id]: serializeFreeDraw,
-};
-
-const deserializers: Deserializers = {
-  [freeDrawTool.id]: deserializeFreeDraw,
-};
 
 SaveAndLoadJson.args = {
   topBarTools,

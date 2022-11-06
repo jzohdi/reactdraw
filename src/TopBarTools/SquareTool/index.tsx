@@ -66,7 +66,7 @@ const squareTool: DrawingTools = {
 
 export default squareTool;
 
-function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement {
+export function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement {
   const div = document.createElement("div");
   div.style.width = "100%";
   div.style.height = "100%";
