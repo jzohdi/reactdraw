@@ -50,6 +50,21 @@ type KeyFramesDefinition = {
 type StylesValue = CSSProperties | {
     [selector: string]: CSSProperties;
 } | KeyFramesDefinition;
+type MakeNewDivOutput = {
+    div: HTMLDivElement;
+    id: string;
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+};
+declare function makeNewDiv(pointX: number, pointY: number, lineWidth: number, toolId: string): MakeNewDivOutput;
+/**
+ * Uses the initial point and the most recent point
+ * has the side effect of altering the container to be the
+ * correct position and dimensions;
+ */
+declare function setContainerRect(data: DrawingData): Point[];
 type BoxSize = {
     left: number;
     top: number;
@@ -243,6 +258,7 @@ type ReactDrawInnerProps = {
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
     onLoad?: (ctx: ReactDrawContext) => void;
+    contextGetter?: (ctxGetter: () => ReactDrawContext) => void;
 };
 type StylesObject = {
     [BOTTOM_BAR_CONTAINER_CLASSES]?: StylesValue;
@@ -349,6 +365,7 @@ declare function LineWidthPicker$0({ onUpdate, styleKey, styleValue }: OpacityPi
 type LineWidthPickerProps$0 = StyleComponentProps;
 declare function LineWidthPicker$1({ onUpdate, styleKey, styleValue }: LineWidthPickerProps$0): JSX.Element;
 declare const ClearAllButton: MenuComponent;
+declare function getViewCenterPoint(ctx: ReactDrawContext): Point;
 declare function createNewObject(ctx: ReactDrawContext, point: Point, toolId: string): DrawingData;
 declare function addObject(ctx: ReactDrawContext, obj: DrawingData): void;
 declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: number, h?: number): void;
@@ -397,5 +414,15 @@ declare const deserializeDiamond: DeserializerFunction;
 declare const deserializeLine: DeserializerFunction;
 declare const deserializeTextArea: DeserializerFunction;
 declare const deserializeArrow: DeserializerFunction;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, createNewObject, addObject, centerObject, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow };
+type CreateObjectOptions = {
+    topLeftPoint: Point;
+    bottomRightPoint: Point;
+    toolId: string;
+};
+/**
+ * creates a new circle and adds it to thew view.
+ * returns the resulting DrawingDataObject
+ */
+declare function createCircle(ctx: ReactDrawContext, options: CreateObjectOptions): DrawingData;
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, createNewObject, addObject, centerObject, getViewCenterPoint, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, makeNewDiv, setContainerRect, CreateObjectOptions, createCircle };
 //# sourceMappingURL=index.esm.d.ts.map

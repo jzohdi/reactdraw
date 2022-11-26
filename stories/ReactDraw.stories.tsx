@@ -6,6 +6,7 @@ import {
   Deserializers,
   DrawingTools,
   MenuComponent,
+  ReactDrawContext,
   ReactDrawInnerProps,
   ReactDrawProps,
   Serializers,
@@ -51,6 +52,12 @@ import {
   deserializeTextArea,
   serializeArrow,
   deserializeArrow,
+  createNewObject,
+  getViewCenterPoint,
+  makeCircleDiv,
+  setContainerRect,
+  addObject,
+  createCircle,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 
@@ -298,6 +305,67 @@ FitLayoutWithChildren.parameters = {
 			`,
       language: "tsx",
       type: "auto",
+    },
+  },
+};
+
+const circleToolCopy = Object.assign({}, circleTool);
+delete circleTool.icon;
+
+function ControlFromExternalWrapper({ ...args }: any) {
+  const contextGetterRef = useRef<() => ReactDrawContext>();
+
+  const setContextGetter = (contextGetter: () => ReactDrawContext) => {
+    contextGetterRef.current = contextGetter;
+  };
+
+  const handleClickAddCircle = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    const centerPoint = getViewCenterPoint(ctx);
+    createCircle(ctx, {
+      topLeftPoint: centerPoint,
+      bottomRightPoint: [centerPoint[0] - 20, centerPoint[1] - 20],
+      toolId: circleTool.id,
+    });
+  };
+
+  return (
+    <div>
+      <p>
+        You can control the react draw context from outside of the ReactDraw
+        component
+      </p>
+      <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ paddingTop: 10 }}>
+          <button onClick={handleClickAddCircle}>Add Circle</button>
+        </div>
+        <ReactDraw {...args} contextGetter={setContextGetter} />
+      </div>
+    </div>
+  );
+}
+
+const ExternalControlsTemplate: Story<ReactDrawProps> = (args) => (
+  <ControlFromExternalWrapper {...args} />
+);
+
+export const ExternalControls = ExternalControlsTemplate.bind({});
+
+ExternalControls.args = {
+  topBarTools: [selectTool, circleToolCopy],
+  shouldKeepHistory: false,
+  shouldSelectAfterCreate: true,
+  hideTopBar: true,
+};
+
+ExternalControls.parameters = {
+  docs: {
+    source: {
+      code: ``,
     },
   },
 };

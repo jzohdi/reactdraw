@@ -1,4 +1,5 @@
 export { default as ReactDraw } from "./ReactDraw";
+// ===================== EXPORT TOOLS =====================
 export { default as freeDrawTool } from "./TopBarTools/FreeDrawTool";
 export { default as selectTool } from "./TopBarTools/SelectTool";
 export { default as squareTool, makeSquareDiv } from "./TopBarTools/SquareTool";
@@ -23,15 +24,24 @@ export { default as trashTool } from "./BottomBarTools/TrashTool";
 export { default as duplicateTool } from "./BottomBarTools/DuplicateTool";
 export { default as bringBackTool } from "./BottomBarTools/BringBackTool";
 export { default as bringForwardTool } from "./BottomBarTools/BringForwardTool";
+// ===================== EXPORT COMPONENTS =====================
 export { default as ColorStyle } from "./StyleComponents/Color";
 export { default as BackgroundStyle } from "./StyleComponents/Background";
 export { default as LineWidthStyle } from "./StyleComponents/LineWidth";
 export { default as OpacityStyle } from "./StyleComponents/OpacityPicker";
 export { default as FontSizeStyle } from "./StyleComponents/FontSizePicker";
 export { default as ClearAllButton } from "./MenuComponents/ClearAllButton";
+// ===================== EXPORT TYPES =====================
 export * from "./types";
+// ===================== EXPORT CONSTANTS =====================
 export { COLORS as COLORS } from "./constants";
-export { createNewObject, addObject, centerObject } from "./utils/utils";
+// ===================== EXPORT Functions =====================
+export {
+  createNewObject,
+  addObject,
+  centerObject,
+  getViewCenterPoint,
+} from "./utils/utils";
 export { useStyles } from "./Styles/hooks";
 export {
   serializeObjects,
@@ -52,3 +62,5 @@ export {
   deserializeTextArea,
   deserializeArrow,
 } from "./utils/serialization";
+export { makeNewDiv, setContainerRect } from "./utils/index";
+export * from "./utils/publicUtils";

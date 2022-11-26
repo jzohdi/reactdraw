@@ -47,7 +47,8 @@ export default function ReactDraw({
   shouldSelectAfterCreate = true,
   styleComponents,
   menuComponents = [],
-	onLoad
+	onLoad,
+	contextGetter,
 }: ReactDrawInnerProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
@@ -353,19 +354,23 @@ export default function ReactDraw({
   };
 
   const pushStyleUpdateToStack = (actions: (ActionObject | undefined)[], ctx: ReactDrawContext) => {
-	const filterUndefined: ActionObject[] = actions.filter(isNotUndefined<ActionObject>);
-	if (filterUndefined.length === 0) {
-		return;
-	}
-	const action: ActionObject = {
-		data: filterUndefined,
-		objectId: "",
-		toolId: "",
-		toolType: "batch",
-		action: "batch"
-	}
-	pushActionToStack(action, ctx);
+		const filterUndefined: ActionObject[] = actions.filter(isNotUndefined<ActionObject>);
+		if (filterUndefined.length === 0) {
+			return;
+		}
+		const action: ActionObject = {
+			data: filterUndefined,
+			objectId: "",
+			toolId: "",
+			toolType: "batch",
+			action: "batch"
+		}
+		pushActionToStack(action, ctx);
   }
+
+	if (contextGetter) {
+		contextGetter(getReactDrawContext)
+	}
 
   return (
 	<>
