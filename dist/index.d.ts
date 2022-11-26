@@ -415,8 +415,8 @@ declare const deserializeLine: DeserializerFunction;
 declare const deserializeTextArea: DeserializerFunction;
 declare const deserializeArrow: DeserializerFunction;
 type CreateObjectOptions = {
-    topLeftPoint: Point;
-    bottomRightPoint: Point;
+    pointA: Point;
+    pointB: Point;
     toolId: string;
 };
 /**
@@ -424,5 +424,12 @@ type CreateObjectOptions = {
  * returns the resulting DrawingDataObject
  */
 declare function createCircle(ctx: ReactDrawContext, options: CreateObjectOptions): DrawingData;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, createNewObject, addObject, centerObject, getViewCenterPoint, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, makeNewDiv, setContainerRect, CreateObjectOptions, createCircle };
+type CreateImageOptions = CreateObjectOptions & {
+    url?: string;
+    showLoading?: boolean;
+    image?: HTMLImageElement;
+    loadingElement?: Element;
+};
+declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
+export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, bringBackTool, bringForwardTool, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, createNewObject, addObject, centerObject, getViewCenterPoint, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, makeNewDiv, setContainerRect, CreateObjectOptions, createCircle, CreateImageOptions, createImage };
 //# sourceMappingURL=index.d.ts.map

@@ -105,7 +105,7 @@ export function getCenterPoint(bounds: RectBounds): Point {
 export function getViewCenterPoint(ctx: ReactDrawContext): Point {
   const viewContainer = ctx.viewContainer;
   const bbox = viewContainer.getBoundingClientRect();
-  return getCenterPoint(bbox);
+  return [bbox.width / 2, bbox.height / 2];
 }
 
 export function makeSureArtifactsGone(

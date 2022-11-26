@@ -58,6 +58,7 @@ import {
   setContainerRect,
   addObject,
   createCircle,
+  createImage,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 
@@ -311,6 +312,15 @@ FitLayoutWithChildren.parameters = {
 
 const circleToolCopy = Object.assign({}, circleTool);
 delete circleTool.icon;
+const imageToolId = "my-image-tool-id";
+
+const imageTool: DrawingTools = {
+  id: imageToolId,
+  onDrawEnd() {},
+  onDrawing() {},
+  onDrawStart() {},
+  onResize() {},
+};
 
 function ControlFromExternalWrapper({ ...args }: any) {
   const contextGetterRef = useRef<() => ReactDrawContext>();
@@ -327,9 +337,28 @@ function ControlFromExternalWrapper({ ...args }: any) {
     const ctx = ctxGetter();
     const centerPoint = getViewCenterPoint(ctx);
     createCircle(ctx, {
-      topLeftPoint: centerPoint,
-      bottomRightPoint: [centerPoint[0] - 20, centerPoint[1] - 20],
+      pointA: centerPoint,
+      pointB: [centerPoint[0] + 100, centerPoint[1] + 100],
       toolId: circleTool.id,
+    });
+  };
+
+  const handleClickAddImage = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    const centerPoint = getViewCenterPoint(ctx);
+    const loadingEle = document.createElement("p");
+    loadingEle.innerHTML = " loading...";
+    createImage(ctx, {
+      pointA: centerPoint,
+      pointB: [centerPoint[0] + 100, centerPoint[1] + 100],
+      toolId: imageTool.id,
+      url: "https://picsum.photos/200",
+      showLoading: true,
+      loadingElement: loadingEle,
     });
   };
 
@@ -340,8 +369,11 @@ function ControlFromExternalWrapper({ ...args }: any) {
         component
       </p>
       <div style={{ display: "flex", gap: 10 }}>
-        <div style={{ paddingTop: 10 }}>
+        <div
+          style={{ paddingTop: 10, display: "flex", flexDirection: "column" }}
+        >
           <button onClick={handleClickAddCircle}>Add Circle</button>
+          <button onClick={handleClickAddImage}>Add Picture</button>
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
@@ -356,7 +388,7 @@ const ExternalControlsTemplate: Story<ReactDrawProps> = (args) => (
 export const ExternalControls = ExternalControlsTemplate.bind({});
 
 ExternalControls.args = {
-  topBarTools: [selectTool, circleToolCopy],
+  topBarTools: [selectTool, circleToolCopy, imageTool],
   shouldKeepHistory: false,
   shouldSelectAfterCreate: true,
   hideTopBar: true,
@@ -365,8 +397,87 @@ ExternalControls.args = {
 ExternalControls.parameters = {
   docs: {
     source: {
-      code: ``,
+      code: `
+const circleToolCopy = Object.assign({}, circleTool);
+delete circleTool.icon;
+const imageToolId = "my-image-tool-id";
+
+const imageTool: DrawingTools = {
+	id: imageToolId,
+	onDrawEnd() {},
+	onDrawing() {},
+	onDrawStart() {},
+	onResize() {},
+};
+
+function ControlFromExternalWrapper({ ...args }: any) {
+	const contextGetterRef = useRef<() => ReactDrawContext>();
+
+	const setContextGetter = (contextGetter: () => ReactDrawContext) => {
+		contextGetterRef.current = contextGetter;
+	};
+
+	const handleClickAddCircle = () => {
+		const ctxGetter = contextGetterRef.current;
+		if (!ctxGetter) {
+			throw new Error("Ctx getter not set");
+		}
+		const ctx = ctxGetter();
+		const centerPoint = getViewCenterPoint(ctx);
+		createCircle(ctx, {
+			pointA: centerPoint,
+			pointB: [centerPoint[0] + 100, centerPoint[1] + 100],
+			toolId: circleTool.id,
+		});
+	};
+
+	const handleClickAddImage = () => {
+		const ctxGetter = contextGetterRef.current;
+		if (!ctxGetter) {
+			throw new Error("Ctx getter not set");
+		}
+		const ctx = ctxGetter();
+		const centerPoint = getViewCenterPoint(ctx);
+		const loadingEle = document.createElement("p");
+		loadingEle.innerHTML = " loading...";
+		createImage(ctx, {
+			pointA: centerPoint,
+			pointB: [centerPoint[0] + 100, centerPoint[1] + 100],
+			toolId: imageTool.id,
+			url: "https://picsum.photos/200",
+			showLoading: true,
+			loadingElement: loadingEle,
+		});
+	};
+
+	return (
+		<div>
+			<p>
+				You can control the react draw context from outside of the ReactDraw
+				component
+			</p>
+			<div style={{ display: "flex", gap: 10 }}>
+				<div
+					style={{ paddingTop: 10, display: "flex", flexDirection: "column" }}
+				>
+					<button onClick={handleClickAddCircle}>Add Circle</button>
+					<button onClick={handleClickAddImage}>Add Picture</button>
+				</div>
+				<ReactDraw 
+					contextGetter={setContextGetter} 
+					topBarTools={[selectTool, circleToolCopy, imageTool]}
+					shouldKeepHistory={false}
+					shouldSelectAfterCreate={true}
+					hideTopBar={true}
+				/>
+			</div>
+		</div>
+	);
+}			
+			`,
     },
+    language: "tsx",
+    type: "auto",
   },
 };
 

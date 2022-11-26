@@ -11,8 +11,8 @@ import { DrawingData, Point, ReactDrawContext } from "../types";
 import { addObject, createNewObject } from "./utils";
 
 export type CreateObjectOptions = {
-  topLeftPoint: Point;
-  bottomRightPoint: Point;
+  pointA: Point;
+  pointB: Point;
   toolId: string;
 };
 
@@ -24,18 +24,101 @@ export function createCircle(
   ctx: ReactDrawContext,
   options: CreateObjectOptions
 ): DrawingData {
-  const newDrawingObject = createNewObject(
-    ctx,
-    options.topLeftPoint,
-    options.toolId
-  );
+  const newDrawingObject = createNewObject(ctx, options.pointA, options.toolId);
   const newCircle = makeCircleDiv(ctx.globalStyles);
   newDrawingObject.containerDiv.appendChild(newCircle);
   newDrawingObject.element = newCircle;
   // expand point
-  newDrawingObject.coords.push(options.bottomRightPoint);
+  newDrawingObject.coords.push(options.pointB);
   setContainerRect(newDrawingObject);
   addObject(ctx, newDrawingObject);
   ctx.selectObject(newDrawingObject);
   return newDrawingObject;
+}
+
+export type CreateImageOptions = CreateObjectOptions & {
+  url?: string;
+  showLoading?: boolean;
+  image?: HTMLImageElement;
+  loadingElement?: Element;
+};
+
+function getLoadingPlaceholder(): HTMLDivElement {
+  const styleEle = document.createElement("style");
+  styleEle.innerHTML = `.skeleton-loader {
+					width: 100%;
+					height: 100%;
+					display: block;
+					border-radius: 10px;
+					background: linear-gradient(
+							to right,
+							rgba(255, 255, 255, 0),
+							rgba(255, 255, 255, 0.5) 50%,
+							rgba(255, 255, 255, 0) 80%
+						),
+						lightgray;
+					background-repeat: repeat-y;
+					background-size: 50px 500px;
+					background-position: 0 0;
+					animation: shine 1s infinite;
+				}
+				@keyframes shine {
+					to {
+						background-position: 100% 0, /* move highlight to right */ 0 0;
+					}
+				}`;
+  const loadingEle = document.createElement("div");
+  loadingEle.appendChild(styleEle);
+  loadingEle.style.width = "100%";
+  loadingEle.style.height = "100%";
+  const innerEle = document.createElement("span");
+  innerEle.className = "skeleton-loader";
+  loadingEle.appendChild(innerEle);
+  return loadingEle;
+}
+
+export async function createImage(
+  ctx: ReactDrawContext,
+  options: CreateImageOptions
+): Promise<DrawingData> {
+  const newData = createNewObject(ctx, options.pointA, options.toolId);
+  addObject(ctx, newData);
+  newData.coords.push(options.pointB);
+  setContainerRect(newData);
+  const imageUrl = options.url;
+  return new Promise((resolve, reject) => {
+    const handleImageLoaded = (img: HTMLImageElement) => {
+      newData.element = img;
+      newData.containerDiv.innerHTML = "";
+      newData.containerDiv.appendChild(img);
+      if (ctx.shouldSelectAfterCreate) {
+        ctx.selectObject(newData);
+      }
+      resolve(newData);
+    };
+    if (imageUrl) {
+      if (options.showLoading) {
+        const loadingEle = options.loadingElement ?? getLoadingPlaceholder();
+        newData.containerDiv.appendChild(loadingEle);
+      }
+      const img = new Image();
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.onload = function () {
+        handleImageLoaded(img);
+      };
+      img.onerror = () => {
+        reject(null);
+      };
+      img.src = imageUrl;
+      return newData;
+    }
+    const htmlImage = options.image;
+    if (!htmlImage) {
+      throw new Error(
+        "createImage must be given either url (string) or image (HTMLImageElement) options. Neither provided."
+      );
+    }
+    handleImageLoaded(htmlImage);
+  });
 }
