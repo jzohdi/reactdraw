@@ -8,7 +8,8 @@ export default function cssFromState(state: StylesContextState): string {
     finalCss += compileClasses(className, styles);
   }
   // return CSS.escape(finalCss);
-  return finalCss.replace(/"/g, "'");
+  // return finalCss.replace(/"/g, "&#x27;");
+  return finalCss;
 }
 
 function compileClasses(className: string, styles: StylesValue): string {

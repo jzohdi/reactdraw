@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { Story } from "@storybook/react";
 import ReactDraw from "../src/ReactDraw";
 import {
@@ -7,7 +7,6 @@ import {
   DrawingTools,
   MenuComponent,
   ReactDrawContext,
-  ReactDrawInnerProps,
   ReactDrawProps,
   Serializers,
 } from "../src/types";

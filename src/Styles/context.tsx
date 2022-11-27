@@ -126,10 +126,17 @@ export function StylesProvider({
     return classes;
   };
 
+  // const renderClientCss = (cssString: string) => {
+  //   if (typeof window === undefined) {
+  //     return cssString;
+  //   }
+  //   return cssString.replace(/&#x27;/g, "'");
+  // };
+
   return (
     <StylesContext.Provider value={getClasses}>
       <style id="react-draw-styles" ref={styleRef}>
-        {cssFromState(stylesMap.current)}
+        {/* {renderClientCss(cssFromState(stylesMap.current))} */}
       </style>
       {children}
     </StylesContext.Provider>
