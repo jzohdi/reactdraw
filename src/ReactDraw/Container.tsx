@@ -16,6 +16,10 @@ function getStyles(layout: LayoutOption) {
   if (layout === "fit") {
     return { maxWidth: "100%" };
   }
+  return {
+    width: layout.width,
+    height: layout.width,
+  };
 }
 
 const defaultStyles: CSSProperties = {
