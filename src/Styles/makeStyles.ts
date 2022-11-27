@@ -7,7 +7,8 @@ export default function cssFromState(state: StylesContextState): string {
   for (const [className, styles] of entries) {
     finalCss += compileClasses(className, styles);
   }
-  return finalCss;
+  // return CSS.escape(finalCss);
+  return finalCss.replace(/"/g, "'");
 }
 
 function compileClasses(className: string, styles: StylesValue): string {
