@@ -77,17 +77,7 @@ const selectTool: DrawingTools = {
     if (!shouldDeleteSelected) {
       return;
     }
-    const state = ctx.fullState[SELECT_TOOL_ID];
-    const selectedIds = state.selectedIds;
-    if (selectedIds.length < 1) {
-      return;
-    }
-    // unselectAll(objects, ctx);
-    const action = makeDeleteAction(ctx);
-    action.toolId = SELECT_TOOL_ID;
-    action.data = [...selectedIds];
-    const resultAction = deleteCreatedObjects(action, ctx);
-    pushActionToStack(resultAction, ctx);
+    deletedSelected(ctx);
   },
   undoHandlers: {
     delete: recreateDeletedObjects,
@@ -106,6 +96,21 @@ const selectTool: DrawingTools = {
 };
 
 export default selectTool;
+
+export function deletedSelected(ctx: ReactDrawContext) {
+  const state = ctx.fullState[SELECT_TOOL_ID];
+  const selectedIds = state.selectedIds;
+  if (selectedIds.length < 1) {
+    return;
+  }
+  const action = makeDeleteAction(ctx);
+  action.toolId = SELECT_TOOL_ID;
+  action.data = [...selectedIds];
+  const resultAction = deleteCreatedObjects(action, ctx);
+  if (ctx.shouldKeepHistory) {
+    pushActionToStack(resultAction, ctx);
+  }
+}
 
 /**
  * If the user is using the select tool, the draw end function couldve

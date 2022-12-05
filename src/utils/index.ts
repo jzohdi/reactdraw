@@ -222,7 +222,11 @@ export function getElementsThatBoundsAreWithin(
     const zIndex = parseInt(eleData.style.zIndex);
     const eleBounds = getBoxSize(eleData);
     if (isRectBounding(eleBounds, bounds)) {
-      const eleIsOnTop = itemToSelect?.style.zIndex ?? 0 < zIndex;
+      if (itemToSelect === null) {
+        itemToSelect = eleData;
+        continue;
+      }
+      const eleIsOnTop = zIndex > parseInt(itemToSelect.style.zIndex);
       if (eleIsOnTop) {
         itemToSelect = eleData;
       }

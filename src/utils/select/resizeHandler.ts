@@ -90,9 +90,13 @@ export default function addHandlersToCornerButton(
     const startPoint = getTouchCoords(e);
     const relativePoint = getRelativePoint(startPoint, ctx.viewContainer);
     startResize(ctx, relativePoint);
-    window.addEventListener("touchmove", handleResizeTouch);
-    window.addEventListener("touchend", handleStopResizeTouch);
-    window.addEventListener("touchcancel", handleStopResizeTouch);
+    window.addEventListener("touchmove", handleResizeTouch, { passive: true });
+    window.addEventListener("touchend", handleStopResizeTouch, {
+      passive: true,
+    });
+    window.addEventListener("touchcancel", handleStopResizeTouch, {
+      passive: true,
+    });
   };
   const handleResizeTouch = function (e: TouchEvent) {
     e.stopPropagation();
@@ -122,7 +126,9 @@ export default function addHandlersToCornerButton(
     fn: handleStartResizeTouch,
   });
   buttonEle.addEventListener("mousedown", handleStartResizeMouse);
-  buttonEle.addEventListener("touchstart", handleStartResizeTouch);
+  buttonEle.addEventListener("touchstart", handleStartResizeTouch, {
+    passive: true,
+  });
 }
 function getPointDiff(pointA: Point, pointB: Point): Point {
   return [pointA[0] - pointB[0], pointA[1] - pointB[1]];

@@ -70,9 +70,11 @@ export default function addHandlersToSelectFrame(
     const startPoint = getTouchCoords(e);
     const relativePoint = getRelativePoint(startPoint, ctx.viewContainer);
     startDrag(ctx, relativePoint);
-    window.addEventListener("touchmove", handleDragTouch);
-    window.addEventListener("touchend", handleStopDragTouch);
-    window.addEventListener("touchcancel", handleStopDragTouch);
+    window.addEventListener("touchmove", handleDragTouch, { passive: true });
+    window.addEventListener("touchend", handleStopDragTouch, { passive: true });
+    window.addEventListener("touchcancel", handleStopDragTouch, {
+      passive: true,
+    });
   };
   const handleDragTouch = function (e: TouchEvent) {
     e.stopPropagation();
@@ -102,7 +104,9 @@ export default function addHandlersToSelectFrame(
     fn: handleStartDragTouch,
   });
   selectFrame.addEventListener("mousedown", handleStartDrag);
-  selectFrame.addEventListener("touchstart", handleStartDragTouch);
+  selectFrame.addEventListener("touchstart", handleStartDragTouch, {
+    passive: true,
+  });
 }
 
 function pushDragToUndoStack(ctx: ReactDrawContext) {

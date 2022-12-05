@@ -334,6 +334,7 @@ type ContainerState = {
 declare const _default: React.ForwardRefExoticComponent<StylesProviderProps & ReactDrawInnerProps & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;
+declare function deletedSelected(ctx: ReactDrawContext): void;
 declare const squareTool: DrawingTools;
 declare function makeSquareDiv(style: ToolPropertiesMap): HTMLDivElement;
 declare const circlTool: DrawingTools;
@@ -356,8 +357,17 @@ declare const trashTool: ActionTools;
 declare const duplicateTool: ActionTools;
 declare function duplicateSelectedObjects(ctx: ReactDrawContext): void;
 declare const bringBackTool: ActionTools;
+/**
+ * Always use div ele as source of truth
+ * Algo:
+ * 1. take the selected Objects and set their z-index to min num
+ *    ei: if there are 3 selected then z-index will be 0,0,0 (TODO: preserve order)
+ * 2. find the current lowest object not selected
+ * 3. add the different from the lowest(unselected) to the highest (selected)
+ */
 declare function bringSelectedBack(ctx: ReactDrawContext): void;
 declare const bringForwardTool: ActionTools;
+// TODO make this better
 declare function moveSelectedForward(ctx: ReactDrawContext): void;
 declare const ColorStyle: StyleComponent;
 declare const BackgroundStyle: StyleComponent;
@@ -446,5 +456,5 @@ type CreateImageOptions = CreateObjectOptions & {
 };
 declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
 declare function selectAll(ctx: ReactDrawContext): void;
-export { _default as ReactDraw, freeDrawTool, selectTool, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll };
+export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, ReactDrawProps, PartialCSS, SelectMode, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll };
 //# sourceMappingURL=index.d.ts.map

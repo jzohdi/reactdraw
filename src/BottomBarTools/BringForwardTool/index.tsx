@@ -22,6 +22,7 @@ const bringForwardTool: ActionTools = {
 
 export default bringForwardTool;
 
+// TODO make this better
 export function moveSelectedForward(ctx: ReactDrawContext) {
   const selectedIds = getSelectedIdsFromFullState(ctx);
   if (selectedIds.length < 1) {

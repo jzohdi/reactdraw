@@ -266,8 +266,8 @@ export default function ReactDraw({
       passive: false,
     });
     container.addEventListener("touchmove", drawTouch, { passive: false });
-    container.addEventListener("touchcancel", endDrawTouch);
-    container.addEventListener("touchend", endDrawTouch);
+    container.addEventListener("touchcancel", endDrawTouch, { passive: true});
+    container.addEventListener("touchend", endDrawTouch, { passive: true});
     container.addEventListener("mouseleave", endDrawMouse);
     window.addEventListener("keydown", alertToolOfKeydown);
     return () => {

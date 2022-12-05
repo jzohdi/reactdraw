@@ -1,7 +1,10 @@
 export { default as ReactDraw } from "./ReactDraw";
 // ===================== EXPORT TOOLS =====================
 export { default as freeDrawTool } from "./TopBarTools/FreeDrawTool";
-export { default as selectTool } from "./TopBarTools/SelectTool";
+export {
+  default as selectTool,
+  deletedSelected,
+} from "./TopBarTools/SelectTool";
 export { default as squareTool, makeSquareDiv } from "./TopBarTools/SquareTool";
 export { default as circleTool, makeCircleDiv } from "./TopBarTools/CircleTool";
 export {

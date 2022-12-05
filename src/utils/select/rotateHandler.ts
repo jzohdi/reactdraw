@@ -70,9 +70,15 @@ export default function addHandlersToRotateButton(
     const startPoint = getTouchCoords(e);
     const relativePoint = getRelativePoint(startPoint, ctx.viewContainer);
     startRotate(ctx, relativePoint);
-    window.addEventListener("touchmove", handleRotatingTouch);
-    window.addEventListener("touchend", handleStopRotateTouch);
-    window.addEventListener("touchcancel", handleStopRotateTouch);
+    window.addEventListener("touchmove", handleRotatingTouch, {
+      passive: true,
+    });
+    window.addEventListener("touchend", handleStopRotateTouch, {
+      passive: true,
+    });
+    window.addEventListener("touchcancel", handleStopRotateTouch, {
+      passive: true,
+    });
   };
   const handleRotatingTouch = function (e: TouchEvent) {
     e.stopPropagation();
@@ -102,7 +108,9 @@ export default function addHandlersToRotateButton(
     fn: handleStartRotateTouch,
   });
   selectFrame.addEventListener("mousedown", handleStartRotateMouse);
-  selectFrame.addEventListener("touchstart", handleStartRotateTouch);
+  selectFrame.addEventListener("touchstart", handleStartRotateTouch, {
+    passive: true,
+  });
 }
 
 function pushRotateToUndoStack(ctx: ReactDrawContext) {

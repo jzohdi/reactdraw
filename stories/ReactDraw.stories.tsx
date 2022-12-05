@@ -62,6 +62,7 @@ import {
   duplicateSelectedObjects,
   bringSelectedBack,
   moveSelectedForward,
+  deletedSelected,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 
@@ -401,6 +402,15 @@ function ControlFromExternalWrapper({ ...args }: any) {
     moveSelectedForward(ctx);
   };
 
+  const handleDelete = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    deletedSelected(ctx);
+  };
+
   return (
     <div>
       <p>
@@ -417,6 +427,7 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={duplicateSelected}>Duplicate Selected</button>
           <button onClick={moveSelectedBack}>Move Selected Back</button>
           <button onClick={moveForward}>Move Selected Forward</button>
+          <button onClick={handleDelete}>Delete Selected</button>
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
@@ -493,30 +504,74 @@ function ControlFromExternalWrapper({ ...args }: any) {
 		});
 	};
 
-	return (
-		<div>
-			<p>
-				You can control the react draw context from outside of the ReactDraw
-				component
-			</p>
-			<div style={{ display: "flex", gap: 10 }}>
-				<div
-					style={{ paddingTop: 10, display: "flex", flexDirection: "column" }}
-				>
-					<button onClick={handleClickAddCircle}>Add Circle</button>
-					<button onClick={handleClickAddImage}>Add Picture</button>
-				</div>
-				<ReactDraw 
-					contextGetter={setContextGetter} 
-					topBarTools={[selectTool, circleToolCopy, imageTool]}
-					shouldKeepHistory={false}
-					shouldSelectAfterCreate={true}
-					hideTopBar={true}
-				/>
-			</div>
-		</div>
-	);
-}			
+  const handleSelectAll = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    selectAll(ctx);
+  };
+
+  const duplicateSelected = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    duplicateSelectedObjects(ctx);
+  };
+
+  const moveSelectedBack = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    bringSelectedBack(ctx);
+  };
+
+  const moveForward = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    moveSelectedForward(ctx);
+  };
+
+  const handleDelete = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    deletedSelected(ctx);
+  };
+
+  return (
+    <div>
+      <p>
+        You can control the react draw context from outside of the ReactDraw
+        component
+      </p>
+      <div style={{ display: "flex", gap: 10 }}>
+        <div
+          style={{ paddingTop: 10, display: "flex", flexDirection: "column" }}
+        >
+          <button onClick={handleClickAddCircle}>Add Circle</button>
+          <button onClick={handleClickAddImage}>Add Picture</button>
+          <button onClick={handleSelectAll}>Select All</button>
+          <button onClick={duplicateSelected}>Duplicate Selected</button>
+          <button onClick={moveSelectedBack}>Move Selected Back</button>
+          <button onClick={moveForward}>Move Selected Forward</button>
+          <button onClick={handleDelete}>Delete Selected</button>
+        </div>
+        <ReactDraw {...args} contextGetter={setContextGetter} />
+      </div>
+    </div>
+  );
+}	
 			`,
     },
     language: "tsx",
