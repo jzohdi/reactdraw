@@ -58,6 +58,10 @@ import {
   addObject,
   createCircle,
   createImage,
+  selectAll,
+  duplicateSelectedObjects,
+  bringSelectedBack,
+  moveSelectedForward,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 
@@ -361,6 +365,42 @@ function ControlFromExternalWrapper({ ...args }: any) {
     });
   };
 
+  const handleSelectAll = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    selectAll(ctx);
+  };
+
+  const duplicateSelected = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    duplicateSelectedObjects(ctx);
+  };
+
+  const moveSelectedBack = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    bringSelectedBack(ctx);
+  };
+
+  const moveForward = () => {
+    const ctxGetter = contextGetterRef.current;
+    if (!ctxGetter) {
+      throw new Error("Ctx getter not set");
+    }
+    const ctx = ctxGetter();
+    moveSelectedForward(ctx);
+  };
+
   return (
     <div>
       <p>
@@ -373,6 +413,10 @@ function ControlFromExternalWrapper({ ...args }: any) {
         >
           <button onClick={handleClickAddCircle}>Add Circle</button>
           <button onClick={handleClickAddImage}>Add Picture</button>
+          <button onClick={handleSelectAll}>Select All</button>
+          <button onClick={duplicateSelected}>Duplicate Selected</button>
+          <button onClick={moveSelectedBack}>Move Selected Back</button>
+          <button onClick={moveForward}>Move Selected Forward</button>
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>

@@ -1,12 +1,6 @@
 import React, { forwardRef } from "react";
 import Container from "./Container";
-import {
-  LayoutOption,
-  ReactChild,
-  ReactDrawInnerProps,
-  ReactDrawProps,
-  StylesProviderProps,
-} from "../types";
+import { LayoutOption, ReactChild, ReactDrawProps } from "../types";
 import { Children } from "react";
 import { AlertMessageProvider } from "../Alerts";
 import ReactDraw from "./ReactDraw";

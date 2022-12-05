@@ -9,6 +9,31 @@ import { setContainerRect } from "./index";
 import { makeCircleDiv } from "../TopBarTools/CircleTool";
 import { DrawingData, Point, ReactDrawContext } from "../types";
 import { addObject, createNewObject } from "./utils";
+import { SELECT_TOOL_ID } from "../constants";
+import { getSelectedDrawingObjects } from "./select/getSelectedDrawingObjects";
+import {
+  getSelectedIdsFromFullState,
+  notifyTool,
+  selectElement,
+  selectManyElements,
+  unselectAll,
+} from "./select/utils";
+
+// re-exports
+export {
+  selectElement,
+  notifyTool,
+  selectManyElements,
+  unselectAll,
+} from "./select/utils";
+export { makeNewDiv, setContainerRect } from "./index";
+export {
+  createNewObject,
+  addObject,
+  centerObject,
+  getViewCenterPoint,
+} from "./utils";
+export { unselectElement } from "./select/unselectElement";
 
 export type CreateObjectOptions = {
   pointA: Point;
@@ -121,4 +146,25 @@ export async function createImage(
     }
     handleImageLoaded(htmlImage);
   });
+}
+
+export function selectAll(ctx: ReactDrawContext): void {
+  const selectedIds = getSelectedIdsFromFullState(ctx);
+  const currentlySelected = getSelectedDrawingObjects(
+    selectedIds,
+    ctx.objectsMap
+  );
+  if (currentlySelected.length > 0) {
+    unselectAll(currentlySelected, ctx);
+  }
+  const idsToSelect = Array.from(ctx.objectsMap.keys());
+  ctx.fullState[SELECT_TOOL_ID].selectedIds = idsToSelect;
+  const objectsToSelect = Array.from(ctx.objectsMap.values());
+  if (objectsToSelect.length === 1) {
+    notifyTool(ctx.drawingTools, objectsToSelect[0], ctx);
+    return selectElement(objectsToSelect[0], ctx);
+  }
+  if (objectsToSelect.length > 1) {
+    return selectManyElements(objectsToSelect, ctx);
+  }
 }
