@@ -51,11 +51,7 @@ import {
   deserializeTextArea,
   serializeArrow,
   deserializeArrow,
-  createNewObject,
   getViewCenterPoint,
-  makeCircleDiv,
-  setContainerRect,
-  addObject,
   createCircle,
   createImage,
   selectAll,
@@ -63,8 +59,10 @@ import {
   bringSelectedBack,
   moveSelectedForward,
   deletedSelected,
+  getSelectedObjects,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
+import { useState } from "react";
 
 const AbsoluteLayout = { width: 500, height: 500 };
 const layoutOptions = {
@@ -317,7 +315,7 @@ FitLayoutWithChildren.parameters = {
 const circleToolCopy = Object.assign({}, circleTool);
 delete circleTool.icon;
 const imageToolId = "my-image-tool-id";
-
+const selectToolCopy = Object.assign({}, selectTool);
 const imageTool: DrawingTools = {
   id: imageToolId,
   onDrawEnd() {},
@@ -328,17 +326,29 @@ const imageTool: DrawingTools = {
 
 function ControlFromExternalWrapper({ ...args }: any) {
   const contextGetterRef = useRef<() => ReactDrawContext>();
+  const [numSelected, setNumeSelected] = useState(0);
 
   const setContextGetter = (contextGetter: () => ReactDrawContext) => {
     contextGetterRef.current = contextGetter;
   };
 
-  const handleClickAddCircle = () => {
+  const handleGetCtx = () => {
     const ctxGetter = contextGetterRef.current;
     if (!ctxGetter) {
       throw new Error("Ctx getter not set");
     }
-    const ctx = ctxGetter();
+    return ctxGetter();
+  };
+
+  const handleSelectedToolEvent = (event: string) => {
+    console.log(event);
+    const ctx = handleGetCtx();
+    const selectedObjects = getSelectedObjects(ctx);
+    setNumeSelected(selectedObjects.length);
+  };
+
+  const handleClickAddCircle = () => {
+    const ctx = handleGetCtx();
     const centerPoint = getViewCenterPoint(ctx);
     createCircle(ctx, {
       pointA: centerPoint,
@@ -348,11 +358,7 @@ function ControlFromExternalWrapper({ ...args }: any) {
   };
 
   const handleClickAddImage = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     const centerPoint = getViewCenterPoint(ctx);
     const loadingEle = document.createElement("p");
     loadingEle.innerHTML = " loading...";
@@ -367,49 +373,33 @@ function ControlFromExternalWrapper({ ...args }: any) {
   };
 
   const handleSelectAll = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     selectAll(ctx);
   };
 
   const duplicateSelected = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     duplicateSelectedObjects(ctx);
   };
 
   const moveSelectedBack = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     bringSelectedBack(ctx);
   };
 
   const moveForward = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     moveSelectedForward(ctx);
   };
 
   const handleDelete = () => {
-    const ctxGetter = contextGetterRef.current;
-    if (!ctxGetter) {
-      throw new Error("Ctx getter not set");
-    }
-    const ctx = ctxGetter();
+    const ctx = handleGetCtx();
     deletedSelected(ctx);
   };
+
+  if (selectToolCopy.subscribe) {
+    selectToolCopy.subscribe(handleSelectedToolEvent);
+  }
 
   return (
     <div>
@@ -421,6 +411,7 @@ function ControlFromExternalWrapper({ ...args }: any) {
         <div
           style={{ paddingTop: 10, display: "flex", flexDirection: "column" }}
         >
+          <div>Num Selected Items: {numSelected}</div>
           <button onClick={handleClickAddCircle}>Add Circle</button>
           <button onClick={handleClickAddImage}>Add Picture</button>
           <button onClick={handleSelectAll}>Select All</button>

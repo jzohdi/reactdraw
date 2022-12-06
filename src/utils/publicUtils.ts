@@ -168,3 +168,12 @@ export function selectAll(ctx: ReactDrawContext): void {
     return selectManyElements(objectsToSelect, ctx);
   }
 }
+
+export function getSelectedObjects(ctx :ReactDrawContext): DrawingData[] {
+	const selectedIds = getSelectedIdsFromFullState(ctx);
+  const currentlySelected = getSelectedDrawingObjects(
+    selectedIds,
+    ctx.objectsMap
+  );
+  return currentlySelected;
+}

@@ -22,6 +22,7 @@ import {
   setContainerRect,
 } from "../../utils";
 import {
+  getSelectedIdsFromFullState,
   notifyTool,
   selectElement,
   selectManyElements,
@@ -35,6 +36,23 @@ import { deleteCreatedObjects, recreateDeletedObjects } from "../../utils/undo";
 import { pushActionToStack } from "../../utils/pushActionToStack";
 import { makeDeleteAction, makeSureArtifactsGone } from "../../utils/utils";
 
+type CallbackFn = (event: string) => void;
+
+function getSubscriptions(tool: DrawingTools): CallbackFn[] {
+  // console.log(tool.localState);
+  return (tool.localState?.["subs"] as CallbackFn[]) ?? [];
+}
+
+function alertSelected(tool: DrawingTools, ctx: ReactDrawContext) {
+  const fns = (tool.localState?.["subs"] as CallbackFn[]) ?? [];
+  const selectedIds = getSelectedIdsFromFullState(ctx);
+  if (selectedIds.length > 0) {
+    fns.forEach((fn) => fn("selected"));
+  } else {
+    fns.forEach((fn) => fn("none-selected"));
+  }
+}
+
 const selectTool: DrawingTools = {
   tooltip: "Select tool",
   icon: <CursorClickIcon style={{ transform: "translate(-2px, -1px)" }} />,
@@ -43,23 +61,26 @@ const selectTool: DrawingTools = {
     data.containerDiv.style.border = `1px solid ${COLORS.primary.main}`;
     data.containerDiv.style.backgroundColor = COLORS.primary.light + "4d";
   },
-  onDrawing: (data, ctx) => {
+  onDrawing(data, ctx) {
     setContainerRect(data);
     data.coords.splice(1);
     handleTrySelectObjects(data, ctx);
+    alertSelected(selectTool, ctx);
   },
-  onDrawEnd: (data, ctx) => {
+  onDrawEnd(data, ctx) {
     const { objectsMap, viewContainer } = ctx;
     viewContainer.removeChild(data.containerDiv);
     objectsMap.delete(data.id);
     makeSureArtifactsGone('[id^="react-draw-cursor"', ctx.viewContainer);
     tryClickObject(data, ctx);
+    alertSelected(selectTool, ctx);
   },
   onResize: (data) => {},
   onUnMount(ctx) {
     for (const object of Object.values(ctx.objectsMap)) {
       unselectElement(object, ctx);
     }
+    // this.localState = undefined;
   },
   onUnPickTool(ctx) {
     const state = ctx.fullState[SELECT_TOOL_ID];
@@ -70,6 +91,7 @@ const selectTool: DrawingTools = {
     const objects = getSelectedDrawingObjects(selectedIds, ctx.objectsMap);
     unselectAll(objects, ctx);
     state.selectedIds = [];
+    alertSelected(selectTool, ctx);
   },
   onKeyPress(event, ctx) {
     const keyPressed = event.key;
@@ -78,6 +100,7 @@ const selectTool: DrawingTools = {
       return;
     }
     deletedSelected(ctx);
+    alertSelected(selectTool, ctx);
   },
   undoHandlers: {
     delete: recreateDeletedObjects,
@@ -92,6 +115,15 @@ const selectTool: DrawingTools = {
     drag: handleDragUndo,
     rotate: handleRotateUndo,
     resize: handelResizeUndo,
+  },
+  subscribe(callback) {
+    if (!selectTool.localState) {
+      selectTool.localState = {};
+    }
+    if (!selectTool.localState?.["subs"]) {
+      selectTool.localState["subs"] = [];
+    }
+    selectTool.localState["subs"].push(callback);
   },
 };
 

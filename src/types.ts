@@ -140,6 +140,8 @@ export type DrawingTools = {
     [key: keyof ToolPropertiesMap]: UpdateStyleHandler;
   };
   cursor?: string;
+  subscribe?: (callback: (event: string) => void) => void;
+  localState?: { [key: string]: any };
 };
 
 export type ActionType =
