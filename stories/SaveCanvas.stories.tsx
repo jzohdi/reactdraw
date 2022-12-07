@@ -21,7 +21,10 @@ export default {
 const topBarTools: DrawingTools[] = [selectTool, freeDrawTool];
 
 declare global {
-  var html2canvas: (src: HTMLElement) => Promise<HTMLCanvasElement>;
+  var html2canvas: (
+    src: HTMLElement,
+    options?: any
+  ) => Promise<HTMLCanvasElement>;
 }
 const inputId = "my-id";
 
@@ -51,7 +54,7 @@ const SaveCanvas: MenuComponent = ({ getContext }) => {
     const container = ctx.viewContainer;
     if (window.html2canvas) {
       const html2canvas = window.html2canvas;
-      html2canvas(container).then((canvas) => {
+      html2canvas(container, { allowTaint: true }).then((canvas) => {
         const base64image = canvas.toDataURL("image/png");
         const downloadLink = document.createElement("a");
         document.body.appendChild(downloadLink);

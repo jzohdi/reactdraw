@@ -129,6 +129,7 @@ export async function createImage(
       const img = new Image();
       img.style.width = "100%";
       img.style.height = "100%";
+      img.crossOrigin = "anonymous";
       img.onload = function () {
         handleImageLoaded(img);
       };
@@ -169,8 +170,8 @@ export function selectAll(ctx: ReactDrawContext): void {
   }
 }
 
-export function getSelectedObjects(ctx :ReactDrawContext): DrawingData[] {
-	const selectedIds = getSelectedIdsFromFullState(ctx);
+export function getSelectedObjects(ctx: ReactDrawContext): DrawingData[] {
+  const selectedIds = getSelectedIdsFromFullState(ctx);
   const currentlySelected = getSelectedDrawingObjects(
     selectedIds,
     ctx.objectsMap
