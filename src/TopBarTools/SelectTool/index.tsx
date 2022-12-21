@@ -80,7 +80,9 @@ const selectTool: DrawingTools = {
     for (const object of Object.values(ctx.objectsMap)) {
       unselectElement(object, ctx);
     }
-    // this.localState = undefined;
+    if (selectTool.localState?.["subs"]) {
+      selectTool.localState["subs"] = [];
+    }
   },
   onUnPickTool(ctx) {
     const state = ctx.fullState[SELECT_TOOL_ID];

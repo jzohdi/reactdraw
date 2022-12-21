@@ -270,6 +270,7 @@ export default function ReactDraw({
     container.addEventListener("touchend", endDrawTouch, { passive: true});
     container.addEventListener("mouseleave", endDrawMouse);
     window.addEventListener("keydown", alertToolOfKeydown);
+
     return () => {
       container.removeEventListener("mousedown", startDrawMouse);
       container.removeEventListener("mouseup", endDrawMouse);
@@ -368,9 +369,11 @@ export default function ReactDraw({
 		pushActionToStack(action, ctx);
   }
 
-	if (contextGetter) {
-		contextGetter(getReactDrawContext)
-	}
+	useEffect(() => {
+		if (contextGetter) {
+			contextGetter(getReactDrawContext)
+		}	
+	}, [])
 
   return (
 	<>
@@ -418,17 +421,6 @@ export default function ReactDraw({
 	  `}</style>
     </>
   );
-}
-
-function validateProps(children: ReactChild, layout?: LayoutOption) {
-  const numChildren = Children.count(children);
-  if (numChildren > 1) {
-    throw new Error("ReactDraw expects either 0 or 1 children, detected more.");
-  }
-  if (layout === undefined) {
-    layout = "default";
-  }
-  return { numChildren, layout };
 }
 
 function getToolById(tools: DrawingTools[], id: string): DrawingTools {
