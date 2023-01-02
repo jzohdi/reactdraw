@@ -8,7 +8,7 @@ import { StylesProvider } from "../Styles/context";
 
 export default forwardRef<HTMLDivElement, ReactDrawProps>(
   function ReactDrawWrapper(
-    { children, styles, classNames, ...props },
+    { children, styles, style, classNames, ...props },
     ref
   ): JSX.Element {
     const { layout } = validateProps(children, props.layout);
@@ -16,7 +16,7 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(
     return (
       <StylesProvider styles={styles} classNames={classNames}>
         <AlertMessageProvider>
-          <Container layout={layout} ref={ref}>
+          <Container layout={layout} ref={ref} style={style}>
             <ReactDraw {...props}>{children}</ReactDraw>
           </Container>
         </AlertMessageProvider>
