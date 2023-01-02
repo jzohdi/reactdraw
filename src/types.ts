@@ -1,3 +1,4 @@
+import { CSSProperties } from "react";
 import { MutableRefObject } from "react";
 import {
   ERASE_TOOL_ID,
@@ -274,7 +275,8 @@ export type StylesProviderProps = {
   styles?: StylesObject;
   classNames?: ClassNamesObject;
 };
-export type ReactDrawProps = StylesProviderProps & ReactDrawInnerProps;
+export type ReactDrawProps = StylesProviderProps &
+  ReactDrawInnerProps & { style?: CSSProperties };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =

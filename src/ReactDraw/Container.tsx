@@ -4,6 +4,7 @@ import { LayoutOption, ReactChild } from "../types";
 export type ReactDrawContainerProps = {
   children: ReactChild;
   layout: LayoutOption;
+  style?: CSSProperties;
 };
 
 const defaultWidth = 500;
@@ -30,13 +31,14 @@ const defaultStyles: CSSProperties = {
   flexDirection: "column",
   position: "relative",
   fontFamily: "sans-serif",
+  width: "fit-content",
 };
 
 export default forwardRef<HTMLDivElement, ReactDrawContainerProps>(
-  function Container({ children, layout }, ref) {
+  function Container({ children, layout, style }, ref) {
     const styles = getStyles(layout);
     return (
-      <div style={{ ...defaultStyles, ...styles }} ref={ref}>
+      <div style={{ ...defaultStyles, ...styles, ...(style || {}) }} ref={ref}>
         {children}
       </div>
     );
