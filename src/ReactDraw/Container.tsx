@@ -1,11 +1,15 @@
-import React, { CSSProperties, forwardRef } from "react";
-import styled from "styled-components";
+import React, {
+  CSSProperties,
+  DetailedHTMLProps,
+  HTMLAttributes,
+  forwardRef,
+} from "react";
 import { LayoutOption, ReactChild } from "../types";
 
 export type ReactDrawContainerProps = {
   children: ReactChild;
   layout: LayoutOption;
-  style?: CSSProperties;
+  style?: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 };
 
 const defaultWidth = 500;
@@ -37,13 +41,24 @@ const defaultStyles: CSSProperties = {
 export default forwardRef<HTMLDivElement, ReactDrawContainerProps>(
   function Container({ children, layout, style }, ref) {
     const styles = getStyles(layout);
+    let combinedStyles: CSSProperties = {
+      ...defaultStyles,
+      ...styles,
+    };
+    if (style !== undefined) {
+      combinedStyles = {
+        ...combinedStyles,
+        ...style,
+      };
+    }
     return (
       <div
-        style={{
-          ...defaultStyles,
-          ...styles,
-          ...(style !== undefined ? style : {}),
-        }}
+        style={
+          combinedStyles as DetailedHTMLProps<
+            HTMLAttributes<HTMLDivElement>,
+            HTMLDivElement
+          >
+        }
         ref={ref}
       >
         {children}

@@ -48,8 +48,43 @@ function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
   return [xNew + cx, yNew + cy];
 }
 
+function getAspectDiffs(
+  xDiff: number,
+  yDiff: number,
+  currX: number,
+  currY: number
+): [number, number] {
+  if (currX === currY) {
+    if (xDiff === yDiff) {
+      return [xDiff, yDiff];
+    } else if (xDiff > yDiff) {
+      return [xDiff, xDiff];
+    } else {
+      return [yDiff, yDiff];
+    }
+  } else if (currX > currY) {
+    // const ratio = currX / currY;
+    // if is wider than tall and that
+    if (xDiff === yDiff) {
+      return [xDiff * (currX / currY), xDiff];
+    } else if (xDiff > yDiff) {
+      return [xDiff, xDiff * (currY / currX)];
+    } else {
+      return [yDiff * (currX / currY), yDiff];
+    }
+  } else {
+    if (xDiff === yDiff) {
+      return [xDiff, xDiff * (currY / currX)];
+    } else if (xDiff > yDiff) {
+      return [xDiff, xDiff * (currY / currX)];
+    } else {
+      return [yDiff * (currX / currY), yDiff];
+    }
+  }
+}
+
 export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
-  const [xDiff, yDiff] = getDiffCoords(data, ctx);
+  let [xDiff, yDiff] = getDiffCoords(data, ctx);
   const div = data.containerDiv;
   const bounds = getBoxSize(data);
   if (
@@ -58,6 +93,11 @@ export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
   ) {
     return;
   }
+  // if (ctx.shouldPreserveAspectRatio) {
+  //   const ratio = bounds.width / bounds.height;
+  //   xDiff = yDiff * ratio;
+  //   // [xDiff, yDiff] = getAspectDiffs(xDiff, yDiff, bounds.width, bounds.height);
+  // }
   const newTop = bounds.top + yDiff;
   // const newRight = bounds.right + xDiff;
   div.style.top = newTop + "px";
@@ -93,6 +133,7 @@ export function resizeSE(data: DrawingData, ctx: OnResizeContext) {
   ) {
     return;
   }
+
   const newRight = bounds.right + xDiff;
   const newBottom = bounds.bottom + yDiff;
   div.style.width = newRight - bounds.left + "px";

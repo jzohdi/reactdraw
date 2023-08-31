@@ -69,10 +69,3 @@ export function bringSelectedBack(ctx: ReactDrawContext) {
     object.containerDiv.style.zIndex = newZIndex.toString();
   }
 }
-
-function pushObjectUp(data: DrawingData): number {
-  const currZ = parseInt(data.style.zIndex);
-  data.containerDiv.style.zIndex = (currZ + 1).toString();
-  data.style.zIndex = (currZ + 1).toString();
-  return currZ;
-}

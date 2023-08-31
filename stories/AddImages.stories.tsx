@@ -14,6 +14,8 @@ import {
   centerObject,
   useStyles,
   ReactDrawProps,
+  bringForwardTool,
+  bringBackTool,
 } from "../src";
 import { PhotographBoldIcon } from "@jzohdi/jsx-icons";
 
@@ -129,6 +131,7 @@ AddImagesToCanvas.args = {
   shouldSelectAfterCreate: true,
   menuComponents: [AddImageMenuComponent, ClearAllButton],
   shouldKeepHistory: false,
+  bottomBarTools: [bringForwardTool, bringBackTool],
 };
 
 AddImagesToCanvas.parameters = {

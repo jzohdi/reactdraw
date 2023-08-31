@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import { MutableRefObject } from "react";
 import {
   ERASE_TOOL_ID,
@@ -17,6 +17,7 @@ import {
   SQUARE_TOOL_ID,
   STRAIGHT_LINE_TOOL_ID,
   TEXT_AREA_TOOL_ID,
+  TOP_BAR_CONTAINER_CLASSES,
 } from "./constants";
 import { StylesValue } from "./Styles/types";
 import { BoxSize } from "./utils";
@@ -33,6 +34,7 @@ export type OnResizeContext = {
   viewContainer: HTMLDivElement;
   previousPoint: Point;
   newPoint: Point;
+  shouldPreserveAspectRatio: boolean;
 };
 export type DrawingDataMap = Map<string, DrawingData>;
 
@@ -89,6 +91,7 @@ export type ReactDrawContext = {
   redoStack: ActionObject[];
   shouldKeepHistory: boolean;
   shouldSelectAfterCreate: boolean;
+  shouldPreserveAspectRatio: boolean;
   globalStyles: ToolPropertiesMap;
   selectDrawingTool: (toolId: string) => void;
   selectObject: (object: DrawingData) => void;
@@ -242,6 +245,7 @@ export type ReactDrawInnerProps = {
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;
+  shouldPreserveAspectRatio?: boolean;
   id: string;
   styleComponents?: StyleComponents;
   menuComponents?: MenuComponent[];
@@ -262,6 +266,7 @@ export type StylesObject = {
 };
 export type ClassNamesObject = {
   [BOTTOM_BAR_CONTAINER_CLASSES]?: string;
+  [TOP_BAR_CONTAINER_CLASSES]?: string;
   [TOOL_ICON_WRAPPER_CLASSES]?: string;
   [CLEAR_ALL_BUTTON_CLASSES]?: string;
   [ALERT_MESSAGE_DIALOG_CLASSES]?: string;
@@ -275,8 +280,12 @@ export type StylesProviderProps = {
   styles?: StylesObject;
   classNames?: ClassNamesObject;
 };
+export type CSSProps = DetailedHTMLProps<
+  HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
 export type ReactDrawProps = StylesProviderProps &
-  ReactDrawInnerProps & { style?: CSSProperties };
+  ReactDrawInnerProps & { style?: CSSProps };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =

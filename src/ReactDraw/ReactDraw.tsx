@@ -1,5 +1,4 @@
-import React, { useEffect, forwardRef, useRef, useState } from "react";
-import Container from "./Container";
+import React, { useEffect, useRef, useState } from "react";
 import { TopToolBar } from "./TopToolBar";
 import {
   ActionObject,
@@ -9,15 +8,12 @@ import {
   DrawingData,
   DrawingDataMap,
   DrawingTools,
-  LayoutOption,
   Point,
-  ReactChild,
   ReactDrawContext,
   ReactDrawInnerProps,
   StringObject,
   ToolPropertiesMap,
 } from "../types";
-import { Children } from "react";
 import { makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
 import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
@@ -45,6 +41,7 @@ export default function ReactDraw({
   hideBottomBar,
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
+	shouldPreserveAspectRatio = false,
   styleComponents,
   menuComponents = [],
 	onLoad,
@@ -141,6 +138,7 @@ export default function ReactDraw({
       undoStack: undoStack.current,
       redoStack: redoStack.current,
       shouldKeepHistory,
+			shouldPreserveAspectRatio,
       selectDrawingTool: handleSelectTopTool,
       selectObject,
       shouldSelectAfterCreate,

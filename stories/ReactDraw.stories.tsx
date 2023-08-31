@@ -912,3 +912,60 @@ function MyComponent() {
     },
   },
 };
+
+export const AllToolsPreserveAspectRatio = Template.bind({});
+
+AllToolsPreserveAspectRatio.args = {
+  topBarTools,
+  bottomBarTools,
+  shouldSelectAfterCreate: true,
+  shouldPreserveAspectRatio: true,
+  styleComponents: {
+    color: { order: 3, component: ColorStyle },
+    background: { order: 4, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
+    fontSize: { order: 2, component: FontSizeStyle },
+  },
+  menuComponents: [ClearAllButton],
+};
+AllToolsPreserveAspectRatio.parameters = {
+  docs: {
+    source: {
+      code: `
+<ReactDraw 
+	topBarTools={[
+		selectTool,
+		freeDrawTool,
+		squareTool,
+		circleTool,
+		diamondTool,
+		straightLineTool,
+		textAreaTool,
+		arrowTool,
+		eraseTool,		
+	]}
+	bottomBarTools={[
+		undoTool,
+		redoTool,
+		trashTool,
+		duplicateTool,
+		bringBackTool,
+		bringForwardTool,		
+	]}
+  shouldSelectAfterCreate={true}
+  styleComponents={{
+    color: { order: 3, component: ColorStyle },
+    background: { order: 4, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
+    fontSize: { order: 2, component: FontSizeStyle },
+  }}
+  menuComponents={[ClearAllButton]}	
+/>			
+			`,
+      language: "tsx",
+      type: "auto",
+    },
+  },
+};
