@@ -285,7 +285,7 @@ export type CSSProps = DetailedHTMLProps<
   HTMLDivElement
 >;
 export type ReactDrawProps = StylesProviderProps &
-  ReactDrawInnerProps & { style?: CSSProps };
+  ReactDrawInnerProps & { style?: CSSProperties };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =

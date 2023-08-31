@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import React from "react";
-import { DetailedHTMLProps, HTMLAttributes, MutableRefObject, CSSProperties } from "react";
+import { CSSProperties, DetailedHTMLProps, HTMLAttributes, MutableRefObject } from "react";
 //============== TOOL IDS =========================
 declare const SQUARE_TOOL_ID = "react-draw-square-tool";
 declare const CIRCLE_TOOL_ID = "react-draw-circle-tool";
@@ -298,7 +298,7 @@ type StylesProviderProps = {
 };
 type CSSProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 type ReactDrawProps = StylesProviderProps & ReactDrawInnerProps & {
-    style?: CSSProps;
+    style?: CSSProperties;
 };
 type PartialCSS = Partial<CSSStyleDeclaration>;
 type SelectMode = "drag" | "rotate" | "resize-nw" | "resize-ne" | "resize-se" | "resize-sw";
@@ -345,7 +345,7 @@ type ContainerState = {
     };
 };
 declare const _default: React.ForwardRefExoticComponent<StylesProviderProps & ReactDrawInnerProps & {
-    style?: CSSProps | undefined;
+    style?: React.CSSProperties | undefined;
 } & React.RefAttributes<HTMLDivElement>>;
 declare const freeDrawTool: DrawingTools;
 declare const selectTool: DrawingTools;

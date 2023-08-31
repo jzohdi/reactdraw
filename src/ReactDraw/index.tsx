@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { DetailedHTMLProps, HTMLAttributes, forwardRef } from "react";
 import Container from "./Container";
 import { LayoutOption, ReactChild, ReactDrawProps } from "../types";
 import { Children } from "react";
@@ -16,7 +16,16 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(
     return (
       <StylesProvider styles={styles} classNames={classNames}>
         <AlertMessageProvider>
-          <Container layout={layout} ref={ref} style={style}>
+          <Container
+            layout={layout}
+            ref={ref}
+            style={
+              style as DetailedHTMLProps<
+                HTMLAttributes<HTMLDivElement>,
+                HTMLDivElement
+              >
+            }
+          >
             <ReactDraw {...props}>{children}</ReactDraw>
           </Container>
         </AlertMessageProvider>
