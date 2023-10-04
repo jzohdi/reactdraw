@@ -1,6 +1,6 @@
 {
   "name": "@jzohdi/react-draw",
-  "version": "0.9.15",
+  "version": "0.9.16",
   "description": "A plugin architecture react library for adding drawing ability in the browser.",
   "files": [
     "dist/**",
