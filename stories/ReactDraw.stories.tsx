@@ -138,6 +138,7 @@ DefaultLayoutAllTools.args = {
     fontSize: { order: 2, component: FontSizeStyle },
   },
   menuComponents: [ClearAllButton],
+  isResponsive: true,
 };
 DefaultLayoutAllTools.parameters = {
   docs: {

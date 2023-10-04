@@ -311,7 +311,7 @@ export function getBoxSize(data: DrawingData): BoxSize {
 
 const numRegex = /-?\d+\.*\d*/;
 
-function getNumFrom(str: string): number {
+export function getNumFrom(str: string): number {
   const match = str.match(numRegex);
   if (match) {
     return parseFloat(match[0]);

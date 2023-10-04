@@ -266,6 +266,7 @@ type ReactDrawInnerProps = {
     id: string;
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
+    isResponsive?: boolean;
     onLoad?: (ctx: ReactDrawContext) => void;
     contextGetter?: (ctxGetter: () => ReactDrawContext) => void;
 };

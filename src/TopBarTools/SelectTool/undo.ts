@@ -71,6 +71,7 @@ export function handelResizeUndo(
     ...ctx,
     previousPoint: [currBounds.left, currBounds.top],
     newPoint: [undoData.bounds.left, undoData.bounds.top],
+    shouldPreserveAspectRatio: ctx.shouldPreserveAspectRatio,
   });
   action.data.bounds = redoBounds;
   return action;

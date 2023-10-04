@@ -14,7 +14,7 @@ import {
   StringObject,
   ToolPropertiesMap,
 } from "../types";
-import { makeNewBoundingDiv } from "../utils";
+import { getNumFrom, makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
 import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
 import {
@@ -42,6 +42,7 @@ export default function ReactDraw({
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
 	shouldPreserveAspectRatio = false,
+	isResponsive = false,
   styleComponents,
   menuComponents = [],
 	onLoad,
@@ -289,6 +290,54 @@ export default function ReactDraw({
       }
     };
   }, [currentDrawingTool]);
+	
+	const responsiveSize = useRef<{width: number; height: number}>({width: 0, height: 0});
+
+	useEffect(() => {
+		function handleResize() {
+				const ctx = getReactDrawContext();
+				const {viewContainer} = ctx;
+				const newWidth = viewContainer.offsetWidth;
+				const newHeight = viewContainer.offsetHeight;
+				// adjust top, left and width, height of each object
+				const heightRatio = newHeight/responsiveSize.current.height;
+				const widthRatio = newWidth/responsiveSize.current.width;
+				ctx.objectsMap.forEach((value) => {
+					value.containerDiv.style.height = (value.containerDiv.offsetHeight * heightRatio) + "px";
+					value.containerDiv.style.width = (value.containerDiv.offsetWidth * widthRatio) + "px"
+					const prevLeft = getNumFrom(value.containerDiv.style.left);
+					const prevTop = getNumFrom(value.containerDiv.style.top)
+					const newLeft = prevLeft * widthRatio;
+					const newTop = prevTop * heightRatio;
+					value.containerDiv.style.left = newLeft + "px"
+					value.containerDiv.style.top = newTop + 'px';
+					const tool = getToolById(ctx.drawingTools, value.toolId);
+					tool.onResize(value, { ...ctx, 
+						shouldPreserveAspectRatio: ctx.shouldPreserveAspectRatio, 
+						previousPoint: [prevLeft, prevTop],
+						newPoint: [newLeft, newTop]})			
+				})
+				responsiveSize.current = { width: newWidth, height: newHeight}; 		
+		}
+		const { viewContainer } = getReactDrawContext();
+		if (!viewContainer) {
+			return
+		}
+		// 
+		responsiveSize.current.width = viewContainer.offsetWidth;
+		responsiveSize.current.height = viewContainer.offsetHeight
+		let observer: ResizeObserver | null = null;
+		if (isResponsive) {
+			// window.addEventListener("resize", handleResize);
+			observer= new ResizeObserver(handleResize)
+			observer.observe(viewContainer)
+			
+		}
+		return () => {
+			// window.removeEventListener("resize", handleResize);
+			observer?.disconnect();
+		}
+	}, [])
 
   const handleSelectTopTool = (toolId: string) => {
     if (currentDrawingTool.id !== toolId) {
