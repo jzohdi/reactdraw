@@ -33,9 +33,11 @@ export const ROTATE_DOTTED_LINE_STYLES: PartialCSS = {
   pointerEvents: "none",
 };
 
+export const SELECTED_BUTTON_WIDTH = 16;
+export const SELECTED_BUTTON_HEIGHT = 16;
 export const SELECTED_CORNER_BUTTON: PartialCSS = {
   position: "absolute",
   borderRadius: "50%",
-  width: "16px",
-  height: "16px",
+  width: `${SELECTED_BUTTON_WIDTH}px`,
+  height: `${SELECTED_BUTTON_HEIGHT}px`,
 };

@@ -105,8 +105,49 @@ export function resizeNE(data: DrawingData, ctx: OnResizeContext) {
   div.style.height = bounds.bottom - newTop + "px";
 }
 
+export function resizeN(data: DrawingData, ctx: OnResizeContext) {
+  let [xDiff, yDiff] = getDiffCoords(data, ctx);
+  xDiff = 0;
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
+  if (
+    bounds.left >= bounds.right + xDiff ||
+    bounds.bottom <= bounds.top + yDiff
+  ) {
+  }
+  // if (ctx.shouldPreserveAspectRatio) {
+  //   const ratio = bounds.width / bounds.height;
+  //   xDiff = yDiff * ratio;
+  //   // [xDiff, yDiff] = getAspectDiffs(xDiff, yDiff, bounds.width, bounds.height);
+  // }
+  const newTop = bounds.top + yDiff;
+  // const newRight = bounds.right + xDiff;
+  div.style.top = newTop + "px";
+  div.style.width = bounds.width + xDiff + "px";
+  div.style.height = bounds.bottom - newTop + "px";
+}
+
 export function resizeNW(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
+  const div = data.containerDiv;
+  const bounds = getBoxSize(data);
+  if (
+    bounds.left + xDiff >= bounds.right ||
+    bounds.bottom <= bounds.top + yDiff
+  ) {
+    return;
+  }
+  const newTop = bounds.top + yDiff;
+  const newleft = bounds.left + xDiff;
+  div.style.top = newTop + "px";
+  div.style.left = newleft + "px";
+  div.style.width = bounds.right - newleft + "px";
+  div.style.height = bounds.bottom - newTop + "px";
+}
+
+export function resizeW(data: DrawingData, ctx: OnResizeContext) {
+  let [xDiff, yDiff] = getDiffCoords(data, ctx);
+  yDiff = 0;
   const div = data.containerDiv;
   const bounds = getBoxSize(data);
   if (
@@ -140,6 +181,40 @@ export function resizeSE(data: DrawingData, ctx: OnResizeContext) {
   div.style.height = newBottom - bounds.top + "px";
 }
 
+export function resizeS(data: DrawingData, ctx: OnResizeContext) {
+  let [xDiff, yDiff] = getDiffCoords(data, ctx);
+  xDiff = 0;
+  const bounds = getBoxSize(data);
+  const div = data.containerDiv;
+  if (
+    bounds.left >= bounds.right + xDiff ||
+    bounds.bottom + yDiff <= bounds.top
+  ) {
+    return;
+  }
+
+  const newRight = bounds.right + xDiff;
+  const newBottom = bounds.bottom + yDiff;
+  div.style.width = newRight - bounds.left + "px";
+  div.style.height = newBottom - bounds.top + "px";
+}
+export function resizeE(data: DrawingData, ctx: OnResizeContext) {
+  let [xDiff, yDiff] = getDiffCoords(data, ctx);
+  yDiff = 0;
+  const bounds = getBoxSize(data);
+  const div = data.containerDiv;
+  if (
+    bounds.left >= bounds.right + xDiff ||
+    bounds.bottom + yDiff <= bounds.top
+  ) {
+    return;
+  }
+
+  const newRight = bounds.right + xDiff;
+  const newBottom = bounds.bottom + yDiff;
+  div.style.width = newRight - bounds.left + "px";
+  div.style.height = newBottom - bounds.top + "px";
+}
 export function resizeSW(data: DrawingData, ctx: OnResizeContext) {
   const [xDiff, yDiff] = getDiffCoords(data, ctx);
   const div = data.containerDiv;
