@@ -11,7 +11,7 @@ import {
   SelectMode,
 } from "../types";
 import { pushActionToStack } from "./pushActionToStack";
-import { makeNewBoundingDiv } from ".";
+import { BoxSize, makeNewBoundingDiv } from ".";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
@@ -94,11 +94,14 @@ export function getTouchCoords(e: TouchEvent): Point {
   return [touch.clientX, touch.clientY];
 }
 
-export function getCenterPoint(bounds: RectBounds): Point {
-  const height = bounds.bottom - bounds.top;
-  const y = bounds.top + height / 2;
-  const width = bounds.right - bounds.left;
-  const x = bounds.left + width / 2;
+export function clamp(num: number, min: number, max: number) {
+  return Math.min(Math.max(num, min), max);
+}
+
+export function getCenterPoint(bounds: BoxSize): Point {
+  const { width, height, top, left } = bounds;
+  const y = top + height / 2;
+  const x = left + width / 2;
   return [x, y];
 }
 
