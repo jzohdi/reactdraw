@@ -14,35 +14,27 @@ function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
       ctx.newPoint[1] - ctx.previousPoint[1],
     ];
   }
-  const rotatedNewPoint = rotatePointAroundAnotherPoint(
-    ctx.newPoint[0],
-    ctx.newPoint[1],
-    ctx.previousPoint[0],
-    ctx.previousPoint[1],
-    currRotation
+  const [relativePrevX, relativePrevY] = getPointRelativeToOther(
+    ctx.previousPoint,
+    center
   );
-  return getPointRelativeToOther(ctx.previousPoint, rotatedNewPoint);
-  // const [relativePrevX, relativePrevY] = getPointRelativeToOther(
-  //   ctx.previousPoint,
-  //   center
-  // );
-  // const [relativeNewX, relativeNewY] = getPointRelativeToOther(
-  //   ctx.newPoint,
-  //   center
-  // );
-  // // const [rotatedPrevX, rotatedPrevY] = rotatePointAroundOrigin(relativePrevX, relativePrevY, currRotation);
-  // const rotatedPrev = rotatePointAroundOrigin(
-  //   relativePrevX,
-  //   relativePrevY,
-  //   -currRotation
-  // );
-  // // const [rotatedNewX, rotatedNewY] = rotatePointAroundOrigin(relativeNewX, relativeNewY, currRotation);
-  // const rotatedNew = rotatePointAroundOrigin(
-  //   relativeNewX,
-  //   relativeNewY,
-  //   -currRotation
-  // );
-  // return getPointRelativeToOther(rotatedNew, rotatedPrev);
+  const [relativeNewX, relativeNewY] = getPointRelativeToOther(
+    ctx.newPoint,
+    center
+  );
+  // const [rotatedPrevX, rotatedPrevY] = rotatePointAroundOrigin(relativePrevX, relativePrevY, currRotation);
+  const rotatedPrev = rotatePointAroundOrigin(
+    relativePrevX,
+    relativePrevY,
+    -currRotation
+  );
+  // const [rotatedNewX, rotatedNewY] = rotatePointAroundOrigin(relativeNewX, relativeNewY, currRotation);
+  const rotatedNew = rotatePointAroundOrigin(
+    relativeNewX,
+    relativeNewY,
+    -currRotation
+  );
+  return getPointRelativeToOther(rotatedNew, rotatedPrev);
   // const rotatedPrev = rotatePoint(
   //   centerX,
   //   centerY,
@@ -231,7 +223,6 @@ export function resizeS(data: DrawingData, ctx: OnResizeContext) {
 }
 const LARGEST_X_DIFF = 4;
 export function resizeE(data: DrawingData, ctx: OnResizeContext) {
-  // debugger;
   let [xDiff, yDiff] = getDiffCoords(data, ctx);
   yDiff = 0;
   xDiff = round(xDiff, 5);
@@ -270,7 +261,6 @@ export function resizeE(data: DrawingData, ctx: OnResizeContext) {
   // debugger;
   const denormalizedCenterX = previousCenterX + normalizedRotatedCenterX;
   const denormalizedCenterY = previousCenterY - normalizedRotatedCenterY;
-  // const norNewCornerX = rotatePointAroundOrigin(norm);
   // debugger;
   const clampedXDiff = clamp(xDiff, -0.1, 0.1);
   // const clampedYDiff = clamp(yDiff, -0.2, 0.2);
@@ -327,7 +317,7 @@ function rotatePointAroundAnotherPoint(
   cx: number,
   cy: number,
   theta: number
-): Point {
+) {
   // Convert theta from degrees to radians
   const radians = theta * (Math.PI / 180);
 
