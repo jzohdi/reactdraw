@@ -29,6 +29,7 @@ import textAreaTool, {
   placeCaretAtEnd,
   setupTextAreaDiv,
 } from "../TopBarTools/TextAreaTool";
+import { setContainerStyles } from "./updateStyles/utils";
 
 // re-exports
 export {
@@ -177,6 +178,7 @@ export function createText(
   containerDiv.style.display = "flex";
   containerDiv.style.justifyContent = "center";
   containerDiv.style.alignItems = "center";
+  setContainerStyles(newDrawingData);
   if (!editable) {
     textWrapper.contentEditable = "false";
     return newDrawingData;
