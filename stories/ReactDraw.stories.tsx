@@ -60,6 +60,7 @@ import {
   moveSelectedForward,
   deletedSelected,
   getSelectedObjects,
+  createText,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 import { useState } from "react";
@@ -373,6 +374,24 @@ function ControlFromExternalWrapper({ ...args }: any) {
     });
   };
 
+  const handleAddCustomText = (editable: boolean) => {
+    const ctx = handleGetCtx();
+    const toolId = textAreaTool.id;
+    if (!editable) {
+      createText(ctx, {
+        text: "hello, world",
+        toolId,
+        editable: false,
+      });
+      return;
+    }
+    createText(ctx, {
+      text: "hello, world",
+      toolId,
+      useTextToolDefaults: true,
+    });
+  };
+
   const handleSelectAll = () => {
     const ctx = handleGetCtx();
     selectAll(ctx);
@@ -420,6 +439,12 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={moveSelectedBack}>Move Selected Back</button>
           <button onClick={moveForward}>Move Selected Forward</button>
           <button onClick={handleDelete}>Delete Selected</button>
+          <button onClick={() => handleAddCustomText(true)}>
+            Add some editable text
+          </button>
+          <button onClick={() => handleAddCustomText(false)}>
+            Add some not editable text
+          </button>
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
@@ -434,7 +459,7 @@ const ExternalControlsTemplate: Story<ReactDrawProps> = (args) => (
 export const ExternalControls = ExternalControlsTemplate.bind({});
 
 ExternalControls.args = {
-  topBarTools: [selectTool, circleToolCopy, imageTool],
+  topBarTools: [selectTool, circleToolCopy, imageTool, textAreaTool],
   shouldKeepHistory: false,
   shouldSelectAfterCreate: true,
   hideTopBar: true,
@@ -496,6 +521,24 @@ function ControlFromExternalWrapper({ ...args }: any) {
 		});
 	};
 
+	const handleAddCustomText = (editable: boolean) => {
+    const ctx = handleGetCtx();
+    const toolId = textAreaTool.id;
+    if (!editable) {
+      createText(ctx, {
+        text: "hello, world",
+        toolId,
+        editable: false,
+      });
+      return;
+    }
+    createText(ctx, {
+      text: "hello, world",
+      toolId,
+      useTextToolDefaults: true,
+    });
+  };
+
   const handleSelectAll = () => {
     const ctxGetter = contextGetterRef.current;
     if (!ctxGetter) {
@@ -558,6 +601,8 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={moveSelectedBack}>Move Selected Back</button>
           <button onClick={moveForward}>Move Selected Forward</button>
           <button onClick={handleDelete}>Delete Selected</button>
+					<button onClick={handleDelete}>Delete Selected</button>
+          <button onClick={() => handleAddCustomText(true)}>
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
