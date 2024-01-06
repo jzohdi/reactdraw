@@ -20,10 +20,7 @@ import {
 } from "../../utils/updateStyles/color";
 import { updateEleOpacity } from "../../utils/updateStyles/opacity";
 import { getObjectFromMap } from "../../utils/utils";
-import {
-  actionObjToSave,
-  setContainerStyles,
-} from "../../utils/updateStyles/utils";
+import { actionObjToSave } from "../../utils/updateStyles/utils";
 import { getBoxSize } from "../../utils";
 import { TEXT_AREA_TOOL_ID } from "../../constants";
 
@@ -185,7 +182,7 @@ export function setBoundsFromDiv(div: HTMLDivElement, bounds: RectBounds) {
   bounds.right = bounds.left + width;
 }
 
-export function placeCaretAtEnd(el: HTMLDivElement) {
+function placeCaretAtEnd(el: HTMLDivElement) {
   el.focus();
   if (
     typeof window.getSelection !== "undefined" &&
@@ -205,24 +202,8 @@ export function placeCaretAtEnd(el: HTMLDivElement) {
   return false;
 }
 
-export function setTextContainerStyles(data: DrawingData) {
-  const padding = 5;
-  const div = data.containerDiv;
-  div.style.padding = padding + "px";
-  div.style.borderRadius = "2px";
-  div.style.boxSizing = "border-box";
-  const styleTag = document.createElement("style");
-  styleTag.innerHTML = `
-	.react-draw-cursor {
-		outline: none;		
-		height: 100%;
-	}`;
-  div.appendChild(styleTag);
-  return data;
-}
-
-export function setTextToolStyles(data: DrawingData) {
-  const fontSize = parseInt(data.style.fontSize);
+export function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext) {
+  const fontSize = 12;
   const padding = 5;
   const div = data.containerDiv;
   const bounds = getBoxSize(data);
@@ -232,16 +213,21 @@ export function setTextToolStyles(data: DrawingData) {
   div.style.minWidth = div.style.width;
   div.style.width = "";
   div.style.border = "1px solid black";
-  return data;
-}
+  div.style.backgroundColor = data.style.background;
+  div.style.padding = padding + "px";
+  div.style.borderRadius = "2px";
+  div.style.boxSizing = "border-box";
+  div.style.color = data.style.color;
+  div.style.opacity = data.style.opacity;
+  div.style.fontSize = `${data.style.fontSize}px`;
+  const styleTag = document.createElement("style");
+  styleTag.innerHTML = `
+	.react-draw-cursor {
+		outline: none;		
+		height: 100%;
+	}`;
 
-export function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext) {
-  const div = data.containerDiv;
-  const bounds = getBoxSize(data);
-
-  setContainerStyles(data);
-  setTextToolStyles(data);
-  setTextContainerStyles(data);
+  div.appendChild(styleTag);
 
   const cursorDiv = makeCursorDiv();
   cursorDiv.style.opacity = data.style.opacity;
@@ -256,10 +242,9 @@ export function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext) {
   setTimeout(function () {
     cursorDiv.focus();
   }, 0);
-  return cursorDiv;
 }
 
-export function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
+function addCaptureHandler(data: DrawingData, ctx: ReactDrawContext) {
   const div = data.element as HTMLDivElement;
   const customData = data.customData;
   function captureDidType(e: Event) {

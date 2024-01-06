@@ -1,4 +1,5 @@
 import { DrawingData, Point } from "../../types";
+import { round } from "../resizeObject";
 
 export function rotateDiv(
   object: DrawingData,
@@ -9,5 +10,5 @@ export function rotateDiv(
   const x = newPoint[0] - referenceCenter[0];
   const y = newPoint[1] - referenceCenter[1];
   const angleDeg = (Math.atan2(y, x) * 180) / Math.PI + 90;
-  div.style.transform = `rotate(${angleDeg}deg)`;
+  div.style.transform = `rotate(${round(angleDeg, 5)}deg)`;
 }
