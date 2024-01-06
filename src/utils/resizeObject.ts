@@ -106,8 +106,6 @@ function getAspectDiffs(
   }
 }
 
-const LARGEST_X_DIFF = 4;
-
 export function unifiedResizeFunction(
   div: HTMLDivElement,
   bounds: BoxSize,
@@ -148,7 +146,16 @@ export function unifiedResizeFunction(
   };
 }
 
-function getPointRelativeToOther(point: Point, other: Point): Point {
+export function slideCornerOnAnAngle(
+  currPoint: Point,
+  angle: number,
+  yDiff: number
+): Point {
+  const [x, y] = currPoint;
+  return [x + Math.cos(x), y + Math.sin(y)];
+}
+
+export function getPointRelativeToOther(point: Point, other: Point): Point {
   const [previousCenterX, previousCenterY] = other;
   const [previousCornerX, previousCornerY] = point;
   const relativeCornerY = previousCenterY - previousCornerY;
@@ -158,7 +165,11 @@ function getPointRelativeToOther(point: Point, other: Point): Point {
 
 const RESIZE_ROUNDING = 5;
 
-function rotatePointAroundOrigin(x: number, y: number, theta: number): Point {
+export function rotatePointAroundOrigin(
+  x: number,
+  y: number,
+  theta: number
+): Point {
   // Convert theta from degrees to radians
   const radians = theta * (Math.PI / 180);
 
@@ -173,7 +184,7 @@ export function round(num: number, decimals: number) {
   const multiplier = Math.pow(10, decimals);
   return Math.round(num * multiplier) / multiplier;
 }
-function rotatePointAroundAnotherPoint(
+export function rotatePointAroundAnotherPoint(
   px: number,
   py: number,
   cx: number,

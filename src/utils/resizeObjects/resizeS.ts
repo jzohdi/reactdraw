@@ -1,21 +1,32 @@
 import { getBoxSize } from "..";
 import { DrawingData, OnResizeContext } from "../../types";
-import { getDiffCoords } from "../resizeObject";
+import { getDiffCoords, rotatePointAroundOrigin } from "../resizeObject";
+import { getRotateFromDiv } from "../select/getRotateFromDiv";
+import { getCenterPoint } from "../utils";
 
 export function resizeS(data: DrawingData, ctx: OnResizeContext) {
   let [xDiff, yDiff] = getDiffCoords(data, ctx);
   xDiff = 0;
   const bounds = getBoxSize(data);
   const div = data.containerDiv;
-  if (
-    bounds.left >= bounds.right + xDiff ||
-    bounds.bottom + yDiff <= bounds.top
-  ) {
-    return;
-  }
-
-  const newRight = bounds.right + xDiff;
-  const newBottom = bounds.bottom + yDiff;
-  div.style.width = newRight - bounds.left + "px";
-  div.style.height = newBottom - bounds.top + "px";
+  const currentRotation = getRotateFromDiv(div);
+  const [previousCenterX, previousCenterY] = getCenterPoint(bounds);
+  const [newNormalizedCenterX, newNormalizedCenterY] = rotatePointAroundOrigin(
+    xDiff,
+    -yDiff / 2,
+    currentRotation
+  );
+  const newHeight = bounds.height + yDiff;
+  const distanceFromNewCenterToTop = newHeight / 2;
+  const distanceFromNewCenterToLeft = bounds.width / 2;
+  const newNormalizedCornerX =
+    newNormalizedCenterX - distanceFromNewCenterToLeft;
+  const newNormalizedCornerY =
+    newNormalizedCenterY + distanceFromNewCenterToTop;
+  const newTop = previousCenterY - newNormalizedCornerY;
+  const newLeft = newNormalizedCornerX + previousCenterX;
+  div.style.top = newTop + "px";
+  div.style.left = newLeft + "px";
+  // div.style.width = bounds.width + xDiff + "px";
+  div.style.height = newHeight + "px";
 }
