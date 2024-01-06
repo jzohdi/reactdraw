@@ -133,7 +133,7 @@ export function unifiedResizeFunction(
   // const newWiderCenterX = centerX + xDiff;
   // this is the new origin
   const [normalizedRotatedCenterX, normalizedRotatedCenterY] =
-    rotatePointAroundOrigin(xDiff, yDiff, currentRotation);
+    rotatePointAroundOrigin(xDiff / 2, yDiff, currentRotation);
   const [noramlizedNewCornerX, normalizedNewCornerY] =
     rotatePointAroundAnotherPoint(
       normalizedRotatedCornerX,

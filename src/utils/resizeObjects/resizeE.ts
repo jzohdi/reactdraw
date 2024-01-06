@@ -16,20 +16,8 @@ export function resizeE(data: DrawingData, ctx: OnResizeContext) {
     xDiff,
     yDiff
   );
-  // debugger;
   div.style.top = top + "px";
-  // debugger;
   div.style.left = left + "px";
   div.style.width = bounds.width + xDiff + "px";
   div.style.height = bounds.height + yDiff + "px";
-  // if (
-  //   bounds.left >= bounds.right + xDiff ||
-  //   bounds.bottom + yDiff <= bounds.top
-  // ) {
-  //   return;
-  // }
-  // const newRight = bounds.right + xDiff;
-  // const newBottom = bounds.bottom + yDiff;
-  // div.style.width = newRight - bounds.left + "px";
-  // div.style.height = newBottom - bounds.top + "px";
 }
