@@ -106,6 +106,23 @@ export function createText(
   return newDrawingData;
 }
 
+/**
+ * @param ctx
+ * @param id the id of the object
+ */
+export function deleteObject(ctx: ReactDrawContext, id: string) {
+  deleteObjectAndNotify(id, ctx);
+}
+
+/**
+ * Works by first selecting all objects and then calling
+ * deleteSelected.
+ */
+export function deleteAll(ctx: ReactDrawContext) {
+  selectAll(ctx);
+  deletedSelected(ctx);
+}
+
 export type CreateObjectOptions = {
   pointA: Point;
   pointB: Point;
