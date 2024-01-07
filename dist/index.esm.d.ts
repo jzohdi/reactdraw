@@ -481,32 +481,6 @@ declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: numbe
  * @param ctx
  */
 declare function unselectElement(data: DrawingData, ctx: ReactDrawContext): void;
-type CreateObjectOptions = {
-    pointA: Point;
-    pointB: Point;
-    toolId: string;
-};
-/**
- * @param ctx
- * @param id the id of the object
- */
-declare function deleteObject(ctx: ReactDrawContext, id: string): void;
-/**
- * Works by first selecting all objects and then calling
- * deleteSelected.
- */
-declare function deleteAll(ctx: ReactDrawContext): void;
-/**
- * creates a new circle and adds it to thew view.
- * returns the resulting DrawingDataObject
- */
-declare function createCircle(ctx: ReactDrawContext, options: CreateObjectOptions): DrawingData;
-type CreateImageOptions = CreateObjectOptions & {
-    url?: string;
-    showLoading?: boolean;
-    image?: HTMLImageElement;
-    loadingElement?: Element;
-};
 type CreateTextOptions = {
     toolId: string;
     text: string;
@@ -526,8 +500,34 @@ type CreateTextOptions = {
  * @param options
  */
 declare function createText(ctx: ReactDrawContext, options: CreateTextOptions): DrawingData;
+/**
+ * @param ctx
+ * @param id the id of the object
+ */
+declare function deleteObject(ctx: ReactDrawContext, id: string): void;
+/**
+ * Works by first selecting all objects and then calling
+ * deleteSelected.
+ */
+declare function deleteAll(ctx: ReactDrawContext): void;
+type CreateObjectOptions = {
+    pointA: Point;
+    pointB: Point;
+    toolId: string;
+};
+/**
+ * creates a new circle and adds it to thew view.
+ * returns the resulting DrawingDataObject
+ */
+declare function createCircle(ctx: ReactDrawContext, options: CreateObjectOptions): DrawingData;
+type CreateImageOptions = CreateObjectOptions & {
+    url?: string;
+    showLoading?: boolean;
+    image?: HTMLImageElement;
+    loadingElement?: Element;
+};
 declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
 declare function selectAll(ctx: ReactDrawContext): void;
 declare function getSelectedObjects(ctx: ReactDrawContext): DrawingData[];
-export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateObjectOptions, deleteObject, deleteAll, createCircle, CreateImageOptions, CreateTextOptions, createText, createImage, selectAll, getSelectedObjects };
+export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, deleteObject, deleteAll, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
 //# sourceMappingURL=index.esm.d.ts.map

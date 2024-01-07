@@ -5,16 +5,14 @@ import {
   IntRange,
   ReactDrawContext,
 } from "../../types";
-import {
-  resizeE,
-  resizeN,
-  resizeNE,
-  resizeNW,
-  resizeS,
-  resizeSE,
-  resizeSW,
-  resizeW,
-} from "../resizeObject";
+import { resizeN } from "../resizeObjects/resizeN";
+import { resizeW } from "../resizeObjects/resizeW";
+import { resizeSW } from "../resizeObjects/resizeSW";
+import { resizeS } from "../resizeObjects/resizeS";
+import { resizeSE } from "../resizeObjects/resizeSE";
+import { resizeNW } from "../resizeObjects/resizeNW";
+import { resizeNE } from "../resizeObjects/resizeNE";
+import { resizeE } from "../resizeObjects/resizeE";
 import { getToolById, setStyles } from "../utils";
 import {
   CORNER_BUTTON_PRE,
