@@ -1,7 +1,7 @@
 import { BoxSize, getBoxSize } from ".";
 import { DrawingData, OnResizeContext, Point } from "../types";
 import { getRotateFromDiv } from "./select/getRotateFromDiv";
-import { clamp, getCenterPoint } from "./utils";
+import { getCenterPoint } from "./utils";
 
 export function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
   const center = getCenterPoint(getBoxSize(data));

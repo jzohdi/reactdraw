@@ -367,7 +367,7 @@ type Orientation = "left" | "right" | "up" | "down" | "nw" | "ne" | "se" | "sw";
 declare const straightLineTool: DrawingTools;
 declare function makeLineInOrientation(data: DrawingData, orientation: Orientation): SVGSVGElement;
 declare const textAreaTool: DrawingTools;
-declare function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext): void;
+declare function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext): HTMLDivElement;
 declare const arrowTool: DrawingTools;
 declare function makeArrowSvg(data: DrawingData, orientation: Orientation): SVGSVGElement;
 // TODO: alter item on drawing
@@ -481,6 +481,25 @@ declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: numbe
  * @param ctx
  */
 declare function unselectElement(data: DrawingData, ctx: ReactDrawContext): void;
+type CreateTextOptions = {
+    toolId: string;
+    text: string;
+    viewLocation?: Point;
+    editable?: boolean;
+    useTextToolDefaults?: boolean;
+};
+/**
+ * options:
+ * <ul>
+ * 	<li>toolId: the id for the tool that owns this object. needs to map to a top-bar-tool</li>
+ * 	<li>text: the data to add to screen</li>
+ * 	<li>viewLocation (optional): where to instantiate the text. if not given, will create at center</li>
+ * <li>useTextToolDefaults (optional): if true, will setup the text as if created by the react draw textAreaTool</li>
+ * </ul>
+ * @param ctx
+ * @param options
+ */
+declare function createText(ctx: ReactDrawContext, options: CreateTextOptions): DrawingData;
 type CreateObjectOptions = {
     pointA: Point;
     pointB: Point;
@@ -500,5 +519,5 @@ type CreateImageOptions = CreateObjectOptions & {
 declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
 declare function selectAll(ctx: ReactDrawContext): void;
 declare function getSelectedObjects(ctx: ReactDrawContext): DrawingData[];
-export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
+export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
 //# sourceMappingURL=index.d.ts.map

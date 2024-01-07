@@ -8,7 +8,12 @@
 import { setContainerRect } from "./index";
 import { makeCircleDiv } from "../TopBarTools/CircleTool";
 import { DrawingData, Point, ReactDrawContext } from "../types";
-import { addObject, createNewObject } from "./utils";
+import {
+  addObject,
+  createNewObject,
+  deleteObjectAndNotify,
+  getViewCenterPoint,
+} from "./utils";
 import { SELECT_TOOL_ID } from "../constants";
 import { getSelectedDrawingObjects } from "./select/getSelectedDrawingObjects";
 import {
@@ -18,6 +23,13 @@ import {
   selectManyElements,
   unselectAll,
 } from "./select/utils";
+import { deletedSelected } from "../TopBarTools/SelectTool";
+import textAreaTool, {
+  addCaptureHandler,
+  placeCaretAtEnd,
+  setupTextAreaDiv,
+} from "../TopBarTools/TextAreaTool";
+import { setContainerStyles } from "./updateStyles/utils";
 
 // re-exports
 export {
@@ -34,6 +46,65 @@ export {
   getViewCenterPoint,
 } from "./utils";
 export { unselectElement } from "./select/unselectElement";
+
+export type CreateTextOptions = {
+  toolId: string;
+  text: string;
+  viewLocation?: Point;
+  editable?: boolean;
+  useTextToolDefaults?: boolean;
+};
+
+/**
+ * options:
+ * <ul>
+ * 	<li>toolId: the id for the tool that owns this object. needs to map to a top-bar-tool</li>
+ * 	<li>text: the data to add to screen</li>
+ * 	<li>viewLocation (optional): where to instantiate the text. if not given, will create at center</li>
+ * <li>useTextToolDefaults (optional): if true, will setup the text as if created by the react draw textAreaTool</li>
+ * </ul>
+ * @param ctx
+ * @param options
+ */
+export function createText(
+  ctx: ReactDrawContext,
+  options: CreateTextOptions
+): DrawingData {
+  const { toolId, text, viewLocation, editable, useTextToolDefaults } = options;
+  const location = viewLocation ?? getViewCenterPoint(ctx);
+  const newDrawingData = createNewObject(ctx, location, toolId);
+  if (useTextToolDefaults) {
+    const textCursor = setupTextAreaDiv(newDrawingData, ctx);
+    textCursor.innerHTML = text;
+    addObject(ctx, newDrawingData);
+    placeCaretAtEnd(textCursor);
+    return newDrawingData;
+  }
+  const textWrapper = document.createElement("div");
+  textWrapper.style.width = "fit-content";
+  textWrapper.innerText = text;
+  const containerDiv = newDrawingData.containerDiv;
+  containerDiv.appendChild(textWrapper);
+  newDrawingData.element = textWrapper;
+  addObject(ctx, newDrawingData);
+  const boundOfText = textWrapper.getBoundingClientRect();
+  containerDiv.style.width = boundOfText.width + "px";
+  containerDiv.style.height = boundOfText.height + "px";
+  containerDiv.style.display = "flex";
+  containerDiv.style.justifyContent = "center";
+  containerDiv.style.alignItems = "center";
+  setContainerStyles(newDrawingData);
+  if (!editable) {
+    textWrapper.contentEditable = "false";
+    return newDrawingData;
+  }
+  textWrapper.setAttribute("tabindex", "1");
+  textWrapper.contentEditable = "true";
+  if (toolId === textAreaTool.id) {
+    addCaptureHandler(newDrawingData, ctx);
+  }
+  return newDrawingData;
+}
 
 export type CreateObjectOptions = {
   pointA: Point;
