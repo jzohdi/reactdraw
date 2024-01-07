@@ -1,13 +1,11 @@
-import { BoxSize, getBoxSize } from ".";
+import { getBoxSize } from ".";
 import { DrawingData, OnResizeContext, Point } from "../types";
 import { getRotateFromDiv } from "./select/getRotateFromDiv";
 import { getCenterPoint } from "./utils";
 
 export function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
   const center = getCenterPoint(getBoxSize(data));
-  const [centerX, centerY] = center;
   const currRotation = getRotateFromDiv(data.containerDiv);
-  // return getPointRelativeToOther(ctx.newPoint, ctx.previousPoint);
   if (currRotation === 0) {
     return [
       ctx.newPoint[0] - ctx.previousPoint[0],
@@ -35,30 +33,6 @@ export function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
     -currRotation
   );
   return getPointRelativeToOther(rotatedNew, rotatedPrev);
-  // const rotatedPrev = rotatePoint(
-  //   centerX,
-  //   centerY,
-  //   -(currRotation * Math.PI) / 180,
-  //   ctx.previousPoint
-  // );
-  // const rotatedNew = rotatePoint(
-  //   centerX,
-  //   centerY,
-  //   -(currRotation * Math.PI) / 180,
-  //   ctx.newPoint
-  // );
-  // return [rotatedNew[0] - rotatedPrev[0], rotatedNew[1] - rotatedPrev[1]];
-}
-
-function makePoint(x: number, y: number, color: string): HTMLDivElement {
-  const div = document.createElement("div");
-  div.style.width = "1px";
-  div.style.height = "1px";
-  div.style.border = `1px solid ${color}`;
-  div.style.position = "absolute";
-  div.style.top = y + "px";
-  div.style.left = x + "px";
-  return div;
 }
 
 function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
@@ -71,79 +45,44 @@ function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
   return [xNew + cx, yNew + cy];
 }
 
-function getAspectDiffs(
-  xDiff: number,
-  yDiff: number,
-  currX: number,
-  currY: number
-): [number, number] {
-  if (currX === currY) {
-    if (xDiff === yDiff) {
-      return [xDiff, yDiff];
-    } else if (xDiff > yDiff) {
-      return [xDiff, xDiff];
-    } else {
-      return [yDiff, yDiff];
-    }
-  } else if (currX > currY) {
-    // const ratio = currX / currY;
-    // if is wider than tall and that
-    if (xDiff === yDiff) {
-      return [xDiff * (currX / currY), xDiff];
-    } else if (xDiff > yDiff) {
-      return [xDiff, xDiff * (currY / currX)];
-    } else {
-      return [yDiff * (currX / currY), yDiff];
-    }
-  } else {
-    if (xDiff === yDiff) {
-      return [xDiff, xDiff * (currY / currX)];
-    } else if (xDiff > yDiff) {
-      return [xDiff, xDiff * (currY / currX)];
-    } else {
-      return [yDiff * (currX / currY), yDiff];
-    }
-  }
-}
-
+/**
+ * All you have to do is:
+ * <ol>
+ * 	<li>calculate the new center</li>
+ *  <li>calculate new height and new width</li>
+ *  <li>the new top left will be half of these distances from the new cneter</li>
+ * <ol>
+ */
 export function unifiedResizeFunction(
-  div: HTMLDivElement,
-  bounds: BoxSize,
-  currentRotation: number,
-  xDiff: number,
-  yDiff: number
+  data: DrawingData,
+  changeInCenter: Point,
+  changeInDimensions: Point
 ) {
+  const [centerDx, centerDy] = changeInCenter;
+  const [dX, dY] = changeInDimensions;
+  const bounds = getBoxSize(data);
+  const div = data.containerDiv;
+  const currentRotation = getRotateFromDiv(div);
   const [previousCenterX, previousCenterY] = getCenterPoint(bounds);
-  const [relativeCornerX, relativeCornerY] = getPointRelativeToOther(
-    [bounds.left, bounds.top],
-    [previousCenterX, previousCenterY]
+  const [newNormalizedCenterX, newNormalizedCenterY] = rotatePointAroundOrigin(
+    centerDx,
+    centerDy,
+    currentRotation
   );
-  // const relativeCornerY = previousCenterY - previousCornerY;
-  // const relativeCornerX = previousCornerX - previousCenterX;
-  // debugger;
-  // step 2: rotate the relative corner around the center
-  // (this will give the actual rotated corner coordinates)
-  const [normalizedRotatedCornerX, normalizedRotatedCornerY] =
-    rotatePointAroundOrigin(relativeCornerX, relativeCornerY, currentRotation);
-
-  // step 2 calculate the new center (the new center);
-  // the new center when relative to the origin is dx, o
-  // const newWiderCenterX = centerX + xDiff;
-  // this is the new origin
-  const [normalizedRotatedCenterX, normalizedRotatedCenterY] =
-    rotatePointAroundOrigin(xDiff / 2, yDiff, currentRotation);
-  const [noramlizedNewCornerX, normalizedNewCornerY] =
-    rotatePointAroundAnotherPoint(
-      normalizedRotatedCornerX,
-      normalizedRotatedCornerY,
-      normalizedRotatedCenterX,
-      normalizedRotatedCenterY,
-      currentRotation
-    );
-  return {
-    top: previousCenterY - normalizedNewCornerY,
-    left: noramlizedNewCornerX + previousCenterX,
-  };
+  const newHeight = bounds.height + dY;
+  const newWidth = bounds.width + dX;
+  const distanceFromNewCenterToTop = newHeight / 2;
+  const distanceFromNewCenterToLeft = newWidth / 2;
+  const newNormalizedCornerX =
+    newNormalizedCenterX - distanceFromNewCenterToLeft;
+  const newNormalizedCornerY =
+    newNormalizedCenterY + distanceFromNewCenterToTop;
+  const newTop = previousCenterY - newNormalizedCornerY;
+  const newLeft = newNormalizedCornerX + previousCenterX;
+  div.style.top = newTop + "px";
+  div.style.left = newLeft + "px";
+  div.style.width = newWidth + "px";
+  div.style.height = newHeight + "px";
 }
 
 export function slideCornerOnAnAngle(

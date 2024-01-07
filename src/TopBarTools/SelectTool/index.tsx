@@ -4,6 +4,7 @@ import {
   DrawingData,
   DrawingDataMap,
   DrawingTools,
+  Point,
   ReactDrawContext,
   RectBounds,
 } from "../../types";
@@ -13,10 +14,12 @@ import {
   SELECT_TOOL_ID,
 } from "../../constants";
 import {
+  BoxSize,
   addPointToBounds,
   distance,
   getBoxSize,
   getElementsThatBoundsAreWithin,
+  isPointWithinBounds,
   isRectBounding,
   makeBoundingRect,
   setContainerRect,
@@ -34,7 +37,16 @@ import { unselectElement } from "../../utils/select/unselectElement";
 import { handelResizeUndo, handleDragUndo, handleRotateUndo } from "./undo";
 import { deleteCreatedObjects, recreateDeletedObjects } from "../../utils/undo";
 import { pushActionToStack } from "../../utils/pushActionToStack";
-import { makeDeleteAction, makeSureArtifactsGone } from "../../utils/utils";
+import {
+  getCenterPoint,
+  makeDeleteAction,
+  makeSureArtifactsGone,
+} from "../../utils/utils";
+import { getRotateFromDiv } from "../../utils/select/getRotateFromDiv";
+import {
+  getPointRelativeToOther,
+  rotatePointAroundOrigin,
+} from "../../utils/resizeObject";
 
 type CallbackFn = (event: string) => void;
 
@@ -158,10 +170,91 @@ const tryClickObject = (drawingData: DrawingData, ctx: ReactDrawContext) => {
   const firstPoint = drawingData.coords[0];
   const lastPoint = drawingData.coords[drawingData.coords.length - 1];
   if (distance(lastPoint, firstPoint) < SELECT_TOOL_DRAG_MIN_DISTANCE) {
-    const bounds = addPointToBounds(makeBoundingRect(firstPoint), lastPoint);
-    handleTryClickObject(ctx, bounds, didPressShift);
+    // const bounds = addPointToBounds(makeBoundingRect(firstPoint), lastPoint);
+    // handleTryClickObject(ctx, bounds, didPressShift);
+    maybeClickObject(ctx, firstPoint, lastPoint, didPressShift);
   }
 };
+
+function maybeClickObject(
+  ctx: ReactDrawContext,
+  pointA: Point,
+  pointB: Point,
+  didPressShift: boolean
+) {
+  const clickedEle = getElementsThatSatisfyPoints(
+    ctx.objectsMap,
+    pointA,
+    pointB
+  );
+  // unselect everything.
+  let { ids } = unselectEverythingAndReturnPrevious(ctx);
+  //   console.log(ids, didPressShift);
+  // if did not press shift, all prev will be not selected
+  if (!didPressShift) {
+    ids = [];
+  }
+  // if item to select found, add to ids
+  if (clickedEle !== null) {
+    ids = ids.concat([clickedEle.id]);
+  }
+  handleSelectIds(ctx, ids);
+  return ids;
+}
+
+/**
+ * If either pointA or pointB is contained within the rect
+ * select the object. Prioritize objects with a higher z index. Note:
+ * zIndex is an implementation detail elsewhere so not the cleanest.
+ */
+function getElementsThatSatisfyPoints(
+  renderedMap: DrawingDataMap,
+  pointA: Point,
+  pointB: Point
+) {
+  let itemToSelect = null;
+  for (const [_eleId, eleData] of renderedMap.entries()) {
+    const zIndex = parseInt(eleData.style.zIndex);
+    const bounds = getBoxSize(eleData);
+    const rotation = getRotateFromDiv(eleData.containerDiv);
+    if (areAnyPointsWithin({ bounds, rotation }, pointA, pointB)) {
+      if (itemToSelect === null) {
+        itemToSelect = eleData;
+        continue;
+      }
+      const eleIsOnTop = zIndex > parseInt(itemToSelect.style.zIndex);
+      if (eleIsOnTop) {
+        itemToSelect = eleData;
+      }
+    }
+  }
+  return itemToSelect;
+}
+interface BoundsSpecs {
+  bounds: BoxSize;
+  rotation: number;
+}
+function areAnyPointsWithin(
+  { bounds, rotation }: BoundsSpecs,
+  ...points: Point[]
+): boolean {
+  for (const point of points) {
+    const centerOfBounds = getCenterPoint(bounds);
+    const [relativeX, relativeY] = getPointRelativeToOther(
+      point,
+      centerOfBounds
+    );
+    const rotatedPoint = rotatePointAroundOrigin(
+      relativeX,
+      relativeY,
+      -rotation
+    );
+    if (isPointWithinBounds(bounds, rotatedPoint)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 const handleTryClickObject = (
   ctx: ReactDrawContext,

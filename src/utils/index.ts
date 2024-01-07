@@ -247,6 +247,24 @@ export function isRectBounding(
   );
 }
 
+/**
+ * Important: the point is relative to the center of the bounds
+ * example: bounds { top: 30, bottom: 40, left: 30, right: 40, ...}
+ * point: [2, 4.5]
+ * returns true because the point is in the bounds if the point is within
+ * a box that is width/2, height/2 away from center. here the height and width are 10.
+ * [-2, -4] would also return true.
+ *
+ * Sorry, I know this is weird
+ */
+export function isPointWithinBounds(bounds: BoxSize, point: Point) {
+  const [x, y] = point;
+  const { width, height } = bounds;
+  return (
+    width / 2 >= x && -width / 2 <= x && height / 2 >= y && -height / 2 <= y
+  );
+}
+
 export function distance(pointA: Point, pointB: Point): number {
   return Math.sqrt(
     Math.pow(Math.abs(pointA[0] - pointB[0]), 2) +
