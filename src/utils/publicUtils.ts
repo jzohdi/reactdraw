@@ -30,6 +30,7 @@ import textAreaTool, {
   setupTextAreaDiv,
 } from "../TopBarTools/TextAreaTool";
 import { setContainerStyles } from "./updateStyles/utils";
+export { deletedSelected };
 
 // re-exports
 export {
