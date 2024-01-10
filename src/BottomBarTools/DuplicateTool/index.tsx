@@ -35,10 +35,14 @@ const duplicateTool: ActionTools = {
 
 export default duplicateTool;
 
+/**
+ * returns null if there are no selected objects
+ * returns the list of new drawing data that was created
+ */
 export function duplicateSelectedObjects(ctx: ReactDrawContext) {
   const selectedIds = getSelectedIdsFromFullState(ctx);
   if (selectedIds.length < 1) {
-    return;
+    return null;
   }
   const objects = selectedIds.map((id) => getObjectFromMap(ctx.objectsMap, id));
   unselectAll(objects, ctx);
@@ -73,6 +77,7 @@ export function duplicateSelectedObjects(ctx: ReactDrawContext) {
   }
   const selectState = ctx.fullState[SELECT_TOOL_ID];
   selectState.selectedIds = newObjects.map((o) => o.id);
+  return newObjects;
 }
 
 function duplicateObject(

@@ -377,7 +377,11 @@ declare const undoTool: ActionTools;
 declare const redoTool: ActionTools;
 declare const trashTool: ActionTools;
 declare const duplicateTool: ActionTools;
-declare function duplicateSelectedObjects(ctx: ReactDrawContext): void;
+/**
+ * returns null if there are no selected objects
+ * returns the list of new drawing data that was created
+ */
+declare function duplicateSelectedObjects(ctx: ReactDrawContext): DrawingData[] | null;
 declare const bringBackTool: ActionTools;
 /**
  * Always use div ele as source of truth
