@@ -11,7 +11,11 @@ import {
 import { useStyles } from "../Styles/hooks";
 import {
   ActionTools,
+  BaseTool,
   BottomToolDisplayMap,
+  DrawingTools,
+  isActionTool,
+  isDrawingTool,
   ReactChild,
   ReactDrawContext,
   StringObject,
@@ -21,9 +25,10 @@ import {
 import StylesMenu from "./StylesMenu";
 
 export type BottomToolBarProps = {
-  tools: ActionTools[];
+  tools: BaseTool[];
   displayMap: BottomToolDisplayMap;
-  dispatch: (fn: (ctx: ReactDrawContext) => void) => void;
+  onSelectDrawingTool: (drawingTool: DrawingTools) => void;
+  onClickActionTool: (fn: (ctx: ReactDrawContext) => void) => void;
   stylesMenu: {
     getEditProps: () => StringObject;
     styleComponents?: StyleComponents;
@@ -37,7 +42,8 @@ type MenuKeys = "styles" | "menu" | null;
 export function BottomToolBar({
   tools,
   displayMap,
-  dispatch,
+  onSelectDrawingTool,
+  onClickActionTool,
   stylesMenu,
   children,
 }: BottomToolBarProps) {
@@ -110,7 +116,13 @@ export function BottomToolBar({
                 data-disabled={isDisabled}
                 data-mode={toolDisplayMode}
                 disabled={isDisabled}
-                onClick={() => dispatch(tool.handleContext)}
+                onClick={() => {
+                  if (isDrawingTool(tool)) {
+                    return onSelectDrawingTool(tool);
+                  } else if (isActionTool(tool)) {
+                    return onClickActionTool(tool.handleContext);
+                  }
+                }}
               >
                 {tool.icon}
               </button>

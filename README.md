@@ -4,7 +4,7 @@ A drawing library in react
 
 [view storybook docs/demo here][2]
 
-https://user-images.githubusercontent.com/31998568/183299492-4cf5a7da-e7b8-4418-9b47-d04143db7baa.mp4
+<https://user-images.githubusercontent.com/31998568/183299492-4cf5a7da-e7b8-4418-9b47-d04143db7baa.mp4>
 
 ## Installation
 
@@ -27,8 +27,8 @@ export default function MyComponent() {
   <div>
     <h1>Example page title</h1>
     <ReactDraw
-      topBarTools={[freeDrawTool]}
-      bottomBarTools={[]}
+      drawingTools={[freeDrawTool]}
+      actionTools={[]}
       hideBottomBar={true}
       hideTopBar={true}
     >
@@ -46,9 +46,9 @@ See [docs][2] for more info
 export type ReactDrawProps = {
   children?: ReactChild;
   layout?: LayoutOption;
-  topBarTools: DrawingTools[];
+  drawingTools: DrawingTools[];
   hideTopBar?: boolean;
-  bottomBarTools: ActionTools[];
+  actionTools: ActionTools[];
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;
