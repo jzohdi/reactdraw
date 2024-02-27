@@ -136,7 +136,7 @@ type ReactDrawContext = {
     shouldSelectAfterCreate: boolean;
     shouldPreserveAspectRatio: boolean;
     globalStyles: ToolPropertiesMap;
-    selectDrawingTool: (toolId: string) => void;
+    selectDrawingTool: (tool: DrawingTools) => void;
     selectObject: (object: DrawingData) => void;
 };
 type UpdateStyleHandler = (data: DrawingData, value: string, ctx: ReactDrawContext) => ActionObject | undefined;
@@ -145,19 +145,28 @@ type ToolStylesMap = Map<string, ToolPropertiesMap>;
 type StringObject = {
     [key: string]: string;
 };
+type ViewPosition = "top" | "bottom";
+type BaseTool = {
+    id: string;
+    tooltip?: string;
+    icon?: JSX.Element;
+    postition?: {
+        order?: number;
+        view: ViewPosition;
+    };
+    onPickTool?: (ctx: ReactDrawContext) => void;
+    onUnPickTool?: (ctx: ReactDrawContext) => void;
+};
+declare function isDrawingTool(tool: BaseTool): tool is DrawingTools;
+declare function isActionTool(tool: BaseTool): tool is ActionTools;
 /**
  * icon: the icon to be displayed in the top bar tools
  * id: required so that react draw can identify objects created by this id.
  * cursor: sets the the cursor of the mouse while over the viewContainer
  * ----
  */
-type DrawingTools = {
-    icon?: JSX.Element;
-    tooltip?: string;
-    id: string;
+type DrawingTools = BaseTool & {
     setupCustomState?: (state: CustomState) => any;
-    onPickTool?: (ctx: ReactDrawContext) => void;
-    onUnPickTool?: (ctx: ReactDrawContext) => void;
     onDrawStart: (data: DrawingData, ctx: ReactDrawContext) => void;
     onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
     onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
@@ -186,6 +195,12 @@ type DrawingTools = {
     localState?: {
         [key: string]: any;
     };
+};
+type ActionTools = BaseTool & {
+    getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
+    handleContext: (ctx: ReactDrawContext) => void;
+    onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+    onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
 type ActionType = "top-bar-tool" | "bottom-bar-tool" | "menu-tool" | "batch";
 type ActionKey = "color" | "delete" | "create" | string | "drag" | "resize" | "rotate" | "input";
@@ -220,15 +235,6 @@ type DrawingData = {
     customData: Map<string, any>;
 };
 type DisplayMode = "disabled" | "hide" | "show";
-type ActionTools = {
-    icon: JSX.Element;
-    id: string;
-    tooltip?: string;
-    getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
-    handleContext: (ctx: ReactDrawContext) => void;
-    onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
-    onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
-};
 type StyleToolComponentProps = {
     handleContext: (ctx: ReactDrawContext) => void;
 };
@@ -256,9 +262,9 @@ type MenuComponent = (props: {
 type ReactDrawInnerProps = {
     children?: ReactChild;
     layout?: LayoutOption;
-    topBarTools: DrawingTools[];
+    drawingTools: DrawingTools[];
     hideTopBar?: boolean;
-    bottomBarTools: ActionTools[];
+    actionTools: ActionTools[];
     hideBottomBar?: boolean;
     shouldKeepHistory?: boolean;
     shouldSelectAfterCreate?: boolean;
@@ -533,5 +539,5 @@ type CreateImageOptions = CreateObjectOptions & {
 declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
 declare function selectAll(ctx: ReactDrawContext): void;
 declare function getSelectedObjects(ctx: ReactDrawContext): DrawingData[];
-export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, DrawingTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, ActionTools, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, deleteObject, deleteAll, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
+export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, ViewPosition, BaseTool, isDrawingTool, isActionTool, DrawingTools, ActionTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, deleteObject, deleteAll, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
 //# sourceMappingURL=index.d.ts.map

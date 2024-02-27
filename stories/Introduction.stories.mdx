@@ -51,7 +51,7 @@ export default function MyComponent() {
   <div>
     <h1>Example page title</h1>
     <ReactDraw
-      topBarTools={[
+      drawingTools={[
         selectTool,
         freeDrawTool,
         squareTool,
@@ -60,7 +60,7 @@ export default function MyComponent() {
         straightLineTool,
         arrowTool,
       ]}
-      bottomBarTools={[
+      actionTools={[
         undoTool,
         redoTool,
         trashTool,
@@ -92,9 +92,9 @@ See all types [here][2]
 type ReactDrawProps = {
   children?: ReactChild;
   layout?: LayoutOption;
-  topBarTools: DrawingTools[];
+  drawingTools: DrawingTools[];
   hideTopBar?: boolean;
-  bottomBarTools: ActionTools[];
+  actionTools: ActionTools[];
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;

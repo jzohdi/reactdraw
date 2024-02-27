@@ -3,6 +3,13 @@ import ToolIconWrapper from "./ToolIconWrapper";
 import ToolTip from "../Alerts/ToolTip";
 import { useStyles } from "../Styles/hooks";
 import { TOP_BAR_CONTAINER_CLASSES } from "../constants";
+import {
+  ActionTools,
+  DrawingTools,
+  ReactDrawContext,
+  isActionTool,
+  isDrawingTool,
+} from "../types";
 
 type TopBarTool = {
   icon?: JSX.Element;
@@ -12,17 +19,19 @@ type TopBarTool = {
 
 export type TopToolBarProps = {
   tools: TopBarTool[];
-  onSelectTool: (id: string) => void;
+  onSelectDrawingTool: (drawingTool: DrawingTools) => void;
+  onClickActionTool: (fn: (ctx: ReactDrawContext) => void) => void;
   currentTool: string;
 };
 
 export function TopToolBar({
   tools,
-  onSelectTool,
+  onSelectDrawingTool,
+  onClickActionTool,
   currentTool,
 }: TopToolBarProps) {
   const classes = useStyles(TOP_BAR_CONTAINER_CLASSES);
-
+  console.log(tools);
   return (
     <div className={classes}>
       {tools
@@ -33,7 +42,13 @@ export function TopToolBar({
             <ToolTip text={tooltip} position="top" key={tool.id}>
               <ToolIconWrapper
                 selected={tool.id === currentTool}
-                onSelect={() => onSelectTool(tool.id)}
+                onSelect={() => {
+                  if (isDrawingTool(tool)) {
+                    return onSelectDrawingTool(tool);
+                  } else if (isActionTool(tool)) {
+                    return onClickActionTool(tool.handleContext);
+                  }
+                }}
               >
                 {tool.icon}
               </ToolIconWrapper>

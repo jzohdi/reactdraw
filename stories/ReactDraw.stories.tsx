@@ -75,7 +75,7 @@ export default {
   title: "ReactDraw",
   component: ReactDraw,
   argTypes: {
-    topBarTools: {
+    drawingTools: {
       type: { name: "object", required: true },
       defaultValue: null,
       description:
@@ -104,7 +104,7 @@ export default {
 
 const Template: Story<ReactDrawProps> = (args) => <ReactDraw {...args} />;
 
-const topBarTools: DrawingTools[] = [
+const drawingTools: DrawingTools[] = [
   selectTool,
   freeDrawTool,
   squareTool,
@@ -116,7 +116,7 @@ const topBarTools: DrawingTools[] = [
   eraseTool,
 ];
 
-const bottomBarTools: ActionTools[] = [
+const actionTools: ActionTools[] = [
   undoTool,
   redoTool,
   trashTool,
@@ -128,8 +128,8 @@ const bottomBarTools: ActionTools[] = [
 export const DefaultLayoutAllTools = Template.bind({});
 
 DefaultLayoutAllTools.args = {
-  topBarTools,
-  bottomBarTools,
+  drawingTools: drawingTools,
+  actionTools,
   shouldSelectAfterCreate: true,
   styleComponents: {
     color: { order: 3, component: ColorStyle },
@@ -146,7 +146,7 @@ DefaultLayoutAllTools.parameters = {
     source: {
       code: `
 <ReactDraw 
-	topBarTools={[
+	drawingTools={[
 		selectTool,
 		freeDrawTool,
 		squareTool,
@@ -157,7 +157,7 @@ DefaultLayoutAllTools.parameters = {
 		arrowTool,
 		eraseTool,		
 	]}
-	bottomBarTools={[
+	actionTools={[
 		undoTool,
 		redoTool,
 		trashTool,
@@ -184,8 +184,7 @@ DefaultLayoutAllTools.parameters = {
 
 export const FreeDrawOnly = Template.bind({});
 FreeDrawOnly.args = {
-  topBarTools: [freeDrawTool],
-  // bottomBarTools: [],
+  drawingTools: [freeDrawTool],
   hideTopBar: true,
   hideBottomBar: true,
   shouldSelectAfterCreate: false,
@@ -196,7 +195,7 @@ FreeDrawOnly.parameters = {
     source: {
       code: `
 <ReactDraw 
-	topBarTools={[
+	drawingTools={[
 		freeDrawTool
 	]}
 	shouldSelectAfterCreate={false}
@@ -215,8 +214,8 @@ FreeDrawOnly.parameters = {
 export const DefaultLayoutWithChildren = Template.bind({});
 
 DefaultLayoutWithChildren.args = {
-  topBarTools,
-  bottomBarTools,
+  drawingTools,
+  actionTools,
   shouldSelectAfterCreate: true,
   children: (
     <div>
@@ -230,7 +229,7 @@ DefaultLayoutWithChildren.parameters = {
     source: {
       code: `
 <ReactDraw 
-	topBarTools={[
+	drawingTools={[
 		selectTool,
 		freeDrawTool,
 		squareTool,
@@ -241,7 +240,7 @@ DefaultLayoutWithChildren.parameters = {
 		arrowTool,
 		eraseTool,		
 	]}
-	bottomBarTools={[
+	actionTools={[
 		undoTool,
 		redoTool,
 		trashTool,
@@ -265,8 +264,8 @@ DefaultLayoutWithChildren.parameters = {
 export const FitLayoutWithChildren = Template.bind({});
 
 FitLayoutWithChildren.args = {
-  topBarTools,
-  bottomBarTools,
+  drawingTools,
+  actionTools,
   shouldSelectAfterCreate: true,
   children: (
     <div>
@@ -281,7 +280,7 @@ FitLayoutWithChildren.parameters = {
     source: {
       code: `
 <ReactDraw 
-	topBarTools={[
+	drawingTools={[
 		selectTool,
 		freeDrawTool,
 		squareTool,
@@ -292,7 +291,7 @@ FitLayoutWithChildren.parameters = {
 		arrowTool,
 		eraseTool,		
 	]}
-	bottomBarTools={[
+	actionTools={[
 		undoTool,
 		redoTool,
 		trashTool,
@@ -315,7 +314,7 @@ FitLayoutWithChildren.parameters = {
 };
 
 const circleToolCopy = Object.assign({}, circleTool);
-delete circleTool.icon;
+delete circleToolCopy.icon;
 const imageToolId = "my-image-tool-id";
 const selectToolCopy = Object.assign({}, selectTool);
 const imageTool: DrawingTools = {
@@ -459,7 +458,7 @@ const ExternalControlsTemplate: Story<ReactDrawProps> = (args) => (
 export const ExternalControls = ExternalControlsTemplate.bind({});
 
 ExternalControls.args = {
-  topBarTools: [selectTool, circleToolCopy, imageTool, textAreaTool],
+  drawingTools: [selectTool, circleToolCopy, imageTool, textAreaTool],
   shouldKeepHistory: false,
   shouldSelectAfterCreate: true,
   hideTopBar: true,
@@ -619,8 +618,8 @@ function ControlFromExternalWrapper({ ...args }: any) {
 export const CustomizeStyles = Template.bind({});
 
 CustomizeStyles.args = {
-  topBarTools,
-  bottomBarTools,
+  drawingTools,
+  actionTools,
   shouldKeepHistory: true,
   shouldSelectAfterCreate: true,
   styles: {
@@ -672,7 +671,7 @@ import {
 export default function ReactDrawWithCustomStyles() {
 	return (
 		<ReactDraw
-			topBarTools={[ 
+			drawingTools={[ 
 				selectTool,
 				freeDrawTool,
 				squareTool,
@@ -683,7 +682,7 @@ export default function ReactDrawWithCustomStyles() {
 				arrowTool,
 				eraseTool
 			]}
-			bottomBarTools={[
+			actionTools={[
 				undoTool,
 				redoTool,
 				trashTool,
@@ -777,7 +776,7 @@ const SaveCanvas: MenuComponent = ({ getContext }) => {
 export const SaveAndLoadJson = Template.bind({});
 
 SaveAndLoadJson.args = {
-  topBarTools,
+  drawingTools,
   shouldSelectAfterCreate: true,
   menuComponents: [SaveCanvas, ClearAllButton],
   shouldKeepHistory: false,
@@ -923,7 +922,7 @@ const SaveCanvas: MenuComponent = ({ getContext }) => {
 
 function MyComponent() {
 	return <ReactDraw 
-			topBarTools={topBarTools}
+		drawingTools={drawingTools}
 			shouldSelectAfterCreate={true}
 			menuComponents={[SaveCanvas, ClearAllButton]}
 			shouldKeepHistory={false}
@@ -962,8 +961,8 @@ function MyComponent() {
 export const AllToolsPreserveAspectRatio = Template.bind({});
 
 AllToolsPreserveAspectRatio.args = {
-  topBarTools,
-  bottomBarTools,
+  drawingTools,
+  actionTools,
   shouldSelectAfterCreate: true,
   shouldPreserveAspectRatio: true,
   styleComponents: {
@@ -980,7 +979,7 @@ AllToolsPreserveAspectRatio.parameters = {
     source: {
       code: `
 <ReactDraw 
-	topBarTools={[
+	drawingTools={[
 		selectTool,
 		freeDrawTool,
 		squareTool,
@@ -991,7 +990,7 @@ AllToolsPreserveAspectRatio.parameters = {
 		arrowTool,
 		eraseTool,		
 	]}
-	bottomBarTools={[
+	actionTools={[
 		undoTool,
 		redoTool,
 		trashTool,

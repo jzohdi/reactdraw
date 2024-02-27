@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { TopToolBar } from "./TopToolBar";
 import {
   ActionObject,
+  ActionTools,
+  BaseTool,
   BottomToolDisplayMap,
   CapturedEvent,
   CustomState,
@@ -13,6 +15,7 @@ import {
   ReactDrawInnerProps,
   StringObject,
   ToolPropertiesMap,
+	ViewPosition,
 } from "../types";
 import { getNumFrom, makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
@@ -32,12 +35,40 @@ import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObj
 import { pushActionToStack } from "../utils/pushActionToStack";
 import { AlertMessage } from "../Alerts";
 
+function makeToolsList(drawingTools: DrawingTools[], actionTools: ActionTools[], position: ViewPosition): BaseTool[] {
+
+	const drawTools = drawingTools.filter(t => {
+		if (position === "top") {
+			return !t.postition || t.postition.view === position;
+		}
+	return !!t.postition && t.postition.view === position }) as BaseTool[];
+	const actions = actionTools.filter(t => {
+			if (position === "bottom") {
+				return !t.postition || t.postition.view === position;
+			}
+		return !!t.postition && t.postition.view === position} 
+		) as BaseTool[];
+
+	return [...drawTools].concat(actions).sort((a, b) => {
+		if (!a.postition?.order && !b.postition?.order) {
+			return 0;
+		}
+		if (!a.postition?.order) {
+			return 1;
+		}
+		if (!b.postition?.order) {
+			return -1;
+		}
+		return a.postition.order - b.postition.order;
+	})
+}
+
 export default function ReactDraw({
   children,
   id = "main",
-  topBarTools,
+  drawingTools,
   hideTopBar,
-  bottomBarTools = [],
+  actionTools = [],
   hideBottomBar,
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
@@ -49,26 +80,28 @@ export default function ReactDraw({
 	contextGetter,
 }: ReactDrawInnerProps): JSX.Element {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
-  const [currentDrawingTool, setCurrentDrawingTool] = useState(topBarTools[0]);
+  const [currentDrawingTool, setCurrentDrawingTool] = useState(drawingTools[0]);
   const renderedElementsMap = useRef<DrawingDataMap>(new Map());
   const currDrawObj = useRef<DrawingData | null>(null);
   const drawingAreaId = useRef<string>(`drawing-area-container-${id}`);
   const previousMousePos = useRef<Point | null>(null);
   const latestEvent = useRef<CapturedEvent>(null);
-  const customState = useRef<CustomState>(setupCustomStateSpace(topBarTools));
+  const customState = useRef<CustomState>(setupCustomStateSpace(drawingTools));
   const undoStack = useRef<ActionObject[]>([]);
   const redoStack = useRef<ActionObject[]>([]);
   const objectToSelect = useRef<DrawingData | null>(null);
   const globalStyles = useRef<ToolPropertiesMap>(
-    setupGlobalStyles(topBarTools)
+    setupGlobalStyles(drawingTools)
   );
   // bottomToolsDisplayMap is used to set whether the bottom tool should be display | hidden | show
   const [bottomToolsDisplayMap, setBottomToolsDisplayMap] =
     useState<BottomToolDisplayMap>(new Map());
+	const topBarTools: BaseTool[] =  useMemo(() => makeToolsList(drawingTools, actionTools, "top"), [drawingTools, actionTools]);
+	const bottomBarTools: BaseTool[] =  useMemo(() => makeToolsList(drawingTools, actionTools, "bottom"), [drawingTools, actionTools]);
 
   const makeBottomBarDisplayMap = () => {
     const bottomDisplayMap: BottomToolDisplayMap = new Map();
-    return bottomBarTools.reduce((prev, curr) => {
+    return actionTools.reduce((prev, curr) => {
       prev.set(curr.id, curr.getDisplayMode(getReactDrawContext()));
       return prev;
     }, bottomDisplayMap);
@@ -117,7 +150,7 @@ export default function ReactDraw({
   const selectObject = (data: DrawingData) => {
     if (currentDrawingTool.id !== SELECT_TOOL_ID) {
       objectToSelect.current = data;
-      return setCurrentDrawingTool(getToolById(topBarTools, SELECT_TOOL_ID));
+      return setCurrentDrawingTool(getToolById(drawingTools, SELECT_TOOL_ID));
     }
     const ctx = getReactDrawContext();
     unselectEverything(ctx);
@@ -134,13 +167,13 @@ export default function ReactDraw({
       objectsMap: renderedElementsMap.current,
       lastEvent: latestEvent.current,
       prevMousePosition: previousMousePos,
-      drawingTools: topBarTools,
+      drawingTools: drawingTools,
       fullState,
       undoStack: undoStack.current,
       redoStack: redoStack.current,
       shouldKeepHistory,
 			shouldPreserveAspectRatio,
-      selectDrawingTool: handleSelectTopTool,
+      selectDrawingTool: handleSelectDrawingTool,
       selectObject,
       shouldSelectAfterCreate,
 	  globalStyles: globalStyles.current
@@ -283,7 +316,7 @@ export default function ReactDraw({
       // avoid leaks. ex: if unmount while select tool, there would be leaked dom event handlers
       // container b/c ref will be gone
       const ctx = getReactDrawContext(container);
-      for (const tool of topBarTools) {
+      for (const tool of drawingTools) {
         if (tool.onUnMount) {
           tool.onUnMount(ctx);
         }
@@ -339,9 +372,10 @@ export default function ReactDraw({
 		}
 	}, [])
 
-  const handleSelectTopTool = (toolId: string) => {
+  const handleSelectDrawingTool = (tool: DrawingTools) => {
+		const toolId = tool.id
     if (currentDrawingTool.id !== toolId) {
-      const selectedTool = getToolById(topBarTools, toolId);
+      const selectedTool = getToolById(drawingTools, toolId);
       if (!!selectedTool) {
         const currentTool = currentDrawingTool;
         const currentCtx = getReactDrawContext();
@@ -357,7 +391,7 @@ export default function ReactDraw({
     }
   };
 
-  const dispatchBottomToolCtx = (cb: (data: ReactDrawContext) => void) => {
+  const dispatchActionToolCtx = (cb: (data: ReactDrawContext) => void) => {
     const ctx = getReactDrawContext();
     cb(ctx);
     updateBottomToolDisplayMap();
@@ -421,13 +455,15 @@ export default function ReactDraw({
 			contextGetter(getReactDrawContext)
 		}	
 	}, [])
+	
 
   return (
 	<>
       {!hideTopBar && (
 		<TopToolBar
 			tools={topBarTools}
-			onSelectTool={handleSelectTopTool}
+			onClickActionTool={dispatchActionToolCtx}
+			onSelectDrawingTool={handleSelectDrawingTool}
 			currentTool={currentDrawingTool.id}
 		/>
       )}
@@ -449,7 +485,8 @@ export default function ReactDraw({
         <BottomToolBar
           displayMap={bottomToolsDisplayMap}
           tools={bottomBarTools}
-          dispatch={dispatchBottomToolCtx}
+					onSelectDrawingTool={handleSelectDrawingTool}
+          onClickActionTool={dispatchActionToolCtx}
           stylesMenu={{
 			getEditProps: handleGetEditProps,
             styleComponents: styleComponents,

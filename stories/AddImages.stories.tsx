@@ -35,7 +35,7 @@ const imageTool: DrawingTools = {
   onResize() {},
 };
 
-const topBarTools: DrawingTools[] = [selectTool, freeDrawTool, imageTool];
+const drawingTools: DrawingTools[] = [selectTool, freeDrawTool, imageTool];
 
 const maxWidth = 200;
 const maxHeight = 200;
@@ -127,11 +127,11 @@ const Template: Story<ReactDrawProps> = (args) => (
 export const AddImagesToCanvas = Template.bind({});
 
 AddImagesToCanvas.args = {
-  topBarTools,
+  drawingTools,
   shouldSelectAfterCreate: true,
   menuComponents: [AddImageMenuComponent, ClearAllButton],
   shouldKeepHistory: false,
-  bottomBarTools: [bringForwardTool, bringBackTool],
+  actionTools: [bringForwardTool, bringBackTool],
 };
 
 AddImagesToCanvas.parameters = {
@@ -165,12 +165,12 @@ const imageTool: DrawingTools = {
   onResize() {},
 };
 
-const topBarTools: DrawingTools[] = [selectTool, freeDrawTool, imageTool];
+const drawingTools: DrawingTools[] = [selectTool, freeDrawTool, imageTool];
 
 export default function ExampleProject() {
 
 	return <ReactDraw 
-		topBarTools={topBarTools}
+		drawingTools={drawingTools}
 		shouldSelectAfterCreate={true}
 		menuComponents={[AddImageMenuComponent, ClearAllButton]}
 		shouldKeepHistory={false}

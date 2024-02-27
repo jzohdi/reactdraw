@@ -93,7 +93,7 @@ export type ReactDrawContext = {
   shouldSelectAfterCreate: boolean;
   shouldPreserveAspectRatio: boolean;
   globalStyles: ToolPropertiesMap;
-  selectDrawingTool: (toolId: string) => void;
+  selectDrawingTool: (tool: DrawingTools) => void;
   selectObject: (object: DrawingData) => void;
 };
 export type UpdateStyleHandler = (
@@ -107,19 +107,34 @@ export type UndoHandler = (
 ) => ActionObject;
 export type ToolStylesMap = Map<string, ToolPropertiesMap>;
 export type StringObject = { [key: string]: string };
+
+export type ViewPosition = "top" | "bottom";
+export type BaseTool = {
+  id: string;
+  tooltip?: string;
+  icon?: JSX.Element;
+  postition?: {
+    order?: number;
+    view: ViewPosition;
+  };
+  onPickTool?: (ctx: ReactDrawContext) => void;
+  onUnPickTool?: (ctx: ReactDrawContext) => void;
+};
+
+export function isDrawingTool(tool: BaseTool): tool is DrawingTools {
+  return (<DrawingTools>tool).onDrawStart !== undefined;
+}
+export function isActionTool(tool: BaseTool): tool is ActionTools {
+  return (<ActionTools>tool).getDisplayMode !== undefined;
+}
 /**
  * icon: the icon to be displayed in the top bar tools
  * id: required so that react draw can identify objects created by this id.
  * cursor: sets the the cursor of the mouse while over the viewContainer
  * ----
  */
-export type DrawingTools = {
-  icon?: JSX.Element;
-  tooltip?: string;
-  id: string;
+export type DrawingTools = BaseTool & {
   setupCustomState?: (state: CustomState) => any;
-  onPickTool?: (ctx: ReactDrawContext) => void;
-  onUnPickTool?: (ctx: ReactDrawContext) => void;
   onDrawStart: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDrawing: (data: DrawingData, ctx: ReactDrawContext) => void;
   onDrawEnd: (data: DrawingData, ctx: ReactDrawContext) => void;
@@ -146,6 +161,13 @@ export type DrawingTools = {
   cursor?: string;
   subscribe?: (callback: (event: string) => void) => void;
   localState?: { [key: string]: any };
+};
+
+export type ActionTools = BaseTool & {
+  getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
+  handleContext: (ctx: ReactDrawContext) => void;
+  onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
+  onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
 };
 
 export type ActionType =
@@ -193,16 +215,6 @@ export type DrawingData = {
 
 export type DisplayMode = "disabled" | "hide" | "show";
 
-export type ActionTools = {
-  icon: JSX.Element;
-  id: string;
-  tooltip?: string;
-  getDisplayMode: (ctx: ReactDrawContext) => DisplayMode;
-  handleContext: (ctx: ReactDrawContext) => void;
-  onUndo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
-  onRedo?: (action: ActionObject, ctx: ReactDrawContext) => ActionObject;
-};
-
 type StyleToolComponentProps = {
   handleContext: (ctx: ReactDrawContext) => void;
 };
@@ -239,9 +251,9 @@ export type MenuComponent = (props: {
 export type ReactDrawInnerProps = {
   children?: ReactChild;
   layout?: LayoutOption;
-  topBarTools: DrawingTools[];
+  drawingTools: DrawingTools[];
   hideTopBar?: boolean;
-  bottomBarTools: ActionTools[];
+  actionTools: ActionTools[];
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;

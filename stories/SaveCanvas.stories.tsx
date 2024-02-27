@@ -18,7 +18,7 @@ export default {
   title: "Customization Examples/Save Canvas As Image",
 };
 
-const topBarTools: DrawingTools[] = [selectTool, freeDrawTool];
+const drawingTools: DrawingTools[] = [selectTool, freeDrawTool];
 
 declare global {
   var html2canvas: (
@@ -122,7 +122,7 @@ const Template: Story<ReactDrawProps> = (args) => (
 export const SaveCanvasAsImage = Template.bind({});
 
 SaveCanvasAsImage.args = {
-  topBarTools,
+  drawingTools,
   shouldSelectAfterCreate: true,
   menuComponents: [SaveCanvas, ClearAllButton],
   shouldKeepHistory: false,
@@ -145,12 +145,12 @@ import {
 import { PhotographBoldIcon } from "@jzohdi/jsx-icons";
 import styled from "styled-components";
 
-const topBarTools: DrawingTools[] = [selectTool, freeDrawTool];
+const drawingTools: DrawingTools[] = [selectTool, freeDrawTool];
 
 export default function ExampleProject() {
 
 	return <ReactDraw 
-		topBarTools={topBarTools}
+		drawingTools={drawingTools}
 		shouldSelectAfterCreate={true}
 		menuComponents={[SaveCanvas, ClearAllButton]}
 		shouldKeepHistory={false}
