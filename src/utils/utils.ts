@@ -158,10 +158,6 @@ export function batchDelete(deleteIds: string[], ctx: ReactDrawContext): void {
     // const deletedObjects = new Map<>()
     pushActionToStack(action, ctx);
     if (couldNotDeleteToolsSet.size > 0) {
-      console.log(
-        "removing items from undo stack since they do not implement undoDelete",
-        couldNotDeleteToolsSet
-      );
       for (let i = ctx.undoStack.length - 1; i >= 0; i--) {
         if (couldNotDeleteToolsSet.has(ctx.undoStack[i].toolId)) {
           ctx.undoStack.splice(i, 1);

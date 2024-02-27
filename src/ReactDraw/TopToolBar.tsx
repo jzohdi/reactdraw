@@ -31,7 +31,7 @@ export function TopToolBar({
   currentTool,
 }: TopToolBarProps) {
   const classes = useStyles(TOP_BAR_CONTAINER_CLASSES);
-  console.log(tools);
+
   return (
     <div className={classes}>
       {tools

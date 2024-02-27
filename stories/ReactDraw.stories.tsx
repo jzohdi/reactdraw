@@ -342,7 +342,6 @@ function ControlFromExternalWrapper({ ...args }: any) {
   };
 
   const handleSelectedToolEvent = (event: string) => {
-    console.log(event);
     const ctx = handleGetCtx();
     const selectedObjects = getSelectedObjects(ctx);
     setNumeSelected(selectedObjects.length);
