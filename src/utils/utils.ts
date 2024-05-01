@@ -183,6 +183,7 @@ export function createNewObject(
 export function addObject(ctx: ReactDrawContext, obj: DrawingData): void {
   const { containerDiv, id } = obj;
   ctx.viewContainer.appendChild(containerDiv);
+  obj.style.zIndex = ctx.objectsMap.size.toString();
   ctx.objectsMap.set(id, obj);
 }
 
