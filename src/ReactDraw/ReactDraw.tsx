@@ -203,7 +203,7 @@ export default function ReactDraw({
    */
 
   
-  function starDraw(relativePoint: Point) {
+  function startDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
     const styles = { ...globalStyles.current };
 		const currentMaxZindex = getCurrentHighestZIndex(ctx);
@@ -257,7 +257,7 @@ export default function ReactDraw({
       latestEvent.current = e;
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(relativePoint);
+      startDraw(relativePoint);
     }
 
     function drawMouse(e: MouseEvent) {
@@ -279,7 +279,7 @@ export default function ReactDraw({
       e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(relativePoint);
+      startDraw(relativePoint);
     }
 
     function drawTouch(e: TouchEvent) {
