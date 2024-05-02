@@ -176,14 +176,24 @@ export function createNewObject(
   toolId: string
 ): DrawingData {
   const styles = { ...ctx.globalStyles };
-  const newData = makeNewBoundingDiv(point, styles, toolId);
+  const objectsToSelect = Array.from(ctx.objectsMap.values());
+  objectsToSelect.sort((a, b) => {
+    return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
+  });
+  let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
+  const newData = makeNewBoundingDiv(point, styles, toolId, nextZIndex);
   return newData;
 }
 
 export function addObject(ctx: ReactDrawContext, obj: DrawingData): void {
   const { containerDiv, id } = obj;
   ctx.viewContainer.appendChild(containerDiv);
-  obj.style.zIndex = ctx.objectsMap.size.toString();
+  const objectsToSelect = Array.from(ctx.objectsMap.values());
+  objectsToSelect.sort((a, b) => {
+    return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
+  });
+  let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
+  obj.style.zIndex = nextZIndex.toString();
   ctx.objectsMap.set(id, obj);
 }
 

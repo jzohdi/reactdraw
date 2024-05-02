@@ -28,21 +28,21 @@ export function makeNewBoundingDiv(
   relativePoint: Point,
   globalStyles: ToolPropertiesMap,
   toolId: string,
-  zIndex: number
+  zIndex?: number
 ): DrawingData {
   if (!isBrowser()) {
     throw new Error("new bounding div called on the server.");
   }
   const lineWidth = parseInt(globalStyles.lineWidth);
   const [pointX, pointY] = relativePoint;
-  const { id, div } = makeNewDiv(pointX, pointY, lineWidth, toolId, zIndex);
+  const { id, div } = makeNewDiv(pointX, pointY, lineWidth, toolId, zIndex || 1);
   const data: DrawingData = {
     coords: [relativePoint],
     element: null,
     toolId,
     containerDiv: div,
     id,
-    style: {...globalStyles, zIndex: zIndex.toString()},
+    style: {...globalStyles, zIndex: zIndex?.toString() || "1"},
     customData: new Map(),
   };
   return data;
@@ -62,7 +62,7 @@ export function makeNewDiv(
   pointY: number,
   lineWidth: number,
   toolId: string,
-  zIndex: number
+  zIndex?: number
 ): MakeNewDivOutput {
   const id = makeid(6);
   const div = document.createElement("div");
@@ -75,7 +75,7 @@ export function makeNewDiv(
   div.style.left = left + "px";
   div.style.top = top + "px";
   div.style.pointerEvents = "none";
-  div.style.zIndex = zIndex.toString();
+  div.style.zIndex = zIndex?.toString() || "1";
   div.style.boxSizing = "border-box";
   return {
     div,

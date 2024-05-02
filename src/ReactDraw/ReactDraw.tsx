@@ -200,15 +200,21 @@ export default function ReactDraw({
    * @param relativePoint a point [x, y] relative to the drawing area box
    * @returns
    */
+
+  
   function starDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
     const styles = { ...globalStyles.current };
-    const objMapSize = ctx.objectsMap.size;
+    const objectsToSelect = Array.from(ctx.objectsMap.values());
+    objectsToSelect.sort((a, b) => {
+      return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
+    });
+    let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
       styles,
       currentDrawingTool.id,
-      objMapSize
+      nextZIndex
     );
     currDrawObj.current = newDrawingData;
     ctx.viewContainer.append(newDrawingData.containerDiv);
