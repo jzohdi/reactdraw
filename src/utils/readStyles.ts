@@ -12,3 +12,7 @@ export function getScaleFromSvg(data: DrawingData) {
   }
   return { x: scale[0], y: scale[1] };
 }
+
+export function getZindexFromDiv(div: HTMLDivElement) {
+  return div.style.zIndex === undefined ? 0 : parseInt(div.style.zIndex);
+}

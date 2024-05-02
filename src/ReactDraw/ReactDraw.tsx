@@ -21,6 +21,7 @@ import { getNumFrom, makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
 import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
 import {
+	getCurrentHighestZIndex,
   getObjectFromMap,
   getRelativePoint,
   getTouchCoords,
@@ -200,13 +201,18 @@ export default function ReactDraw({
    * @param relativePoint a point [x, y] relative to the drawing area box
    * @returns
    */
-  function starDraw(relativePoint: Point) {
+
+  
+  function startDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
     const styles = { ...globalStyles.current };
+		const currentMaxZindex = getCurrentHighestZIndex(ctx);
+		const nextZindex = currentMaxZindex + 1;
+		styles.zIndex = nextZindex.toString()
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
       styles,
-      currentDrawingTool.id
+      currentDrawingTool.id,
     );
     currDrawObj.current = newDrawingData;
     ctx.viewContainer.append(newDrawingData.containerDiv);
@@ -251,7 +257,7 @@ export default function ReactDraw({
       latestEvent.current = e;
       const startPoint: Point = [e.clientX, e.clientY];
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(relativePoint);
+      startDraw(relativePoint);
     }
 
     function drawMouse(e: MouseEvent) {
@@ -273,7 +279,7 @@ export default function ReactDraw({
       e.preventDefault();
       const startPoint = getTouchCoords(e);
       const relativePoint = getRelativePoint(startPoint, container);
-      starDraw(relativePoint);
+      startDraw(relativePoint);
     }
 
     function drawTouch(e: TouchEvent) {
@@ -557,6 +563,7 @@ const defaultEditableProps: ToolPropertiesMap = {
 };
 // TODO: accept default styles as a react-draw prop
 function setupGlobalStyles(topBarTools: DrawingTools[]) {
+  
   const styles: ToolPropertiesMap = {
     ...defaultEditableProps,
   };
