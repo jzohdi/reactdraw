@@ -21,6 +21,7 @@ import { getNumFrom, makeNewBoundingDiv } from "../utils";
 import { BottomToolBar } from "./BottomToolBar";
 import { ERASE_TOOL_ID, SELECT_TOOL_ID } from "../constants";
 import {
+	getCurrentHighestZIndex,
   getObjectFromMap,
   getRelativePoint,
   getTouchCoords,
@@ -205,16 +206,13 @@ export default function ReactDraw({
   function starDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
     const styles = { ...globalStyles.current };
-    const objectsToSelect = Array.from(ctx.objectsMap.values());
-    objectsToSelect.sort((a, b) => {
-      return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
-    });
-    let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
+		const currentMaxZindex = getCurrentHighestZIndex(ctx);
+		const nextZindex = currentMaxZindex + 1;
+		styles.zIndex = nextZindex.toString()
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
       styles,
       currentDrawingTool.id,
-      nextZIndex
     );
     currDrawObj.current = newDrawingData;
     ctx.viewContainer.append(newDrawingData.containerDiv);

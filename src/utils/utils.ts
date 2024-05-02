@@ -12,6 +12,7 @@ import {
 } from "../types";
 import { pushActionToStack } from "./pushActionToStack";
 import { BoxSize, makeNewBoundingDiv } from ".";
+import { getZindexFromDiv } from "./readStyles";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
@@ -176,24 +177,19 @@ export function createNewObject(
   toolId: string
 ): DrawingData {
   const styles = { ...ctx.globalStyles };
-  const objectsToSelect = Array.from(ctx.objectsMap.values());
-  objectsToSelect.sort((a, b) => {
-    return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
-  });
-  let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
-  const newData = makeNewBoundingDiv(point, styles, toolId, nextZIndex);
+  const currentMaxZindex = getCurrentHighestZIndex(ctx);
+  const nextZindex = currentMaxZindex + 1;
+  styles.zIndex = nextZindex.toString();
+  const newData = makeNewBoundingDiv(point, styles, toolId);
   return newData;
 }
 
 export function addObject(ctx: ReactDrawContext, obj: DrawingData): void {
   const { containerDiv, id } = obj;
   ctx.viewContainer.appendChild(containerDiv);
-  const objectsToSelect = Array.from(ctx.objectsMap.values());
-  objectsToSelect.sort((a, b) => {
-    return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
-  });
-  let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
-  obj.style.zIndex = nextZIndex.toString();
+  const currentMaxZindex = getCurrentHighestZIndex(ctx);
+  const nextZindex = currentMaxZindex + 1;
+  updateZindex(obj, nextZindex);
   ctx.objectsMap.set(id, obj);
 }
 
@@ -246,4 +242,20 @@ export function collectObjectsForDeleteAction(
   }
   action.action = "delete";
   return action;
+}
+
+export function getCurrentHighestZIndex(ctx: ReactDrawContext) {
+  if (ctx.objectsMap.size === 0) {
+    return 0;
+  }
+  const allObjects = Array.from(ctx.objectsMap.values());
+  allObjects.sort((a, b) => {
+    return getZindexFromDiv(b.containerDiv) - getZindexFromDiv(a.containerDiv);
+  });
+  return getZindexFromDiv(allObjects[0].containerDiv);
+}
+
+export function updateZindex(obj: DrawingData, zIndex: number) {
+  obj.style.zIndex = zIndex.toString();
+  obj.containerDiv.style.zIndex = zIndex.toString();
 }

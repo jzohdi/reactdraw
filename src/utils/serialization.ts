@@ -193,7 +193,14 @@ export function deserializationSetup(obj: IntermediateStringableObject) {
   const customData = freeDrawObj.customData;
   const p = freeDrawObj.coords[0];
   const lineWidth = parseInt(freeDrawObj.style.lineWidth);
-  const { id, div } = makeNewDiv(p[0], p[1], lineWidth, freeDrawObj.toolId);
+  const zIndex = parseInt(freeDrawObj.style.zIndex ?? "0");
+  const { id, div } = makeNewDiv(
+    p[0],
+    p[1],
+    lineWidth,
+    freeDrawObj.toolId,
+    zIndex
+  );
   const drawingData: DrawingData = {
     toolId: freeDrawObj.toolId,
     id,

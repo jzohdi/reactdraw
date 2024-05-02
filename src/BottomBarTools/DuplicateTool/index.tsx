@@ -6,7 +6,11 @@ import {
   ReactDrawContext,
 } from "../../types";
 import { DuplicateIcon } from "@jzohdi/jsx-icons";
-import { getObjectFromMap, getToolById } from "../../utils/utils";
+import {
+  getCurrentHighestZIndex,
+  getObjectFromMap,
+  getToolById,
+} from "../../utils/utils";
 import {
   getSelectedIdsFromFullState,
   selectElement,
@@ -88,17 +92,15 @@ function duplicateObject(
   const newDiv = div.cloneNode(true) as HTMLDivElement;
   const { newId, divId } = makeNewId(div.id);
   newDiv.id = divId;
-  const objectsToSelect = Array.from(ctx.objectsMap.values());
-  objectsToSelect.sort((a, b) => {
-    return parseInt(b.containerDiv.style.zIndex) -  parseInt(a.containerDiv.style.zIndex)
-  });
-  let nextZIndex = objectsToSelect[0]?.containerDiv.style.zIndex === undefined ? 0 : parseInt(objectsToSelect[0].containerDiv.style.zIndex) + 1;
+  const currentMaxZindex = getCurrentHighestZIndex(ctx);
+  const nextZindex = currentMaxZindex + 1;
   const data: DrawingData = {
     coords: object.coords.slice(0),
     toolId: object.toolId,
     element: newDiv.lastElementChild as HTMLElement,
     style: {
       ...object.style,
+      zIndex: nextZindex.toString(),
     },
     customData: new Map(object.customData),
     containerDiv: newDiv,
@@ -107,7 +109,7 @@ function duplicateObject(
   const bbox = getBoxSize(object);
   newDiv.style.top = bbox.top + 5 + "px";
   newDiv.style.left = bbox.left + 10 + "px";
-  newDiv.style.zIndex = nextZIndex.toString();
+  newDiv.style.zIndex = nextZindex.toString();
   const tool = getToolById(ctx.drawingTools, object.toolId);
   if (tool.onDuplicate) {
     return tool.onDuplicate(data, ctx);
