@@ -203,10 +203,12 @@ export default function ReactDraw({
   function starDraw(relativePoint: Point) {
     const ctx = getReactDrawContext();
     const styles = { ...globalStyles.current };
+    const objMapSize = ctx.objectsMap.size;
     const newDrawingData = makeNewBoundingDiv(
       relativePoint,
       styles,
-      currentDrawingTool.id
+      currentDrawingTool.id,
+      objMapSize
     );
     currDrawObj.current = newDrawingData;
     ctx.viewContainer.append(newDrawingData.containerDiv);
@@ -557,6 +559,7 @@ const defaultEditableProps: ToolPropertiesMap = {
 };
 // TODO: accept default styles as a react-draw prop
 function setupGlobalStyles(topBarTools: DrawingTools[]) {
+  
   const styles: ToolPropertiesMap = {
     ...defaultEditableProps,
   };
