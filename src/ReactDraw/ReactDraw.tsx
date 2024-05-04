@@ -73,8 +73,8 @@ export default function ReactDraw({
   hideBottomBar,
   shouldKeepHistory = true,
   shouldSelectAfterCreate = true,
-	shouldPreserveAspectRatio = false,
 	isResponsive = false,
+	shouldCornerResizePreserveRatio = false,
   styleComponents,
   menuComponents = [],
 	onLoad,
@@ -173,7 +173,7 @@ export default function ReactDraw({
       undoStack: undoStack.current,
       redoStack: redoStack.current,
       shouldKeepHistory,
-			shouldPreserveAspectRatio,
+			shouldCornerResizePreserveRatio,
       selectDrawingTool: handleSelectDrawingTool,
       selectObject,
       shouldSelectAfterCreate,
@@ -351,8 +351,8 @@ export default function ReactDraw({
 					value.containerDiv.style.left = newLeft + "px"
 					value.containerDiv.style.top = newTop + 'px';
 					const tool = getToolById(ctx.drawingTools, value.toolId);
-					tool.onResize(value, { ...ctx, 
-						shouldPreserveAspectRatio: ctx.shouldPreserveAspectRatio, 
+					tool.onResize(value, { ...ctx,
+						shouldPreserveAspectRatio: shouldCornerResizePreserveRatio, 
 						previousPoint: [prevLeft, prevTop],
 						newPoint: [newLeft, newTop]})			
 				})

@@ -38,7 +38,7 @@ function startResizing(
     viewContainer: ctx.viewContainer,
     newPoint: relativePoint,
     previousPoint: prevPoint,
-    shouldPreserveAspectRatio: ctx.shouldPreserveAspectRatio,
+    shouldPreserveAspectRatio: ctx.shouldCornerResizePreserveRatio,
   };
   // probably dont do this, this is an implementation detail of the select tool so other tools should not expose functionality for it specifically
   if (toolUsed.doResize) {
