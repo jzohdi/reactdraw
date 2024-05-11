@@ -23,15 +23,15 @@ export function forcePreserveAspectRatio(
   const currentAspectRatio = width / height;
   const aspectRatioOfChange = x / y;
   // if direction is north, check if need to scale y
-  console.log({
-    x,
-    y,
-    dX,
-    dY,
-    currentAspectRatio,
-    aspectRatioOfChange,
-    direction,
-  });
+  // console.log({
+  //   x,
+  //   y,
+  //   dX,
+  //   dY,
+  //   currentAspectRatio,
+  //   aspectRatioOfChange,
+  //   direction,
+  // });
   if (direction === "N") {
     if (x === 0) {
       return [dX, dY];
@@ -48,9 +48,18 @@ export function forcePreserveAspectRatio(
     if (aspectRatioOfChange > currentAspectRatio && dX > 0) {
       return [dX, (x / currentAspectRatio) * -1];
     }
-    return [dX, dY];
   }
   if (direction === "E") {
+    if (y === 0) {
+      return [dX, dY];
+    }
+    if (x === 0 && dY > 0) {
+      return [y * currentAspectRatio * -1, dY];
+    }
+    if (x === 0 && dY < 0) {
+      return [y * currentAspectRatio, dY];
+    }
+    // if (aspectRatioOfChange < cur)
   }
   // if (dX === 0) {
   //   // if y < 0 means y going up direction, x should be a positive number
