@@ -31,109 +31,90 @@ export function forcePreserveAspectRatio(
   const y = Math.abs(dY);
   const { width, height } = getBoxSize(data);
   const currentAspectRatio = width / height;
-  const aspectRatioOfChange = x / y;
+  const aspectX = getXFunction(direction);
+  const aspectY = getYFunction(direction);
+  const reverseFlag = getReverseFlag(direction);
+  const dirFlag = getDirectionFlag(direction, dX, dY);
+  const inputs: CalculationInputs = {
+    dX,
+    dY,
+    currAR: currentAspectRatio,
+    dirFlag,
+    reverseFlag,
+  };
+  return [aspectX(inputs), aspectY(inputs)];
+}
 
-  if (direction[0] === "N") {
-    const reverseFlag = direction[1] === "W" ? -1 : 1;
-    if (x === 0) {
-      return [dX, dY];
+type CalculationInputs = {
+  dX: number;
+  dY: number;
+  currAR: number;
+  dirFlag: number;
+  reverseFlag: number;
+};
+
+function getXFunction(direction: AspectDirection) {
+  return (input: CalculationInputs) => {
+    const dir = direction[0];
+    const x = Math.abs(input.dX);
+    const y = Math.abs(input.dY);
+    const changeAr = x / y;
+    switch (dir) {
+      case "E":
+      case "W":
+        if (input.dY === 0) {
+          return input.dX;
+        }
+        if (changeAr > input.currAR) {
+          return input.dX;
+        }
+        return y * input.currAR * input.dirFlag * input.reverseFlag;
+      default:
+        return input.dX;
     }
-    if (y === 0 && dX < 0) {
-      return [dX, (x / currentAspectRatio) * reverseFlag];
+  };
+}
+
+function getYFunction(direction: AspectDirection) {
+  return (input: CalculationInputs) => {
+    const x = Math.abs(input.dX);
+    const y = Math.abs(input.dY);
+    const dir = direction[0];
+    const changeAr = x / y;
+    switch (dir) {
+      case "N":
+      case "S":
+        if (input.dX === 0) {
+          return input.dY;
+        }
+        if (changeAr < input.currAR) {
+          return input.dY;
+        }
+        return (x / input.currAR) * input.dirFlag * input.reverseFlag;
+      default:
+        return input.dY;
     }
-    if (y === 0 && dX > 0) {
-      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
-    }
-    // if controlling north and AR greater than current,
-    // means that X is the larger so we need to calculate y
-    if (aspectRatioOfChange > currentAspectRatio && dX < 0) {
-      return [dX, (x / currentAspectRatio) * reverseFlag];
-    }
-    if (aspectRatioOfChange > currentAspectRatio && dX > 0) {
-      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
-    }
-  } else if (direction[0] === "E") {
-    const switchFlag = direction[1] === "S" ? -1 : 1;
-    if (y === 0) {
-      return [dX, dY];
-    }
-    if (x === 0 && dY > 0) {
-      return [y * currentAspectRatio * -1 * switchFlag, dY];
-    }
-    if (x === 0 && dY < 0) {
-      return [y * currentAspectRatio * switchFlag, dY];
-    }
-    if (aspectRatioOfChange < currentAspectRatio && dY > 0) {
-      return [y * currentAspectRatio * -1 * switchFlag, dY];
-    }
-    if (aspectRatioOfChange < currentAspectRatio && dY < 0) {
-      return [y * currentAspectRatio * switchFlag, dY];
-    }
-    // console.log("got here");
-  } else if (direction[0] === "S") {
-    const reverseFlag = direction[1] === "W" ? -1 : 1;
-    if (x === 0) {
-      return [dX, dY];
-    }
-    if (y === 0 && dX < 0) {
-      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
-    }
-    if (y === 0 && dX > 0) {
-      return [dX, (x / currentAspectRatio) * reverseFlag];
-    }
-    if (aspectRatioOfChange > currentAspectRatio && dX < 0) {
-      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
-    }
-    if (aspectRatioOfChange > currentAspectRatio && dX > 0) {
-      return [dX, (x / currentAspectRatio) * reverseFlag];
-    }
-  } else if (direction[0] === "W") {
-    const reverseFlag = direction[1] === "S" ? -1 : 1;
-    if (y === 0) {
-      return [dX, dY];
-    }
-    if (x === 0 && dY > 0) {
-      return [y * currentAspectRatio * reverseFlag, dY];
-    }
-    if (x === 0 && dY < 0) {
-      return [y * currentAspectRatio * -1 * reverseFlag, dY];
-    }
-    if (aspectRatioOfChange < currentAspectRatio && dY > 0) {
-      return [y * currentAspectRatio * reverseFlag, dY];
-    }
-    if (aspectRatioOfChange < currentAspectRatio && dY < 0) {
-      return [y * currentAspectRatio * -1 * reverseFlag, dY];
-    }
+  };
+}
+
+function getReverseFlag(direction: AspectDirection) {
+  if (direction[1] === "S" || direction[1] === "W") {
+    return -1;
   }
-
-  return [dX, dY];
+  return 1;
 }
 
-function getCurrentAspectRatio(data: DrawingData) {
-  const box = getBoxSize(data);
-  const ratio = box.width / box.height;
-  return ratio;
-}
-
-function calcNewAspectRatio(newPoint: Point) {
-  const [nX, nY] = newPoint;
-  const x = Math.abs(nX);
-  const y = Math.abs(nY);
-  if (x === 0) {
+function getDirectionFlag(direction: AspectDirection, dX: number, dY: number) {
+  const dir = direction[0];
+  switch (dir) {
+    case "N":
+      return dX < 0 ? 1 : -1;
+    case "S":
+      return dX < 0 ? -1 : 1;
+    case "E":
+      return dY < 0 ? 1 : -1;
+    case "W":
+      return dY < 0 ? -1 : 1;
   }
-  if (y === 0) {
-  }
-  return Math.abs(nX) / Math.abs(nY);
-}
-
-// ratio = x/y so to get new y, multiple 1/ratio * newX
-function calcY(point: Point, ratio: number): number {
-  const [x, y] = point;
-  return (1 / ratio) * x;
-}
-
-// ratio = x/y so to get new X, multiple ratio * new y
-function calcX(point: Point, ratio: number): number {
-  const [x, y] = point;
-  return ratio * y;
+  return 1;
 }
