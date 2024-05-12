@@ -3,6 +3,6 @@ import { resizeN } from "./resizeN";
 import { resizeW } from "./resizeW";
 
 export function resizeNW(data: DrawingData, ctx: OnResizeContext) {
-  resizeN(data, ctx, ctx.shouldPreserveAspectRatio);
-  resizeW(data, ctx, ctx.shouldPreserveAspectRatio);
+  resizeN(data, ctx, "NW");
+  resizeW(data, ctx, "WN");
 }

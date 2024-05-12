@@ -35,16 +35,6 @@ export function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
   return getPointRelativeToOther(rotatedNew, rotatedPrev);
 }
 
-function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
-  const s = Math.sin(angle);
-  const c = Math.cos(angle);
-  const [px, py] = [point[0] - cx, point[1] - cy];
-  const xNew = px * c - py * s;
-  const yNew = px * s + py * c;
-
-  return [xNew + cx, yNew + cy];
-}
-
 /**
  * All you have to do is:
  * <ol>

@@ -5,11 +5,11 @@ import { forcePreserveAspectRatio } from "./aspectRatio";
 export function resizeW(
   data: DrawingData,
   ctx: OnResizeContext,
-  preserveAR?: boolean
+  preserveAR?: "WS" | "WN"
 ) {
   let dXdY = getDiffCoords(data, ctx);
-  if (preserveAR) {
-    const [xDiff, _yDiff] = forcePreserveAspectRatio(dXdY, data, "W");
+  if (preserveAR !== undefined) {
+    const [xDiff, _yDiff] = forcePreserveAspectRatio(dXdY, data, preserveAR);
     return unifiedResizeFunction(data, [xDiff / 2, 0], [-xDiff, 0]);
   }
   unifiedResizeFunction(data, [dXdY[0] / 2, 0], [-dXdY[0], 0]);

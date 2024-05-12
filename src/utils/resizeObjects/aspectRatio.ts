@@ -1,5 +1,15 @@
 import { getBoxSize } from "..";
-import { DrawingData, OnResizeContext, Point } from "../../types";
+import { DrawingData, Point } from "../../types";
+
+export type AspectDirection =
+  | "NW"
+  | "NE"
+  | "EN"
+  | "ES"
+  | "SW"
+  | "SE"
+  | "WS"
+  | "WN";
 
 /**
  * takes dx or dy and returns one of these number based on the current aspect ratio.
@@ -15,63 +25,86 @@ import { DrawingData, OnResizeContext, Point } from "../../types";
 export function forcePreserveAspectRatio(
   [dX, dY]: Point,
   data: DrawingData,
-  direction: "N" | "E" | "S" | "W"
+  direction: AspectDirection
 ): Point {
   const x = Math.abs(dX);
   const y = Math.abs(dY);
   const { width, height } = getBoxSize(data);
   const currentAspectRatio = width / height;
   const aspectRatioOfChange = x / y;
-  // if direction is north, check if need to scale y
-  // console.log({
-  //   x,
-  //   y,
-  //   dX,
-  //   dY,
-  //   currentAspectRatio,
-  //   aspectRatioOfChange,
-  //   direction,
-  // });
-  if (direction === "N") {
+
+  if (direction[0] === "N") {
+    const reverseFlag = direction[1] === "W" ? -1 : 1;
     if (x === 0) {
       return [dX, dY];
     }
     if (y === 0 && dX < 0) {
-      return [dX, x / currentAspectRatio];
+      return [dX, (x / currentAspectRatio) * reverseFlag];
     }
     if (y === 0 && dX > 0) {
-      return [dX, (x / currentAspectRatio) * -1];
+      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
     }
+    // if controlling north and AR greater than current,
+    // means that X is the larger so we need to calculate y
     if (aspectRatioOfChange > currentAspectRatio && dX < 0) {
-      return [dX, x / currentAspectRatio];
+      return [dX, (x / currentAspectRatio) * reverseFlag];
     }
     if (aspectRatioOfChange > currentAspectRatio && dX > 0) {
-      return [dX, (x / currentAspectRatio) * -1];
+      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
     }
-  }
-  if (direction === "E") {
+  } else if (direction[0] === "E") {
+    const switchFlag = direction[1] === "S" ? -1 : 1;
     if (y === 0) {
       return [dX, dY];
     }
     if (x === 0 && dY > 0) {
-      return [y * currentAspectRatio * -1, dY];
+      return [y * currentAspectRatio * -1 * switchFlag, dY];
     }
     if (x === 0 && dY < 0) {
-      return [y * currentAspectRatio, dY];
+      return [y * currentAspectRatio * switchFlag, dY];
     }
-    // if (aspectRatioOfChange < cur)
+    if (aspectRatioOfChange < currentAspectRatio && dY > 0) {
+      return [y * currentAspectRatio * -1 * switchFlag, dY];
+    }
+    if (aspectRatioOfChange < currentAspectRatio && dY < 0) {
+      return [y * currentAspectRatio * switchFlag, dY];
+    }
+    // console.log("got here");
+  } else if (direction[0] === "S") {
+    const reverseFlag = direction[1] === "W" ? -1 : 1;
+    if (x === 0) {
+      return [dX, dY];
+    }
+    if (y === 0 && dX < 0) {
+      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
+    }
+    if (y === 0 && dX > 0) {
+      return [dX, (x / currentAspectRatio) * reverseFlag];
+    }
+    if (aspectRatioOfChange > currentAspectRatio && dX < 0) {
+      return [dX, (x / currentAspectRatio) * -1 * reverseFlag];
+    }
+    if (aspectRatioOfChange > currentAspectRatio && dX > 0) {
+      return [dX, (x / currentAspectRatio) * reverseFlag];
+    }
+  } else if (direction[0] === "W") {
+    const reverseFlag = direction[1] === "S" ? -1 : 1;
+    if (y === 0) {
+      return [dX, dY];
+    }
+    if (x === 0 && dY > 0) {
+      return [y * currentAspectRatio * reverseFlag, dY];
+    }
+    if (x === 0 && dY < 0) {
+      return [y * currentAspectRatio * -1 * reverseFlag, dY];
+    }
+    if (aspectRatioOfChange < currentAspectRatio && dY > 0) {
+      return [y * currentAspectRatio * reverseFlag, dY];
+    }
+    if (aspectRatioOfChange < currentAspectRatio && dY < 0) {
+      return [y * currentAspectRatio * -1 * reverseFlag, dY];
+    }
   }
-  // if (dX === 0) {
-  //   // if y < 0 means y going up direction, x should be a positive number
-  //   if (nY < 0) {
-  //     console.log([targetAspectRatio * y, nY]);
-  //     return [targetAspectRatio * y, nY];
-  //   } else if (y > 0) {
-  //     // if y > 0 means y going down, and x should be negative
-  //     return [targetAspectRatio * nY * -1, nY];
-  //   }
-  // } else if (y == 0) {
-  // }
 
   return [dX, dY];
 }
