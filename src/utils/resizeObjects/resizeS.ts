@@ -1,16 +1,21 @@
 import { DrawingData, OnResizeContext } from "../../types";
 import { getDiffCoords, unifiedResizeFunction } from "../resizeObject";
-import { forcePreserveAspectRatio } from "./aspectRatio";
+import { AspectRatioParam, forcePreserveAspectRatio } from "./aspectRatio";
 
+/**
+ * If given param "aspectRatio", the function will try to resize
+ * using a possibly different dY by calculating to preserve the
+ * current aspect ratio
+ */
 export function resizeS(
   data: DrawingData,
   ctx: OnResizeContext,
-  preserveAR?: "SW" | "SE"
+  aspectRatio?: AspectRatioParam
 ) {
   let dXdY = getDiffCoords(data, ctx);
-  if (preserveAR !== undefined) {
-    const [_xDiff, yDiff] = forcePreserveAspectRatio(dXdY, data, preserveAR);
+  if (aspectRatio !== undefined) {
+    const [_xDiff, yDiff] = forcePreserveAspectRatio(dXdY, data, aspectRatio);
     return unifiedResizeFunction(data, [0, -yDiff / 2], [0, yDiff]);
   }
-  unifiedResizeFunction(data, [0, -dXdY[1] / 2], [0, dXdY[1]]);
+  return unifiedResizeFunction(data, [0, -dXdY[1] / 2], [0, dXdY[1]]);
 }

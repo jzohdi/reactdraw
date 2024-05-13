@@ -1,5 +1,6 @@
 import { getBoxSize } from "..";
-import { DrawingData, Point } from "../../types";
+import { DrawingData, OnResizeContext, Point } from "../../types";
+import { round } from "../resizeObject";
 
 export type AspectDirection =
   | "NW"
@@ -11,6 +12,12 @@ export type AspectDirection =
   | "WS"
   | "WN";
 
+const MARGIN_OF_ERROR = 0.01;
+
+export type AspectRatioParam = {
+  direction: AspectDirection;
+  targetAspectRatio: number;
+};
 /**
  * takes dx or dy and returns one of these number based on the current aspect ratio.
  * for example if direction is N (north) and dx is larger than the aspect ratio, this
@@ -25,12 +32,8 @@ export type AspectDirection =
 export function forcePreserveAspectRatio(
   [dX, dY]: Point,
   data: DrawingData,
-  direction: AspectDirection
+  { direction, targetAspectRatio }: AspectRatioParam
 ): Point {
-  const x = Math.abs(dX);
-  const y = Math.abs(dY);
-  const { width, height } = getBoxSize(data);
-  const currentAspectRatio = width / height;
   const aspectX = getXFunction(direction);
   const aspectY = getYFunction(direction);
   const reverseFlag = getReverseFlag(direction);
@@ -38,11 +41,13 @@ export function forcePreserveAspectRatio(
   const inputs: CalculationInputs = {
     dX,
     dY,
-    currAR: currentAspectRatio,
+    currAR: targetAspectRatio,
     dirFlag,
     reverseFlag,
   };
-  return [aspectX(inputs), aspectY(inputs)];
+  console.log({ targetAspectRatio });
+  const pointsWithAspect = [aspectX(inputs), aspectY(inputs)];
+  return pointsWithAspect as Point;
 }
 
 type CalculationInputs = {
@@ -65,10 +70,14 @@ function getXFunction(direction: AspectDirection) {
         if (input.dY === 0) {
           return input.dX;
         }
+        // if the change in aspect is greater than the current,
+        // means that X is greater in proportion and therefore should be used as
+        // the source of size = return dX (no change)
         if (changeAr > input.currAR) {
           return input.dX;
         }
-        return y * input.currAR * input.dirFlag * input.reverseFlag;
+        const output = y * input.currAR * input.dirFlag * input.reverseFlag;
+        return output;
       default:
         return input.dX;
     }
@@ -87,10 +96,14 @@ function getYFunction(direction: AspectDirection) {
         if (input.dX === 0) {
           return input.dY;
         }
+        // if the change in aspect is less than the current,
+        // means that Y is greater in proportion and therefore should be used as
+        // the source of size = return dY (no change)
         if (changeAr < input.currAR) {
           return input.dY;
         }
-        return (x / input.currAR) * input.dirFlag * input.reverseFlag;
+        const output = (x / input.currAR) * input.dirFlag * input.reverseFlag;
+        return output;
       default:
         return input.dY;
     }
@@ -116,5 +129,27 @@ function getDirectionFlag(direction: AspectDirection, dX: number, dY: number) {
     case "W":
       return dY < 0 ? -1 : 1;
   }
-  return 1;
+  throw new Error(
+    "should not get here" + JSON.stringify({ direction, dX, dY })
+  );
+}
+
+export function getCurrentAspectRatio(data: DrawingData) {
+  const { width, height } = getBoxSize(data);
+  // const currentAspectRatio = round(width / height, 5);
+  return width / height;
+}
+
+export function getAspectRatioInput(
+  data: DrawingData,
+  ctx: OnResizeContext,
+  direction: AspectDirection
+): AspectRatioParam | undefined {
+  if (!ctx.shouldPreserveAspectRatio) {
+    return undefined;
+  }
+  return {
+    targetAspectRatio: getCurrentAspectRatio(data),
+    direction,
+  };
 }

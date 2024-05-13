@@ -1,8 +1,16 @@
 import { DrawingData, OnResizeContext } from "../../types";
+import { getAspectRatioInput } from "./aspectRatio";
 import { resizeN } from "./resizeN";
 import { resizeW } from "./resizeW";
 
 export function resizeNW(data: DrawingData, ctx: OnResizeContext) {
-  resizeN(data, ctx, "NW");
-  resizeW(data, ctx, "WN");
+  const aspectRatio = getAspectRatioInput(data, ctx, "NW");
+  const didResize = resizeN(data, ctx, aspectRatio);
+  if (!didResize) {
+    return;
+  }
+  if (aspectRatio) {
+    aspectRatio.direction = "WN";
+  }
+  resizeW(data, ctx, aspectRatio);
 }

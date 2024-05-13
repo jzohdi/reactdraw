@@ -47,7 +47,7 @@ export function unifiedResizeFunction(
   data: DrawingData,
   changeInCenter: Point,
   changeInDimensions: Point
-) {
+): boolean {
   const [centerDx, centerDy] = changeInCenter;
   const [dX, dY] = changeInDimensions;
   const bounds = getBoxSize(data);
@@ -61,6 +61,9 @@ export function unifiedResizeFunction(
   );
   const newHeight = bounds.height + dY;
   const newWidth = bounds.width + dX;
+  if (newWidth < 30 || newHeight < 30) {
+    return false;
+  }
   const distanceFromNewCenterToTop = newHeight / 2;
   const distanceFromNewCenterToLeft = newWidth / 2;
   const newNormalizedCornerX =
@@ -73,6 +76,7 @@ export function unifiedResizeFunction(
   div.style.left = newLeft + "px";
   div.style.width = newWidth + "px";
   div.style.height = newHeight + "px";
+  return true;
 }
 
 export function slideCornerOnAnAngle(

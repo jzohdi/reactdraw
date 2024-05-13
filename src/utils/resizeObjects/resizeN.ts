@@ -1,27 +1,21 @@
 import { DrawingData, OnResizeContext } from "../../types";
 import { getDiffCoords, unifiedResizeFunction } from "../resizeObject";
-import { AspectDirection, forcePreserveAspectRatio } from "./aspectRatio";
+import { AspectRatioParam, forcePreserveAspectRatio } from "./aspectRatio";
 
 /**
- * For resizeN
- * 1. take original top left (x, y)
- * 2. rotate around center (cx, cy) - this gives you the displayed top left corner
- * 3. slide the displayed corner in the y direction by the difference
- * 4. get the new center
- * 5. rotate the new displayed corner back around the new center
- *
- * @param data
- * @param ctx
+ * If given param "aspectRatio", the function will try to resize
+ * using a possibly different dY by calculating to preserve the
+ * current aspect ratio
  */
 export function resizeN(
   data: DrawingData,
   ctx: OnResizeContext,
-  preserveAR?: "NE" | "NW"
+  aspectRatio?: AspectRatioParam
 ) {
   const dXdY = getDiffCoords(data, ctx);
-  if (preserveAR !== undefined) {
-    const [_xDiff, yDiff] = forcePreserveAspectRatio(dXdY, data, preserveAR);
+  if (aspectRatio !== undefined) {
+    const [_xDiff, yDiff] = forcePreserveAspectRatio(dXdY, data, aspectRatio);
     return unifiedResizeFunction(data, [0, -yDiff / 2], [0, -yDiff]);
   }
-  unifiedResizeFunction(data, [0, -dXdY[1] / 2], [0, -dXdY[1]]);
+  return unifiedResizeFunction(data, [0, -dXdY[1] / 2], [0, -dXdY[1]]);
 }
