@@ -35,16 +35,6 @@ export function getDiffCoords(data: DrawingData, ctx: OnResizeContext): Point {
   return getPointRelativeToOther(rotatedNew, rotatedPrev);
 }
 
-function rotatePoint(cx: number, cy: number, angle: number, point: Point) {
-  const s = Math.sin(angle);
-  const c = Math.cos(angle);
-  const [px, py] = [point[0] - cx, point[1] - cy];
-  const xNew = px * c - py * s;
-  const yNew = px * s + py * c;
-
-  return [xNew + cx, yNew + cy];
-}
-
 /**
  * All you have to do is:
  * <ol>
@@ -57,7 +47,7 @@ export function unifiedResizeFunction(
   data: DrawingData,
   changeInCenter: Point,
   changeInDimensions: Point
-) {
+): boolean {
   const [centerDx, centerDy] = changeInCenter;
   const [dX, dY] = changeInDimensions;
   const bounds = getBoxSize(data);
@@ -71,6 +61,9 @@ export function unifiedResizeFunction(
   );
   const newHeight = bounds.height + dY;
   const newWidth = bounds.width + dX;
+  if (newWidth < 10 || newHeight < 10) {
+    return false;
+  }
   const distanceFromNewCenterToTop = newHeight / 2;
   const distanceFromNewCenterToLeft = newWidth / 2;
   const newNormalizedCornerX =
@@ -83,6 +76,7 @@ export function unifiedResizeFunction(
   div.style.left = newLeft + "px";
   div.style.width = newWidth + "px";
   div.style.height = newHeight + "px";
+  return true;
 }
 
 export function slideCornerOnAnAngle(

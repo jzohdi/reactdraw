@@ -91,7 +91,7 @@ export type ReactDrawContext = {
   redoStack: ActionObject[];
   shouldKeepHistory: boolean;
   shouldSelectAfterCreate: boolean;
-  shouldPreserveAspectRatio: boolean;
+  shouldCornerResizePreserveRatio: boolean;
   globalStyles: ToolPropertiesMap;
   selectDrawingTool: (tool: DrawingTools) => void;
   selectObject: (object: DrawingData) => void;
@@ -257,11 +257,11 @@ export type ReactDrawInnerProps = {
   hideBottomBar?: boolean;
   shouldKeepHistory?: boolean;
   shouldSelectAfterCreate?: boolean;
-  shouldPreserveAspectRatio?: boolean;
   id: string;
   styleComponents?: StyleComponents;
   menuComponents?: MenuComponent[];
   isResponsive?: boolean;
+  shouldCornerResizePreserveRatio?: boolean;
   onLoad?: (ctx: ReactDrawContext) => void;
   contextGetter?: (ctxGetter: () => ReactDrawContext) => void;
 };

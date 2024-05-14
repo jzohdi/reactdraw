@@ -60,7 +60,7 @@ type MakeNewDivOutput = {
     right: number;
     bottom: number;
 };
-declare function makeNewDiv(pointX: number, pointY: number, lineWidth: number, toolId: string): MakeNewDivOutput;
+declare function makeNewDiv(pointX: number, pointY: number, lineWidth: number, toolId: string, zIndex: number): MakeNewDivOutput;
 /**
  * Uses the initial point and the most recent point
  * has the side effect of altering the container to be the
@@ -134,7 +134,7 @@ type ReactDrawContext = {
     redoStack: ActionObject[];
     shouldKeepHistory: boolean;
     shouldSelectAfterCreate: boolean;
-    shouldPreserveAspectRatio: boolean;
+    shouldCornerResizePreserveRatio: boolean;
     globalStyles: ToolPropertiesMap;
     selectDrawingTool: (tool: DrawingTools) => void;
     selectObject: (object: DrawingData) => void;
@@ -268,11 +268,11 @@ type ReactDrawInnerProps = {
     hideBottomBar?: boolean;
     shouldKeepHistory?: boolean;
     shouldSelectAfterCreate?: boolean;
-    shouldPreserveAspectRatio?: boolean;
     id: string;
     styleComponents?: StyleComponents;
     menuComponents?: MenuComponent[];
     isResponsive?: boolean;
+    shouldCornerResizePreserveRatio?: boolean;
     onLoad?: (ctx: ReactDrawContext) => void;
     contextGetter?: (ctxGetter: () => ReactDrawContext) => void;
 };
