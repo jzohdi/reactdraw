@@ -45,7 +45,7 @@ export function forcePreserveAspectRatio(
     dirFlag,
     reverseFlag,
   };
-  console.log({ targetAspectRatio });
+  console.log(targetAspectRatio);
   const pointsWithAspect = [aspectX(inputs), aspectY(inputs)];
   return pointsWithAspect as Point;
 }
@@ -144,10 +144,7 @@ export function getAspectRatioInput(
   data: DrawingData,
   ctx: OnResizeContext,
   direction: AspectDirection
-): AspectRatioParam | undefined {
-  if (!ctx.shouldPreserveAspectRatio) {
-    return undefined;
-  }
+): AspectRatioParam {
   return {
     targetAspectRatio: getCurrentAspectRatio(data),
     direction,

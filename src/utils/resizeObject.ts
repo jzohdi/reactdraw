@@ -61,7 +61,7 @@ export function unifiedResizeFunction(
   );
   const newHeight = bounds.height + dY;
   const newWidth = bounds.width + dX;
-  if (newWidth < 30 || newHeight < 30) {
+  if (newWidth < 10 || newHeight < 10) {
     return false;
   }
   const distanceFromNewCenterToTop = newHeight / 2;

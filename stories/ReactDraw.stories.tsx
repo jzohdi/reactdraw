@@ -131,7 +131,6 @@ DefaultLayoutAllTools.args = {
   drawingTools: drawingTools,
   actionTools,
   shouldSelectAfterCreate: true,
-  shouldCornerResizePreserveRatio: true,
   styleComponents: {
     color: { order: 3, component: ColorStyle },
     background: { order: 4, component: BackgroundStyle },
