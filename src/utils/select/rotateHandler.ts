@@ -21,7 +21,7 @@ function startRotating(ctx: ReactDrawContext, relativePoint: Point) {
     ctx.objectsMap
   );
   if (selectedObject.length !== 1) {
-    throw new Error("start rotating got incorrect number of objects to handle");
+    return;
   }
   const data = selectedObject[0];
   const referenceCenter = getCenterPoint(getBoxSize(data));
