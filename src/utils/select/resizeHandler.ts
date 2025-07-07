@@ -29,7 +29,8 @@ function startResizing(
     ctx.objectsMap
   );
   if (selectedObject.length !== 1) {
-    throw new Error("start rotating got incorrect number of objects to handle");
+    console.error("start rotating got incorrect number of objects to handle");
+    return;
   }
   const data = selectedObject[0];
   //   const pointDiff: Point = getPointDiff(relativePoint, prevPoint);
