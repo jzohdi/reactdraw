@@ -29,6 +29,7 @@ function startResizing(
     ctx.objectsMap
   );
   if (selectedObject.length !== 1) {
+    console.error("start rotating got incorrect number of objects to handle");
     return;
   }
   const data = selectedObject[0];
