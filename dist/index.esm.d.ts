@@ -476,14 +476,15 @@ declare const deserializeDiamond: DeserializerFunction;
 declare const deserializeLine: DeserializerFunction;
 declare const deserializeTextArea: DeserializerFunction;
 declare const deserializeArrow: DeserializerFunction;
-declare function selectManyElements(selectObjects: DrawingData[], ctx: ReactDrawContext): void;
-declare function notifyTool(tools: DrawingTools[], data: DrawingData, ctx: ReactDrawContext): void;
-declare function unselectAll(selectedObjects: DrawingData[], ctx: ReactDrawContext): void;
-declare function selectElement(data: DrawingData, ctx: ReactDrawContext): void;
+declare function getToolById(tools: DrawingTools[], toolId: string): DrawingTools;
 declare function getViewCenterPoint(ctx: ReactDrawContext): Point;
 declare function createNewObject(ctx: ReactDrawContext, point: Point, toolId: string): DrawingData;
 declare function addObject(ctx: ReactDrawContext, obj: DrawingData): void;
 declare function centerObject(ctx: ReactDrawContext, obj: DrawingData, w?: number, h?: number): void;
+declare function selectManyElements(selectObjects: DrawingData[], ctx: ReactDrawContext): void;
+declare function notifyTool(tools: DrawingTools[], data: DrawingData, ctx: ReactDrawContext): void;
+declare function unselectAll(selectedObjects: DrawingData[], ctx: ReactDrawContext): void;
+declare function selectElement(data: DrawingData, ctx: ReactDrawContext): void;
 /**
  * Unselecting an element requires also cleaning up the event listeners
  * TODO: this could be a performance hit.
@@ -520,6 +521,8 @@ declare function deleteObject(ctx: ReactDrawContext, id: string): void;
  * deleteSelected.
  */
 declare function deleteAll(ctx: ReactDrawContext): void;
+declare function updateSelectedObjectsStyle(ctx: ReactDrawContext, key: keyof ToolPropertiesMap, value: string): void;
+declare function yeildSelectedObjects(ctx: ReactDrawContext): Generator<DrawingData, void, unknown>;
 type CreateObjectOptions = {
     pointA: Point;
     pointB: Point;
@@ -539,5 +542,5 @@ type CreateImageOptions = CreateObjectOptions & {
 declare function createImage(ctx: ReactDrawContext, options: CreateImageOptions): Promise<DrawingData>;
 declare function selectAll(ctx: ReactDrawContext): void;
 declare function getSelectedObjects(ctx: ReactDrawContext): DrawingData[];
-export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringBackTool, bringSelectedBack, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, ViewPosition, BaseTool, isDrawingTool, isActionTool, DrawingTools, ActionTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, serializeObjects, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeSquare, serializeText, deserializeData, deserializationSetup, deserializeFreeDraw, deserializeSquare, deserializeCircle, deserializeDiamond, deserializeLine, deserializeTextArea, deserializeArrow, selectElement, notifyTool, selectManyElements, unselectAll, makeNewDiv, setContainerRect, createNewObject, addObject, centerObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, deleteObject, deleteAll, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
+export { _default as ReactDraw, freeDrawTool, selectTool, deletedSelected, squareTool, makeSquareDiv, circlTool as circleTool, makeCircleDiv, diamondTool, makeDiamondSvg, straightLineTool, makeLineInOrientation, textAreaTool, setupTextAreaDiv, arrowTool, makeArrowSvg, eraseTool, undoTool, redoTool, trashTool, duplicateTool, duplicateSelectedObjects, bringSelectedBack, bringBackTool, bringForwardTool, moveSelectedForward, ColorStyle, BackgroundStyle, LineWidthPicker as LineWidthStyle, LineWidthPicker$0 as OpacityStyle, LineWidthPicker$1 as FontSizeStyle, ClearAllButton, ReactChild, LayoutAbsolute, LayoutOption, OnResizeContext, DrawingDataMap, CapturedEvent, EventHandler, SelectToolCustomState, EraseToolCustomState, OtherToolState, CustomState, ToolPropertiesMap, ReactDrawContext, UpdateStyleHandler, UndoHandler, ToolStylesMap, StringObject, ViewPosition, BaseTool, isDrawingTool, isActionTool, DrawingTools, ActionTools, ActionType, ActionKey, ActionObject, Point, RectBounds, DrawingContainer, DrawingData, DisplayMode, MenuStyleTools, BottomToolDisplayMap, UpdateStyleFn, StyleComponentProps, StyleComponent, StyleComponents, MenuComponent, ReactDrawInnerProps, StylesObject, ClassNamesObject, StylesProviderProps, CSSProps, ReactDrawProps, PartialCSS, SelectMode, IntRange, HTMLEvent, IntermediateStringableObject, SerializerFunction, Serializers, DeserializerFunction, Deserializers, ContainerState, COLORS, useStyles, deserializationSetup, deserializeArrow, deserializeCircle, deserializeData, deserializeDiamond, deserializeFreeDraw, deserializeLine, deserializeSquare, deserializeTextArea, serializeArrow, serializeCircle, serializeDiamond, serializeFreeDraw, serializeLine, serializeObjects, serializeSquare, serializeText, getToolById, notifyTool, selectElement, selectManyElements, unselectAll, makeNewDiv, setContainerRect, addObject, centerObject, createNewObject, getViewCenterPoint, unselectElement, CreateTextOptions, createText, deleteObject, deleteAll, updateSelectedObjectsStyle, yeildSelectedObjects, CreateObjectOptions, createCircle, CreateImageOptions, createImage, selectAll, getSelectedObjects };
 //# sourceMappingURL=index.esm.d.ts.map

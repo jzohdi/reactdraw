@@ -29,8 +29,8 @@ export {
   duplicateSelectedObjects,
 } from "./BottomBarTools/DuplicateTool";
 export {
-  default as bringBackTool,
   bringSelectedBack,
+  default as bringBackTool,
 } from "./BottomBarTools/BringBackTool";
 export {
   default as bringForwardTool,
@@ -50,22 +50,22 @@ export { COLORS as COLORS } from "./constants";
 // ===================== EXPORT Functions =====================
 export { useStyles } from "./Styles/hooks";
 export {
-  serializeObjects,
+  deserializationSetup,
+  deserializeArrow,
+  deserializeCircle,
+  deserializeData,
+  deserializeDiamond,
+  deserializeFreeDraw,
+  deserializeLine,
+  deserializeSquare,
+  deserializeTextArea,
   serializeArrow,
   serializeCircle,
   serializeDiamond,
   serializeFreeDraw,
   serializeLine,
+  serializeObjects,
   serializeSquare,
   serializeText,
-  deserializeData,
-  deserializationSetup,
-  deserializeFreeDraw,
-  deserializeSquare,
-  deserializeCircle,
-  deserializeDiamond,
-  deserializeLine,
-  deserializeTextArea,
-  deserializeArrow,
 } from "./utils/serialization";
 export * from "./utils/publicUtils";
