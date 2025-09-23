@@ -15,13 +15,11 @@ import {
 } from "../../constants";
 import {
   BoxSize,
-  addPointToBounds,
   distance,
   getBoxSize,
   getElementsThatBoundsAreWithin,
   isPointWithinBounds,
   isRectBounding,
-  makeBoundingRect,
   setContainerRect,
 } from "../../utils";
 import {
@@ -50,12 +48,7 @@ import {
 
 type CallbackFn = (event: string) => void;
 
-function getSubscriptions(tool: DrawingTools): CallbackFn[] {
-  // console.log(tool.localState);
-  return (tool.localState?.["subs"] as CallbackFn[]) ?? [];
-}
-
-function alertSelected(tool: DrawingTools, ctx: ReactDrawContext) {
+export function alertSelected(tool: DrawingTools, ctx: ReactDrawContext) {
   const fns = (tool.localState?.["subs"] as CallbackFn[]) ?? [];
   const selectedIds = getSelectedIdsFromFullState(ctx);
   if (selectedIds.length > 0) {
@@ -156,6 +149,7 @@ export function deletedSelected(ctx: ReactDrawContext) {
   if (ctx.shouldKeepHistory) {
     pushActionToStack(resultAction, ctx);
   }
+  alertSelected(selectTool, ctx);
 }
 
 /**

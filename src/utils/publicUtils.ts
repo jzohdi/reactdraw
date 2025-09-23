@@ -1,17 +1,23 @@
 /**
 
-	This file contains util functions that are useful only for 
+	This file contains util functions that are useful only for
 	user and are not used inside of react draw components.
 
 */
 
 import { setContainerRect } from "./index";
 import { makeCircleDiv } from "../TopBarTools/CircleTool";
-import { DrawingData, Point, ReactDrawContext } from "../types";
+import {
+  DrawingData,
+  Point,
+  ReactDrawContext,
+  ToolPropertiesMap,
+} from "../types";
 import {
   addObject,
   createNewObject,
   deleteObjectAndNotify,
+  getToolById,
   getViewCenterPoint,
 } from "./utils";
 import { SELECT_TOOL_ID } from "../constants";
@@ -31,19 +37,19 @@ import textAreaTool, {
 } from "../TopBarTools/TextAreaTool";
 import { setContainerStyles } from "./updateStyles/utils";
 export { deletedSelected };
-
+export { getToolById } from "./utils";
 // re-exports
 export {
-  selectElement,
   notifyTool,
+  selectElement,
   selectManyElements,
   unselectAll,
 } from "./select/utils";
 export { makeNewDiv, setContainerRect } from "./index";
 export {
-  createNewObject,
   addObject,
   centerObject,
+  createNewObject,
   getViewCenterPoint,
 } from "./utils";
 export { unselectElement } from "./select/unselectElement";
@@ -69,7 +75,7 @@ export type CreateTextOptions = {
  */
 export function createText(
   ctx: ReactDrawContext,
-  options: CreateTextOptions
+  options: CreateTextOptions,
 ): DrawingData {
   const { toolId, text, viewLocation, editable, useTextToolDefaults } = options;
   const location = viewLocation ?? getViewCenterPoint(ctx);
@@ -124,6 +130,27 @@ export function deleteAll(ctx: ReactDrawContext) {
   deletedSelected(ctx);
 }
 
+export function updateSelectedObjectsStyle(
+  ctx: ReactDrawContext,
+  key: keyof ToolPropertiesMap,
+  value: string,
+) {
+  const selectedObjects = getSelectedObjects(ctx);
+  for (const object of selectedObjects) {
+    const tool = getToolById(ctx.drawingTools, object.toolId);
+    if (tool.styleHandlers && tool.styleHandlers[key]) {
+      tool.styleHandlers[key](object, value, ctx);
+    }
+  }
+}
+
+export function* yeildSelectedObjects(ctx: ReactDrawContext) {
+  const selectedObjects = getSelectedObjects(ctx);
+  for (const object of selectedObjects) {
+    yield object;
+  }
+}
+
 export type CreateObjectOptions = {
   pointA: Point;
   pointB: Point;
@@ -136,7 +163,7 @@ export type CreateObjectOptions = {
  */
 export function createCircle(
   ctx: ReactDrawContext,
-  options: CreateObjectOptions
+  options: CreateObjectOptions,
 ): DrawingData {
   const newDrawingObject = createNewObject(ctx, options.pointA, options.toolId);
   const newCircle = makeCircleDiv(ctx.globalStyles);
@@ -193,7 +220,7 @@ function getLoadingPlaceholder(): HTMLDivElement {
 
 export async function createImage(
   ctx: ReactDrawContext,
-  options: CreateImageOptions
+  options: CreateImageOptions,
 ): Promise<DrawingData> {
   const newData = createNewObject(ctx, options.pointA, options.toolId);
   addObject(ctx, newData);
@@ -231,7 +258,7 @@ export async function createImage(
     const htmlImage = options.image;
     if (!htmlImage) {
       throw new Error(
-        "createImage must be given either url (string) or image (HTMLImageElement) options. Neither provided."
+        "createImage must be given either url (string) or image (HTMLImageElement) options. Neither provided.",
       );
     }
     handleImageLoaded(htmlImage);
@@ -242,7 +269,7 @@ export function selectAll(ctx: ReactDrawContext): void {
   const selectedIds = getSelectedIdsFromFullState(ctx);
   const currentlySelected = getSelectedDrawingObjects(
     selectedIds,
-    ctx.objectsMap
+    ctx.objectsMap,
   );
   if (currentlySelected.length > 0) {
     unselectAll(currentlySelected, ctx);
@@ -263,7 +290,7 @@ export function getSelectedObjects(ctx: ReactDrawContext): DrawingData[] {
   const selectedIds = getSelectedIdsFromFullState(ctx);
   const currentlySelected = getSelectedDrawingObjects(
     selectedIds,
-    ctx.objectsMap
+    ctx.objectsMap,
   );
   return currentlySelected;
 }

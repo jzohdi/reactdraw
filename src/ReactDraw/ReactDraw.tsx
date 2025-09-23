@@ -35,6 +35,7 @@ import {
 import { getSelectedDrawingObjects } from "../utils/select/getSelectedDrawingObjects";
 import { pushActionToStack } from "../utils/pushActionToStack";
 import { AlertMessage } from "../Alerts";
+import { alertSelected } from "../TopBarTools/SelectTool";
 
 function makeToolsList(drawingTools: DrawingTools[], actionTools: ActionTools[], position: ViewPosition): BaseTool[] {
 
@@ -158,6 +159,7 @@ export default function ReactDraw({
 	ctx.fullState[SELECT_TOOL_ID].selectedIds = [data.id]
     selectElement(data, ctx);
     updateBottomToolDisplayMap();
+    alertSelected(getToolById(drawingTools, SELECT_TOOL_ID), ctx);
   };
 
   const getReactDrawContext = (viewC?: HTMLDivElement): ReactDrawContext => {
@@ -437,7 +439,7 @@ export default function ReactDraw({
       return undefined;
     });
     // TODO: notify
-	pushStyleUpdateToStack(allActions, ctx);
+	  pushStyleUpdateToStack(allActions, ctx);
     return allActions;
   };
 

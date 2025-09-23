@@ -9,6 +9,7 @@ import {
   ReactDrawContext,
   ReactDrawProps,
   Serializers,
+  ToolPropertiesMap,
 } from "../src/types";
 
 import {
@@ -61,6 +62,7 @@ import {
   deletedSelected,
   getSelectedObjects,
   createText,
+  updateSelectedObjectsStyle,
 } from "../src";
 import { DownloadIcon } from "@jzohdi/jsx-icons";
 import { useState } from "react";
@@ -419,6 +421,11 @@ function ControlFromExternalWrapper({ ...args }: any) {
     selectToolCopy.subscribe(handleSelectedToolEvent);
   }
 
+  const handleUpdateStyles = (key: keyof ToolPropertiesMap, value: string) => {
+    const ctx = handleGetCtx();
+    updateSelectedObjectsStyle(ctx, key, value);
+  };
+
   return (
     <div>
       <p>
@@ -432,6 +439,7 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <div>Num Selected Items: {numSelected}</div>
           <button onClick={handleClickAddCircle}>Add Circle</button>
           <button onClick={handleClickAddImage}>Add Picture</button>
+
           <button onClick={handleSelectAll}>Select All</button>
           <button onClick={duplicateSelected}>Duplicate Selected</button>
           <button onClick={moveSelectedBack}>Move Selected Back</button>
@@ -443,6 +451,15 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={() => handleAddCustomText(false)}>
             Add some not editable text
           </button>
+          {numSelected > 0 && (
+            <div>
+              <label>Stroke color</label>
+              <input
+                type="color"
+                onChange={(e) => handleUpdateStyles("color", e.target.value)}
+              />
+            </div>
+          )}
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
@@ -582,6 +599,11 @@ function ControlFromExternalWrapper({ ...args }: any) {
     deletedSelected(ctx);
   };
 
+  const handleUpdateStyles = (key: keyof ToolPropertiesMap, value: string) => {
+    const ctx = handleGetCtx();
+    updateSelectedObjectsStyle(ctx, key, value);
+  };
+
   return (
     <div>
       <p>
@@ -601,6 +623,15 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={handleDelete}>Delete Selected</button>
 					<button onClick={handleDelete}>Delete Selected</button>
           <button onClick={() => handleAddCustomText(true)}>
+          {numSelected > 0 && (
+            <div>
+              <label>Stroke color</label>
+              <input
+                type="color"
+                onChange={(e) => handleUpdateStyles("color", e.target.value)}
+              />
+            </div>
+          )}          
         </div>
         <ReactDraw {...args} contextGetter={setContextGetter} />
       </div>
