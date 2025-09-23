@@ -144,7 +144,7 @@ export function updateSelectedObjectsStyle(
   }
 }
 
-export function* yeildSelectedObjects(ctx: ReactDrawContext) {
+export function* yieldSelectedObjects(ctx: ReactDrawContext) {
   const selectedObjects = getSelectedObjects(ctx);
   for (const object of selectedObjects) {
     yield object;
