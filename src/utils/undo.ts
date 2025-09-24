@@ -11,7 +11,7 @@ import { deleteObjectAndNotify, getObjectFromMap } from "./utils";
 
 export function saveCreateToUndoStack(
   data: DrawingData,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ) {
   if (!ctx.shouldKeepHistory) {
     return;
@@ -28,7 +28,7 @@ export function saveCreateToUndoStack(
 
 export function undoCreate(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   deleteObjectAndNotify(action.objectId, ctx);
@@ -39,7 +39,7 @@ export function undoCreate(
 
 export function redoDelete(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const object = action.data as DrawingData;
   if (!object) {
@@ -60,7 +60,7 @@ export function redoDelete(
  */
 export function recreateDeletedObjects(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const data = action.data as Map<string, DrawingData>;
   if (!data || typeof data !== "object") {
@@ -78,7 +78,7 @@ export function recreateDeletedObjects(
 
 export function deleteCreatedObjects(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const data: string[] = action.data;
   if (!data || !Array.isArray(data)) {
@@ -125,7 +125,7 @@ export function undoEleLineWidth(action: ActionObject, ctx: ReactDrawContext) {
 // TODO: Generalize?
 export function undoEleBackgroundColor(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   const currColor = object.style.background;
@@ -142,7 +142,7 @@ export function undoEleBackgroundColor(
 
 export function undoEleBorderColor(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   const currColor = object.style.color;
@@ -159,14 +159,14 @@ export function undoEleBorderColor(
 
 export function undoSvgPathColor(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   return undoSvgStyle(action, ctx, "color", "stroke");
 }
 
 export function undoSvgPathFill(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ): ActionObject {
   return undoSvgStyle(action, ctx, "background", "fill");
 }
@@ -175,7 +175,7 @@ function undoSvgStyle(
   action: ActionObject,
   ctx: ReactDrawContext,
   dataKey: keyof ToolPropertiesMap,
-  svgKey: string
+  svgKey: string,
 ) {
   const object = getObjectFromMap(ctx.objectsMap, action.objectId);
   const currColor = object.style[dataKey];
@@ -192,7 +192,7 @@ function undoSvgStyle(
     throw new Error();
   }
   object.style[dataKey] = colorTo;
-  (<any>path.style)[svgKey] = colorTo;
+  (path.style as any)[svgKey] = colorTo;
   action.data = currColor;
   return action;
 }

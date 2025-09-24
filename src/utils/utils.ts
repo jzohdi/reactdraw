@@ -16,7 +16,7 @@ import { getZindexFromDiv } from "./readStyles";
 
 export function setStyles(div: HTMLElement, styles: PartialCSS): HTMLElement {
   for (const key in styles) {
-    (<any>div.style)[key] = styles[key];
+    (div.style as any)[key] = styles[key];
   }
   return div;
 }
@@ -64,7 +64,7 @@ export function deleteObjectAndNotify(objectId: string, ctx: ReactDrawContext) {
 
 export function getObjectFromMap(
   map: DrawingDataMap,
-  objectId: string
+  objectId: string,
 ): DrawingData {
   const object = map.get(objectId);
   if (!object) {
@@ -75,7 +75,7 @@ export function getObjectFromMap(
 
 export function getRelativePoint(
   point: Point,
-  container: HTMLDivElement | null
+  container: HTMLDivElement | null,
 ): Point {
   if (!container) {
     throw new Error("Container not set.");
@@ -114,7 +114,7 @@ export function getViewCenterPoint(ctx: ReactDrawContext): Point {
 
 export function makeSureArtifactsGone(
   query: string,
-  container: HTMLDivElement
+  container: HTMLDivElement,
 ): void {
   const objects = container.querySelectorAll(query);
   if (objects.length > 0) {
@@ -174,7 +174,7 @@ export function batchDelete(deleteIds: string[], ctx: ReactDrawContext): void {
 export function createNewObject(
   ctx: ReactDrawContext,
   point: Point,
-  toolId: string
+  toolId: string,
 ): DrawingData {
   const styles = { ...ctx.globalStyles };
   const currentMaxZindex = getCurrentHighestZIndex(ctx);
@@ -197,7 +197,7 @@ export function centerObject(
   ctx: ReactDrawContext,
   obj: DrawingData,
   w?: number,
-  h?: number
+  h?: number,
 ) {
   const viewContainer = ctx.viewContainer;
   const viewBox = viewContainer.getBoundingClientRect();
@@ -228,7 +228,7 @@ export function makeDeleteAction(ctx: ReactDrawContext) {
 
 export function collectObjectsForDeleteAction(
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ) {
   const data: string[] = action.data;
   if (!data || !Array.isArray(data)) {

@@ -1,0 +1,48 @@
+import { Meta, Canvas, Story, Subtitle } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Introduction" />
+
+# ReactDraw — Introduction
+
+A plugin-architecture drawing area for React. Fully customizable, pick the tools you need, or build your own tools.
+
+- Lightweight and modular
+- Customizable UI via styles/classNames
+- Extensible tools and serialization
+
+> Jump to the Playground to try everything: [Playground](?path=/story/reactdraw--playground)
+
+## Installation
+
+Install using `npm` or `yarn`
+
+```shell
+npm install @jzohdi/react-draw
+
+# or
+
+yarn add @jzohdi/react-draw
+```
+
+## Quickstart
+
+```tsx
+import { ReactDraw, freeDrawTool } from "@jzohdi/react-draw";
+
+export default function Minimal() {
+  return (
+    <ReactDraw
+      drawingTools={[freeDrawTool]}
+      actionTools={[]}
+      hideTopBar={true}
+      hideBottomBar={true}
+    />
+  );
+}
+```
+
+## Props
+
+<Subtitle>Key props on ReactDraw</Subtitle>
+
+See README for latest API and [Type Descriptions](?path=/story/docs-type-descriptions--page) for detailed types.

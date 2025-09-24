@@ -1,6 +1,8 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Drawing Tools" />
+<Meta title="Docs/Drawing Tools" />
+
+# Top Bar Tools (Drawing Tools)
 
 # Top Bar Tools (Drawing Tools)
 
@@ -45,7 +47,7 @@ The type definition of a drawing tool is described by the typescript below.
   </li>
 </ul>
 
-More of the types included in the <b>Type Descriptions</b> page.
+More of the types included in the <strong>Type Descriptions</strong> page.
 
 ```typescript
 type DrawingTools = {
@@ -85,28 +87,29 @@ type DrawingTools = {
 For example here is the free draw tool implementation.
 
 <p>
-  During <b>onDrawStart</b> the free draw tool creates a circle since there is
-  only a single <b>data.coords `Point`</b>. An svg element is created and then
-  appended a child to the object container. The object container is a <b>div</b>
-  element that is created for you at the correct position in the <b>
-    "viewContainer"
-  </b>
+  During <strong>onDrawStart</strong> the free draw tool creates a circle since
+  there is only a single <strong>data.coords `Point`</strong>. An svg element is
+  created and then appended a child to the object container. The object
+  container is a <strong>div</strong>
+  element that is created for you at the correct position in the <strong>"viewContainer"</strong>
+
 </p>
 <p>
-  During <b>onDrawing</b> the tool must expand the <b>"viewContainer" div</b> to
-  be the correct dimensions. Then a new svg is created based on the{" "}
-  <b>data.coords</b> information. It's important to note that the{" "}
-  <b>data.coords</b> points are <b>[x, y]</b> coordinates relative to the{" "}
-  <b>viewContainer</b>. Drawing in the top left corner of the drawing area will
-  be represented by <b>[0, 0]</b> and the bottom right corner is represented by{" "}
-  <b>[width, height]</b>.
+  During <strong>onDrawing</strong> the tool must expand the{" "}
+  <strong>"viewContainer" div</strong> to be the correct dimensions. Then a new
+  svg is created based on the <strong>data.coords</strong> information. It's
+  important to note that the <strong>data.coords</strong> points are{" "}
+  <strong>[x, y]</strong> coordinates relative to the{" "}
+  <strong>viewContainer</strong>. Drawing in the top left corner of the drawing
+  area will be represented by <strong>[0, 0]</strong> and the bottom right
+  corner is represented by <strong>[width, height]</strong>.
 </p>
 <p>
-  During <b>onDrawEnd</b> no more work needs to be done.
+  During <strong>onDrawEnd</strong> no more work needs to be done.
 </p>
 <p>
-  During <b>onResize</b> the div has been set to the correct dimensions for you
-  and so we need to take care of scaling the svg inside.
+  During <strong>onResize</strong> the div has been set to the correct
+  dimensions for you and so we need to take care of scaling the svg inside.
 </p>
 
 ```typescript
