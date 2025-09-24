@@ -86,6 +86,12 @@ export default {
         type: "object",
       },
     },
+    actionTools: {
+      type: { name: "object", required: true },
+      description:
+        "Bottom bar action tools (undo, redo, delete, duplicate, z-index).",
+      control: { type: "object" },
+    },
     layout: {
       options: Object.keys(layoutOptions),
       mapping: layoutOptions,
@@ -100,6 +106,58 @@ export default {
           AbsoluteLayout: "{ width: 500, height: 500 }",
         },
       },
+    },
+    hideTopBar: {
+      description: "Hide the top toolbar (drawing tools)",
+      control: { type: "boolean" },
+      defaultValue: false,
+    },
+    hideBottomBar: {
+      description: "Hide the bottom toolbar (actions + styles menu)",
+      control: { type: "boolean" },
+      defaultValue: false,
+    },
+    shouldKeepHistory: {
+      description: "Keep undo/redo history",
+      control: { type: "boolean" },
+      defaultValue: true,
+    },
+    shouldSelectAfterCreate: {
+      description: "Auto-select objects after creating them",
+      control: { type: "boolean" },
+      defaultValue: true,
+    },
+    isResponsive: {
+      description: "Resize objects when the container resizes",
+      control: { type: "boolean" },
+      defaultValue: false,
+    },
+    shouldCornerResizePreserveRatio: {
+      description: "Preserve aspect ratio when corner-resizing",
+      control: { type: "boolean" },
+      defaultValue: false,
+    },
+    id: {
+      description: "Unique id for the drawing area",
+      control: { type: "text" },
+      defaultValue: "main",
+    },
+    styleComponents: {
+      description:
+        "Style editors to display in the bottom menu (color, lineWidth, etc.)",
+      control: { type: "object" },
+    },
+    menuComponents: {
+      description: "Custom components to render in the bottom menu",
+      control: { type: "object" },
+    },
+    styles: {
+      description: "Inline style overrides for built-in UI elements",
+      control: { type: "object" },
+    },
+    classNames: {
+      description: "Class name overrides for built-in UI elements",
+      control: { type: "object" },
     },
   },
 };
@@ -200,11 +258,10 @@ FreeDrawOnly.parameters = {
 	drawingTools={[
 		freeDrawTool
 	]}
+	hideTopBar={true}
+	hideBottomBar={true}
 	shouldSelectAfterCreate={false}
-	hideTopBar: true,
-	hideBottomBar: true,
-	shouldSelectAfterCreate: false,
-	shouldKeepHistory: false,
+	shouldKeepHistory={false}
 />
 			`,
       language: "tsx",
@@ -621,7 +678,6 @@ function ControlFromExternalWrapper({ ...args }: any) {
           <button onClick={moveSelectedBack}>Move Selected Back</button>
           <button onClick={moveForward}>Move Selected Forward</button>
           <button onClick={handleDelete}>Delete Selected</button>
-					<button onClick={handleDelete}>Delete Selected</button>
           <button onClick={() => handleAddCustomText(true)}>
           {numSelected > 0 && (
             <div>
@@ -1043,4 +1099,26 @@ AllToolsPreserveAspectRatio.parameters = {
       type: "auto",
     },
   },
+};
+
+export const Playground = Template.bind({});
+
+Playground.args = {
+  drawingTools,
+  actionTools,
+  layout: "default",
+  hideTopBar: false,
+  hideBottomBar: false,
+  shouldKeepHistory: true,
+  shouldSelectAfterCreate: true,
+  isResponsive: false,
+  shouldCornerResizePreserveRatio: false,
+  styleComponents: {
+    color: { order: 3, component: ColorStyle },
+    background: { order: 4, component: BackgroundStyle },
+    lineWidth: { order: 1, component: LineWidthStyle },
+    opacity: { order: 0, component: OpacityStyle },
+    fontSize: { order: 2, component: FontSizeStyle },
+  },
+  menuComponents: [ClearAllButton],
 };

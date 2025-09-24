@@ -29,7 +29,6 @@ type RectBounds = {
 type DrawingContainer = {
   div: HTMLDivElement;
   id: string;
-  bounds: RectBounds;
 };
 ```
 
@@ -37,14 +36,13 @@ type DrawingContainer = {
 
 ```typescript
 type DrawingData = {
+  id: string;
+  containerDiv: HTMLDivElement;
   coords: Point[];
-  container: DrawingContainer;
   element: HTMLElement | SVGSVGElement | null;
-  style: {
-    lineWidth: number;
-    zIndex: number;
-  };
+  style: ToolPropertiesMap;
   toolId: string;
+  customData: Map<string, any>;
 };
 ```
 
@@ -55,7 +53,7 @@ type OnResizeContext = {
   viewContainer: HTMLDivElement;
   previousPoint: Point;
   newPoint: Point;
-  mode: SelectMode;
+  shouldPreserveAspectRatio: boolean;
 };
 ```
 
@@ -69,4 +67,18 @@ type SelectMode =
   | "resize-ne"
   | "resize-se"
   | "resize-sw";
+```
+
+## ToolPropertiesMap
+
+```typescript
+type ToolPropertiesMap = {
+  lineWidth: string;
+  zIndex: string;
+  color: string;
+  fontSize: string;
+  background: string;
+  opacity: string;
+  [id: string]: string;
+};
 ```
