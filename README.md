@@ -245,9 +245,9 @@ npm run add
 ISC — see the [License][1].
 
 [1]: https://github.com/jzohdi/reactdraw/blob/main/LICENSE
-[2]: https://jzohdi.github.io/reactdraw/?path=/story/introduction--page
-[3]: https://jzohdi.github.io/reactdraw/?path=/docs/reactdraw--free-draw-only
+[2]: https://jzohdi.github.io/reactdraw/?path=/docs/docs-introduction--docs
+[3]: https://jzohdi.github.io/reactdraw/?path=/story/reactdraw--free-draw-only
 [4]: https://storybook.js.org/
-[drawing-tools]: https://jzohdi.github.io/reactdraw/?path=/story/drawing-tools--page
-[serialization]: https://jzohdi.github.io/reactdraw/?path=/story/serialization-saving-loading--page
+[drawing-tools]: https://jzohdi.github.io/reactdraw/?path=/story/reactdraw--playground
+[serialization]: https://jzohdi.github.io/reactdraw/?path=/story/reactdraw--save-and-load-json
 [types]: https://github.com/jzohdi/reactdraw/blob/main/src/types.ts
