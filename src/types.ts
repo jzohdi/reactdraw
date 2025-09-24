@@ -1,22 +1,22 @@
 import { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import { MutableRefObject } from "react";
 import {
-  ERASE_TOOL_ID,
-  SELECT_TOOL_ID,
   ALERT_MESSAGE_DIALOG_CLASSES,
+  ARROW_TOOL_ID,
   BOTTOM_BAR_CONTAINER_CLASSES,
   BOTTOM_TOOL_BUTTON_CLASSES,
+  CIRCLE_TOOL_ID,
   CLEAR_ALL_BUTTON_CLASSES,
+  DIAMOND_TOOL_ID,
+  ERASE_TOOL_ID,
+  FREE_DRAW_TOOL_ID,
   MENU_BUTTON_CLASSES,
   MENU_CONTAINER_CLASSES,
-  TOOL_ICON_WRAPPER_CLASSES,
-  FREE_DRAW_TOOL_ID,
-  ARROW_TOOL_ID,
-  CIRCLE_TOOL_ID,
-  DIAMOND_TOOL_ID,
+  SELECT_TOOL_ID,
   SQUARE_TOOL_ID,
   STRAIGHT_LINE_TOOL_ID,
   TEXT_AREA_TOOL_ID,
+  TOOL_ICON_WRAPPER_CLASSES,
   TOP_BAR_CONTAINER_CLASSES,
 } from "./constants";
 import { StylesValue } from "./Styles/types";
@@ -99,11 +99,11 @@ export type ReactDrawContext = {
 export type UpdateStyleHandler = (
   data: DrawingData,
   value: string,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ) => ActionObject | undefined;
 export type UndoHandler = (
   action: ActionObject,
-  ctx: ReactDrawContext
+  ctx: ReactDrawContext,
 ) => ActionObject;
 export type ToolStylesMap = Map<string, ToolPropertiesMap>;
 export type StringObject = { [key: string]: string };
@@ -122,10 +122,10 @@ export type BaseTool = {
 };
 
 export function isDrawingTool(tool: BaseTool): tool is DrawingTools {
-  return (<DrawingTools>tool).onDrawStart !== undefined;
+  return (tool as DrawingTools).onDrawStart !== undefined;
 }
 export function isActionTool(tool: BaseTool): tool is ActionTools {
-  return (<ActionTools>tool).getDisplayMode !== undefined;
+  return (tool as ActionTools).getDisplayMode !== undefined;
 }
 /**
  * icon: the icon to be displayed in the top bar tools
@@ -228,7 +228,7 @@ export type MenuStyleTools = {
 export type BottomToolDisplayMap = Map<string, DisplayMode>;
 export type UpdateStyleFn = (
   key: keyof ToolPropertiesMap,
-  value: string
+  value: string,
 ) => (ActionObject | undefined)[];
 
 export type StyleComponentProps = {
@@ -297,8 +297,10 @@ export type CSSProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 >;
-export type ReactDrawProps = StylesProviderProps &
-  ReactDrawInnerProps & { style?: CSSProperties };
+export type ReactDrawProps =
+  & StylesProviderProps
+  & ReactDrawInnerProps
+  & { style?: CSSProperties };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =
@@ -329,7 +331,7 @@ export type IntermediateStringableObject = {
  * into another form which can be stringified and parsed later
  */
 export type SerializerFunction = (
-  obj: DrawingData
+  obj: DrawingData,
 ) => IntermediateStringableObject;
 
 export type Serializers = {
@@ -346,7 +348,7 @@ export type Serializers = {
 export type DeserializerFunction = (
   obj: IntermediateStringableObject,
   ctx: ReactDrawContext,
-  shouldAddToCanvas: boolean
+  shouldAddToCanvas: boolean,
 ) => DrawingData;
 
 export type Deserializers = {

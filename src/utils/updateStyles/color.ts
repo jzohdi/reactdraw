@@ -7,14 +7,14 @@ function updateSvgStyle(
   data: DrawingData,
   dataKey: keyof ToolPropertiesMap,
   svgKey: string,
-  value: string
+  value: string,
 ) {
   if (!value.match(colorRegex)) {
     return undefined;
   }
   const path = getInnerEleFromSvg(data);
   const currColor = data.style[dataKey];
-  (<any>path.style)[svgKey] = value;
+  (path.style as any)[svgKey] = value;
   //   console.log(path, svgKey, value);
   data.style[dataKey] = value;
   return actionObjToSave(data, dataKey as string, currColor);
@@ -22,20 +22,20 @@ function updateSvgStyle(
 
 export function updateSvgPathStroke(
   data: DrawingData,
-  value: string
+  value: string,
 ): ActionObject | undefined {
   return updateSvgStyle(data, "color", "stroke", value);
 }
 
 export function updateSvgPathFill(
   data: DrawingData,
-  value: string
+  value: string,
 ): ActionObject | undefined {
   return updateSvgStyle(data, "background", "fill", value);
 }
 export function updateEleBackgroundColor(
   data: DrawingData,
-  value: string
+  value: string,
 ): ActionObject | undefined {
   const { ele, action } = updateEleStyle(data, value, "background");
   if (!action) {
@@ -64,7 +64,7 @@ function updateEleStyle(data: DrawingData, value: string, key: string) {
 
 export function updateEleBorderColor(
   data: DrawingData,
-  value: string
+  value: string,
 ): ActionObject | undefined {
   const { ele, action } = updateEleStyle(data, value, "color");
   if (!action) {
@@ -80,7 +80,7 @@ export function borderFromStyles(styles: ToolPropertiesMap): string {
 
 export function updateTextColor(
   data: DrawingData,
-  value: string
+  value: string,
 ): ActionObject | undefined {
   return updateTextStyle(data, "color", "color", value);
 }
@@ -93,13 +93,13 @@ function updateTextStyle(
   data: DrawingData,
   dataKey: keyof ToolPropertiesMap,
   divKey: string,
-  value: string
+  value: string,
 ) {
   if (!value.match(colorRegex)) {
     return undefined;
   }
   const currColor = data.style[dataKey];
   data.style[dataKey] = value;
-  (<any>data.containerDiv.style)[divKey] = value;
+  (data.containerDiv.style as any)[divKey] = value;
   return actionObjToSave(data, dataKey as string, currColor);
 }
