@@ -73,6 +73,14 @@ import {
   ClearAllButton,
 } from "@jzohdi/react-draw";
 
+const styleComponents = {
+  color: { order: 3, component: ColorStyle },
+  background: { order: 4, component: BackgroundStyle },
+  lineWidth: { order: 1, component: LineWidthStyle },
+  opacity: { order: 0, component: OpacityStyle },
+  fontSize: { order: 2, component: FontSizeStyle },
+}
+
 export default function App() {
   return (
     <ReactDraw
@@ -95,13 +103,7 @@ export default function App() {
         bringForwardTool,
       ]}
       shouldSelectAfterCreate={true}
-      styleComponents={{
-        color: { order: 3, component: ColorStyle },
-        background: { order: 4, component: BackgroundStyle },
-        lineWidth: { order: 1, component: LineWidthStyle },
-        opacity: { order: 0, component: OpacityStyle },
-        fontSize: { order: 2, component: FontSizeStyle },
-      }}
+      styleComponents={styleComponents}
       menuComponents={[ClearAllButton]}
     >
       {/* Optional children overlay inside the drawing area */}
@@ -177,16 +179,18 @@ postition?: { view: "top" | "bottom"; order?: number };
 Use the `styles` and `classNames` props to customize built-in UI elements. The keys correspond to constants exported by the library (e.g., `toolIconWrapper`, `bottomToolButton`, `menuContainer`, etc.).
 
 ```tsx
+const styles = {
+  toolIconWrapper: { "&:hover": { backgroundColor: "#eee" } },
+  bottomToolButton: {
+    '&[data-disabled="false"]:hover': { backgroundColor: "#000" },
+    '&[data-disabled="false"]:hover > svg path': { fill: "#fff", stroke: "#fff" },
+  },
+}
+
 <ReactDraw
   drawingTools={[selectTool, freeDrawTool]}
   actionTools={[undoTool, redoTool]}
-  styles={{
-    toolIconWrapper: { "&:hover": { backgroundColor: "#eee" } },
-    bottomToolButton: {
-      '&[data-disabled="false"]:hover': { backgroundColor: "#000" },
-      '&[data-disabled="false"]:hover > svg path': { fill: "#fff", stroke: "#fff" },
-    },
-  }}
+  styles={styles}
 />
 ```
 
