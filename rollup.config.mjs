@@ -35,13 +35,15 @@ export default [
       // Only src/ is compiled and type-checked: the root tsconfig.json also covers the example
       // app, which has its own dependencies. Declarations come from the second config below
       // (so `declaration` and `declarationDir` are switched off here), and dist/ ships no JS
-      // source maps. tslib's helpers are bundled: the plugin resolves `tslib` itself, and only
-      // the peer dependencies (react, react-dom) are external.
+      // source maps. Rollup writes the files, so tsconfig's `outDir` is unset too (with it,
+      // TypeScript 6 asks for an explicit `rootDir`). tslib's helpers are bundled: the plugin
+      // resolves `tslib` itself, and only the peer dependencies (react, react-dom) are external.
       typescript({
         include: ["src/**/*"],
         declaration: false,
         declarationMap: false,
         declarationDir: undefined,
+        outDir: undefined,
         sourceMap: false,
       }),
       terser(),
