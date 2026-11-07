@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ReactDraw, selectTool, freeDrawTool, circleTool } from "../index";
 import type { ReactDrawContext, ReactDrawProps } from "../types";
 
@@ -10,7 +10,7 @@ const meta: Meta<typeof ReactDraw> = {
 export default meta;
 
 function Wrapper(args: ReactDrawProps) {
-  const contextGetterRef = useRef<() => ReactDrawContext>();
+  const contextGetterRef = useRef<() => ReactDrawContext>(undefined);
   const setContextGetter = (getCtx: () => ReactDrawContext) => {
     contextGetterRef.current = getCtx;
   };

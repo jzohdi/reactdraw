@@ -17,21 +17,27 @@ jobs:
   deploy:
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    # Job steps
+    # Job steps. Actions are pinned to full commit SHAs (version in the comment).
     steps:
-      # Manual Checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # Set up Node
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
-      #👇 Add Storybook build and deploy to GitHub Pages as a step in the workflow
-      - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      # Build Storybook into storybook-static/, then deploy it to GitHub Pages with
+      # GitHub's own Pages actions.
+      - name: Install dependencies
+        run: npm ci
+      - name: Build Storybook
+        run: npm run build-storybook
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          install_command: npm ci # default: npm ci
-          build_command: npm run build-storybook # default: npm run build-storybook
-          path: storybook-static # default: dist/storybook
-          checkout: false # default: true
+          path: storybook-static
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

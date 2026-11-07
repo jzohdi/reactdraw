@@ -42,7 +42,7 @@ const Home: NextPage = () => {
         </h1>
         <ReactDraw
           id="main"
-          topBarTools={[
+          drawingTools={[
             selectTool,
             freeDrawTool,
             squareTool,
@@ -53,7 +53,7 @@ const Home: NextPage = () => {
             arrowTool,
             eraseTool,
           ]}
-          bottomBarTools={[
+          actionTools={[
             undoTool,
             redoTool,
             trashTool,

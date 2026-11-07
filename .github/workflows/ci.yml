@@ -1,0 +1,67 @@
+name: CI
+
+# Checks every pull request the way a release and a Pages deploy build it:
+# tests, the library build and its package contents, and the Storybook build.
+# The example app is checked on its own, against the react-draw on npm.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to full commit SHAs (version in the comment).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install dependencies
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build the library
+        run: npm run build
+      # Lists what `npm publish` would ship, and fails if the files that
+      # package.json's main, module and types point to aren't in it.
+      - name: Check the package contents
+        run: |
+          npm pack --dry-run --json | node -e '
+            const pkg = require("./package.json");
+            const files = JSON.parse(require("fs").readFileSync(0, "utf8"))[0].files.map((f) => f.path);
+            console.log(files.join("\n"));
+            const missing = [pkg.main, pkg.module, pkg.types].filter((f) => !files.includes(f));
+            if (missing.length) { console.error("missing from the package:", missing.join(", ")); process.exit(1); }
+          '
+      - name: Build Storybook
+        run: npm run build-storybook
+
+  example:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/nextjs-typescript
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build

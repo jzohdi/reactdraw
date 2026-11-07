@@ -1,4 +1,9 @@
-import React, { DetailedHTMLProps, HTMLAttributes, forwardRef } from "react";
+import React, {
+  DetailedHTMLProps,
+  HTMLAttributes,
+  ReactElement,
+  forwardRef,
+} from "react";
 import Container from "./Container";
 import { LayoutOption, ReactChild, ReactDrawProps } from "../types";
 import { Children } from "react";
@@ -10,7 +15,7 @@ export default forwardRef<HTMLDivElement, ReactDrawProps>(
   function ReactDrawWrapper(
     { children, styles, style, classNames, ...props },
     ref
-  ): JSX.Element {
+  ): ReactElement<any, any> {
     const { layout } = validateProps(children, props.layout);
 
     return (

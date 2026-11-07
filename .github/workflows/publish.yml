@@ -1,0 +1,78 @@
+name: Publish to npm
+
+# Publishes @jzohdi/react-draw when a v* tag is pushed. To release, run
+# `npm run push` from a clean main: it bumps the patch version, commits, tags
+# v<version> and pushes the commit and the tag. Merging a PR never publishes.
+#
+# Uses npm trusted publishing (OIDC): no npm token is stored anywhere, and npm
+# attaches provenance automatically. One-time setup on npmjs.com: the package's
+# Settings -> Trusted publishing -> GitHub Actions, with owner jzohdi,
+# repository reactdraw, workflow publish.yml and environment npm.
+#
+# The job runs in the `npm` environment. Protect it (required reviewer, and
+# deployment tags v*) so a pushed tag waits for approval before it publishes.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing (OIDC)
+    steps:
+      # Actions are pinned to full commit SHAs (version in the comment).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          # No dependency cache in a publishing job.
+          package-manager-cache: false
+
+      - name: Check the tag matches package.json's version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::tag $TAG doesn't match package.json's version $version (expected v$version)"
+            exit 1
+          fi
+
+      # Trusted publishing requires npm >= 11.5.1. Node 24 bundles a newer npm,
+      # so use it as is rather than installing an unpinned npm@latest.
+      - name: Check npm supports trusted publishing
+        run: |
+          npm --version
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            if (!ok) { console.error("npm >= 11.5.1 is required for trusted publishing"); process.exit(1); }
+          ' "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish

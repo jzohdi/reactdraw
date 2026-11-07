@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   circleTool,
   squareTool,
@@ -232,7 +232,7 @@ const imageTool: DrawingTools = {
 };
 
 function ExternalControlsWrapper(args: ReactDrawProps) {
-  const contextGetterRef = useRef<() => ReactDrawContext>();
+  const contextGetterRef = useRef<() => ReactDrawContext>(undefined);
   const [numSelected, setNumSelected] = useState(0);
 
   const setContextGetter = (getCtx: () => ReactDrawContext) => {

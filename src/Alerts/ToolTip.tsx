@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { ReactElement, useEffect, useRef } from "react";
 // import { ReactChild } from "../types";
 import { useAlerts } from "./hooks";
 
@@ -15,7 +15,7 @@ export default function ToolTip({
   text,
   position,
   disabled,
-}: ToolTipProps): JSX.Element {
+}: ToolTipProps): ReactElement<any, any> {
   const [state, setState] = useAlerts();
 
   if (!children) {
