@@ -32,18 +32,20 @@ export default [
       }),
       external(),
       resolve({ extensions: [".js", ".ts"] }),
-      // Only src/ is compiled and type-checked: the root tsconfig.json also covers the example
-      // app, which has its own dependencies. Declarations come from the second config below
-      // (so `declaration` and `declarationDir` are switched off here), and dist/ ships no JS
-      // source maps. Rollup writes the files, so tsconfig's `outDir` is unset too (with it,
-      // TypeScript 6 asks for an explicit `rootDir`). tslib's helpers are bundled: the plugin
-      // resolves `tslib` itself, and only the peer dependencies (react, react-dom) are external.
+      // tslib's helpers are bundled: the plugin resolves `tslib` itself, and only the peer
+      // dependencies (react, react-dom) are external.
       typescript({
+        // The root tsconfig.json also covers the example app, which has its own dependencies.
         include: ["src/**/*"],
+        // Fail the build on a type error. Without it the plugin only warns.
+        noEmitOnError: true,
+        // Declarations come from the second config below.
         declaration: false,
         declarationMap: false,
         declarationDir: undefined,
+        // Rollup writes the files (with `outDir`, TypeScript 6 asks for an explicit `rootDir`).
         outDir: undefined,
+        // dist/ ships no JS source maps.
         sourceMap: false,
       }),
       terser(),
