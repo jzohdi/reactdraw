@@ -1,15 +1,12 @@
-import { createRequire } from "node:module";
 import { babel } from "@rollup/plugin-babel";
 import external from "rollup-plugin-peer-deps-external";
 import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
-
-// rollup-plugin-ts (deprecated, kept for now) is loaded through its CommonJS build: its ES module
-// build imports browserslist-generator's, which uses `import … assert { type: "json" }`, a syntax
-// Node 22 and later no longer parse.
-const typescript = createRequire(import.meta.url)("rollup-plugin-ts");
+import typescript from "@rollup/plugin-typescript";
+import { dts } from "rollup-plugin-dts";
 
 export default [
+  // The JavaScript: one CommonJS and one ES module bundle.
   {
     input: "./src/index.ts",
     output: [
@@ -35,12 +32,28 @@ export default [
       }),
       external(),
       resolve({ extensions: [".js", ".ts"] }),
+      // Only src/ is compiled and type-checked: the root tsconfig.json also covers the example
+      // app, which has its own dependencies. Declarations come from the second config below
+      // (so `declaration` and `declarationDir` are switched off here), and dist/ ships no JS
+      // source maps. tslib's helpers are bundled: the plugin resolves `tslib` itself, and only
+      // the peer dependencies (react, react-dom) are external.
       typescript({
-        sourceMap: true,
-        declaration: true,
-        declarationMap: true,
+        include: ["src/**/*"],
+        declaration: false,
+        declarationMap: false,
+        declarationDir: undefined,
+        sourceMap: false,
       }),
       terser(),
     ],
+  },
+  // The declarations, bundled into one file per JS entry, each with its declaration map.
+  {
+    input: "./src/index.ts",
+    output: [
+      { file: "dist/index.d.ts", format: "es", sourcemap: true },
+      { file: "dist/index.esm.d.ts", format: "es", sourcemap: true },
+    ],
+    plugins: [dts({ sourcemap: true })],
   },
 ];
