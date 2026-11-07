@@ -2,6 +2,10 @@
   "name": "@jzohdi/react-draw",
   "version": "0.9.33",
   "description": "A plugin architecture react library for adding drawing ability in the browser.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jzohdi/reactdraw.git"
+  },
   "files": [
     "dist/**",
     "README.md",
@@ -14,7 +18,7 @@
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"moduleResolution\": \"node10\" }' mocha --timeout 60000 --exit",
     "build": "rm -rf ./dist && rollup -c",
     "add": "npm run build && npm run build-storybook && git add -A",
-    "push": "npm version patch && git push",
+    "push": "npm version patch && git push --follow-tags",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
