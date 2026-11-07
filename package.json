@@ -18,7 +18,7 @@
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"moduleResolution\": \"node10\" }' mocha --timeout 60000 --exit",
     "build": "rm -rf ./dist && rollup -c",
     "add": "npm run build && npm run build-storybook && git add -A",
-    "push": "npm version patch && git push --follow-tags",
+    "push": "npm version patch && git push --atomic --follow-tags",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
