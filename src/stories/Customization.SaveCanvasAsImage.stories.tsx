@@ -10,7 +10,7 @@ const meta: Meta<typeof ReactDraw> = {
 export default meta;
 
 function Wrapper(args: ReactDrawProps) {
-  const contextGetterRef = useRef<() => ReactDrawContext>();
+  const contextGetterRef = useRef<() => ReactDrawContext>(undefined);
   const setContextGetter = (getCtx: () => ReactDrawContext) => {
     contextGetterRef.current = getCtx;
   };

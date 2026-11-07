@@ -232,7 +232,7 @@ const imageTool: DrawingTools = {
 };
 
 function ExternalControlsWrapper(args: ReactDrawProps) {
-  const contextGetterRef = useRef<() => ReactDrawContext>();
+  const contextGetterRef = useRef<() => ReactDrawContext>(undefined);
   const [numSelected, setNumSelected] = useState(0);
 
   const setContextGetter = (getCtx: () => ReactDrawContext) => {
