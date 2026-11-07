@@ -1,0 +1,33 @@
+name: CI
+
+# Checks every pull request the way a release and a Pages deploy build it:
+# tests, the library build and its packed file list, and the Storybook build.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to full commit SHAs (version in the comment).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install dependencies
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build the library
+        run: npm run build
+      - name: List the packed files
+        run: npm pack --dry-run
+      - name: Build Storybook
+        run: npm run build-storybook
