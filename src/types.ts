@@ -310,7 +310,7 @@ export type CSSProps = DetailedHTMLProps<
 export type ReactDrawProps =
   & StylesProviderProps
   & ReactDrawInnerProps
-  & { style?: CSSProperties };
+  & { style?: CSSProperties | undefined };
 
 export type PartialCSS = Partial<CSSStyleDeclaration>;
 export type SelectMode =
