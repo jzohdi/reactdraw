@@ -1,4 +1,9 @@
-import { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
+import {
+  CSSProperties,
+  DetailedHTMLProps,
+  HTMLAttributes,
+  ReactElement,
+} from "react";
 import { MutableRefObject } from "react";
 import {
   ALERT_MESSAGE_DIALOG_CLASSES,
@@ -22,7 +27,10 @@ import {
 import { StylesValue } from "./Styles/types";
 import { BoxSize } from "./utils";
 
-export type ReactChild = React.ReactNode | React.ReactElement | JSX.Element;
+export type ReactChild =
+  | React.ReactNode
+  | React.ReactElement
+  | ReactElement<any, any>;
 export type LayoutAbsolute = {
   width: number | string;
   height: number | string;
@@ -112,7 +120,7 @@ export type ViewPosition = "top" | "bottom";
 export type BaseTool = {
   id: string;
   tooltip?: string;
-  icon?: JSX.Element;
+  icon?: ReactElement<any, any>;
   postition?: {
     order?: number;
     view: ViewPosition;
@@ -220,7 +228,7 @@ type StyleToolComponentProps = {
 };
 
 export type MenuStyleTools = {
-  [key: string]: (props: StyleToolComponentProps) => JSX.Element;
+  [key: string]: (props: StyleToolComponentProps) => ReactElement<any, any>;
 };
 
 // export type
@@ -236,7 +244,9 @@ export type StyleComponentProps = {
   styleKey: string;
   styleValue: string;
 };
-export type StyleComponent = (props: StyleComponentProps) => JSX.Element;
+export type StyleComponent = (
+  props: StyleComponentProps
+) => ReactElement<any, any>;
 export type StyleComponents = {
   [key: keyof ToolPropertiesMap]: {
     order: number;
@@ -246,7 +256,7 @@ export type StyleComponents = {
 
 export type MenuComponent = (props: {
   getContext: () => ReactDrawContext;
-}) => JSX.Element;
+}) => ReactElement<any, any>;
 
 export type ReactDrawInnerProps = {
   children?: ReactChild;

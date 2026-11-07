@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TopToolBar } from "./TopToolBar";
 import {
   ActionObject,
@@ -80,7 +86,7 @@ export default function ReactDraw({
   menuComponents = [],
 	onLoad,
 	contextGetter,
-}: ReactDrawInnerProps): JSX.Element {
+}: ReactDrawInnerProps): ReactElement<any, any> {
   const drawingAreaRef = useRef<HTMLDivElement>(null);
   const [currentDrawingTool, setCurrentDrawingTool] = useState(drawingTools[0]);
   const renderedElementsMap = useRef<DrawingDataMap>(new Map());

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { ReactChild } from "../types";
 import { useStyles } from "../Styles/hooks";
 import { TOOL_ICON_WRAPPER_CLASSES } from "../constants";
@@ -13,7 +13,7 @@ export default function ToolIconWrapper({
   children,
   selected,
   onSelect,
-}: ToolIconWrapper): JSX.Element {
+}: ToolIconWrapper): ReactElement<any, any> {
   const classes = useStyles(TOOL_ICON_WRAPPER_CLASSES);
   return (
     <button data-selected={selected} className={classes} onClick={onSelect}>

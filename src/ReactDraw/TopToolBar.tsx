@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import ToolIconWrapper from "./ToolIconWrapper";
 import ToolTip from "../Alerts/ToolTip";
 import { useStyles } from "../Styles/hooks";
@@ -12,7 +12,7 @@ import {
 } from "../types";
 
 type TopBarTool = {
-  icon?: JSX.Element;
+  icon?: ReactElement<any, any>;
   id: string;
   tooltip?: string;
 };
