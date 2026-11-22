@@ -102,7 +102,7 @@ const selectTool: DrawingTools = {
   },
   onKeyPress(event, ctx) {
     const keyPressed = event.key;
-    const shouldDeleteSelected = keyPressed === "Delete";
+    const shouldDeleteSelected = keyPressed === "Delete" || keyPressed === "Backspace";
     if (!shouldDeleteSelected) {
       return;
     }
