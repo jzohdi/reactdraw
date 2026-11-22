@@ -71,6 +71,18 @@ function makeToolsList(drawingTools: DrawingTools[], actionTools: ActionTools[],
 	})
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  return (
+    target.isContentEditable ||
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  );
+}
+
 export default function ReactDraw({
   children,
   id = "main",
@@ -190,6 +202,9 @@ export default function ReactDraw({
   };
 
   function alertToolOfKeydown(e: KeyboardEvent) {
+    if (e.defaultPrevented || isEditableTarget(e.target)) {
+      return;
+    }
     if (currentDrawingTool.onKeyPress) {
       currentDrawingTool.onKeyPress(e, getReactDrawContext());
       updateBottomToolDisplayMap();
