@@ -250,7 +250,7 @@ export function setupTextAreaDiv(data: DrawingData, ctx: ReactDrawContext) {
   div.appendChild(cursorDiv);
   setBoundsFromDiv(div, bounds);
 
-  cursorDiv.setAttribute("tabindex", "1");
+  cursorDiv.setAttribute("tabindex", "0");
   addCaptureHandler(data, ctx);
 
   setTimeout(function () {
