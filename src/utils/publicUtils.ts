@@ -105,7 +105,7 @@ export function createText(
     textWrapper.contentEditable = "false";
     return newDrawingData;
   }
-  textWrapper.setAttribute("tabindex", "1");
+  textWrapper.setAttribute("tabindex", "0");
   textWrapper.contentEditable = "true";
   if (toolId === textAreaTool.id) {
     addCaptureHandler(newDrawingData, ctx);
